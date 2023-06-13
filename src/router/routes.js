@@ -1,10 +1,16 @@
-import Home from '../views/Home.vue'
+import Layout from '../views/Layout.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: Home
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'home',
+        component: () => import('../views/Home.vue'),
+      },
+    ]
   },
   {
     path: '/login',
@@ -17,6 +23,6 @@ const routes = [
     name: 'live',
     component: () => import('../views/Live.vue'),
     meta: {no_login: true},
-  }
+  },
 ]
 export default routes
