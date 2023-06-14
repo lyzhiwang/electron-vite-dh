@@ -59,7 +59,7 @@ onBeforeMount(()=>{
 
 <style lang="scss" scoped>
 .layout{
-    width: 100vw;
+    width: 1440px;
     height: 100vh;
     background-color: #191919;
     overflow: hidden;
