@@ -52,3 +52,13 @@ export function mergeArr(arr, arr1, key){
 export function transAmt(amt, len){
   return parseFloat((amt).toFixed(len))
 }
+
+// buffer转ArrayBuffer
+export function toArrayBuffer(buf) {
+  var ab = new ArrayBuffer(buf.length);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+  }
+  return ab;
+}

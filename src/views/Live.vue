@@ -8,6 +8,7 @@
 
 <script setup>
 import { ipcRenderer } from 'electron'
+import { runOnce } from '../utils/voice'
 const live = ref()
 const welcome = ref()
 const soundUrl = ref('')
@@ -28,6 +29,7 @@ onMounted(()=>{
     welcome.value.autoplay = true
     welcome.value.play()
   })
+  // setInterval(()=>runOnce('欢迎智网网络进入直播间'), 3000)
 })
 
 function welcomeEnd(){

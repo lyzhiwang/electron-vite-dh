@@ -88,5 +88,23 @@ onBeforeMount(()=>{
             height: calc(100vh - 56px);
         }
     }
+    .v-enter-active,
+    .v-leave-active {
+    transition: opacity 0.5s ease;
+    }
+
+    .v-enter-from,
+    .v-leave-to {
+    opacity: 0;
+    }
+    .v-leave-to {
+    display: none;
+    }
+    .bounce-enter-active {
+    animation: bounce-in 0.5s;
+    }
+    .bounce-leave-active {
+    animation: bounce-in 0.5s reverse;
+    }
 }
 </style>

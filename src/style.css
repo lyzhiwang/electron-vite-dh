@@ -31,12 +31,14 @@ a:hover {
 }
 
 body {
+  background-color: #191919;
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 1366px;
   min-height: 100vh;
   overflow: hidden;
+  font-family: 'Microsoft YaHei, Microsoft YaHei-Regular';
   --el-border-color: transparent;
 }
 button{
@@ -47,7 +49,12 @@ button{
   min-width: 1366px;
   margin: 0 auto;
 }
-
+.page{
+  color: #cccccc;
+  background-color: var(--el-bg-color);
+  min-height: 100px;
+  padding: 20px;
+}
 .between {
   display: flex;
   justify-content: space-between;

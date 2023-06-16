@@ -11,21 +11,12 @@
         <div class="block RecentProject">
             <h1 class="between">
                 <span>最近项目</span>
-                <span>查看全部</span>
+                <router-link to="/project" class="viewAll">查看全部</router-link>
             </h1>
-            <el-row :gutter="20">
+            <!-- <el-row :gutter="20"><el-col :span="8" v-for="item in 3"></el-col></el-row> -->
+            <el-row class="list">
                 <el-col :span="8" v-for="item in 3">
-                    <div class="project center">
-                        <p class="status">已合成</p>
-                        <el-image src="" class="pic"/>
-                        <p class="title">智网网络-直播-测试</p>
-                        <p class="time">2023-5-30</p>
-                        <div class="btnGroup center">
-                            <el-button color="#333333">预览</el-button>
-                            <el-button color="#333333">互动设置</el-button>
-                            <el-button color="#333333">开始直播</el-button>
-                        </div>
-                    </div>
+                    <ProjectCard/>
                 </el-col>
             </el-row>
             <el-divider class="placeholder"/>
@@ -35,7 +26,7 @@
                     <span class="label">项目名称：</span>
                     <el-input v-model="projectName" placeholder="请先输入项目名称" />
                 </div>
-                <el-button type="primary" class="creatBtn">新建项目</el-button>
+                <el-button type="primary" class="creatBtn" @click="createNewPro">新建项目</el-button>
             </div>
         </div>
     </div>
@@ -88,13 +79,33 @@
 
 <script setup>
 import { Edit, Avatar, Microphone, VideoPlay } from '@element-plus/icons-vue'
+import { useUserStore } from '../../stores'
+import { useRouter } from 'vue-router'
+import { runOnce } from '../../utils/voice'
+
+const user = useUserStore()
+const router = useRouter()
 const projectName = ref('')
 const drawer = ref(false)
 function opneDrawer(){
     drawer.value = true
 }
 function handleCommand(command){
-    ElMessage(`click on item ${command}`)
+    switch (command) {
+        case 'changePwd':
+            
+            break;
+        case 'exit':
+            user.logOut()
+            router.replace('/login')
+            break;
+    }
+    // ElMessage(`click on item ${command}`)
+}
+function createNewPro(){
+    // setInterval(()=>runOnce('欢迎智网网络进入直播间'), 3000)
+    runOnce('欢迎智网网络进入直播间')
+    // ipcRenderer.send('open-win', {path: 'live', width: 375, height: 670})
 }
 </script>
 
@@ -124,51 +135,20 @@ function handleCommand(command){
         padding: 20px;
         min-height: 524px;
         margin-top: 11px;
+        .viewAll{
+            color: #ccc;
+        }
+        .list{
+            margin: 0 -10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
     }
     h1{
         font-size: 16px;
         color: #ccc;
         margin-bottom: 18px;
-    }
-    .project{
-        // width: 285px;
-        height: 336px;
-        background: #1a1a1a;
-        position: relative;
-        flex-direction: column;
-        .status{
-            font-size: 16px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-        .pic{
-            width: 122px;
-            height: 217px;
-            background: #000000;
-        }
-        .title{
-            margin: 9px 0;
-            font-size: 20px;
-            line-height: 20px;
-        }
-        .time{
-            font-size: 16px;
-            line-height: 14px;
-        }
-        .btnGroup{
-            width: 100%;
-            padding: 15px 0;
-        }
-        button{
-            min-width: 65px;
-            height: 30px;
-            font-size: 14px;
-            color: #ccc;
-        }
-        .el-button+.el-button {
-            margin-left: 10px;
-        }
     }
     .userinfo{
         height: 492px;
