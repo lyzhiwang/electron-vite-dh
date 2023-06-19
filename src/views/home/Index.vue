@@ -72,7 +72,13 @@
     </div>
     <!-- 右侧侧滑抽屉 -->
     <el-drawer v-model="drawer" title="I am the title" :with-header="false">
-        
+        <div class="balanceDetail">
+            <p class="detailTit">语音消耗明细</p>
+            <div class="item" v-for="item in 8">
+                <p class="vcenter"><span class="name">智网网络测试直播4</span><span class="used">消耗10次</span></p>
+                <p class="vcenter"><span class="date">2023-6-06 18:00 -21:00</span><span class="times">剩余60次</span></p>
+            </div>
+        </div>
     </el-drawer>
 </div>
 </template>
@@ -87,6 +93,7 @@ const user = useUserStore()
 const router = useRouter()
 const projectName = ref('')
 const drawer = ref(false)
+const detailType = ref(1) // 1 语音明细 2视频合成明细
 function opneDrawer(){
     drawer.value = true
 }
@@ -237,6 +244,35 @@ function createNewPro(){
     }
     .placeholder{
         border-top-color: #999;
+    }
+    :deep(.el-drawer__body){
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .balanceDetail{
+        color: #fff;
+        .detailTit{
+            margin-top: 60px;
+            font-size: 24px;
+            padding-left: 20px;
+        }
+        .item{
+            width: 100%;
+            height: 90px;
+            border-bottom: 1px solid #4B4B4B;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            font-size: 16px;
+            .vcenter{
+                justify-content: space-between;
+            }
+            .date{
+                color: #ccc;
+                font-size: 14px;
+            }
+        }
     }
 }
 </style>
