@@ -70,15 +70,40 @@
             <p>添加客服微信进行咨询</p>
         </div>
     </div>
+    <!-- 修改密码弹窗 -->
+    <el-dialog
+        v-model="popup.changePwd"
+        title="修改密码"
+        width="677"
+        destroy-on-close
+        align-center
+        center
+    >
+        <el-form ref="changePwdRef" class="pwdForm" label-width="100" status-icon scroll-to-error>
+            <el-form-item prop="username" label="初始密码">
+                <el-input type="password" v-model.trim="form.pldPwd" placeholder="请输入初始密码" show-password></el-input>
+            </el-form-item>
+            <el-form-item prop="username" label="新密码">
+                <el-input type="password" v-model.trim="form.newPwd" placeholder="请输入新密码" show-password></el-input>
+            </el-form-item>
+            <el-form-item prop="username" label="确认密码">
+                <el-input type="password" v-model.trim="form.confirmPwd" placeholder="请输入确认密码" show-password></el-input>
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button type="primary" @click="changePwdSubmit(changePwdRef)">确定修改</el-button>
+            <el-button @click="popup.changePwd = false">取消修改</el-button>
+        </template>
+    </el-dialog>
     <!-- 右侧侧滑抽屉 -->
-    <el-drawer v-model="drawer" title="I am the title" :with-header="false">
-        <div class="balanceDetail">
+    <el-drawer v-model="popup.drawer" title="I am the title" :with-header="false">
+        <el-scrollbar wrap-class="balanceDetail">
             <p class="detailTit">语音消耗明细</p>
-            <div class="item" v-for="item in 8">
+            <div class="item" v-for="item in 20">
                 <p class="vcenter"><span class="name">智网网络测试直播4</span><span class="used">消耗10次</span></p>
                 <p class="vcenter"><span class="date">2023-6-06 18:00 -21:00</span><span class="times">剩余60次</span></p>
             </div>
-        </div>
+        </el-scrollbar>
     </el-drawer>
 </div>
 </template>
@@ -89,18 +114,27 @@ import { useUserStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { runOnce } from '../../utils/voice'
 
+const changePwdRef = ref()
 const user = useUserStore()
 const router = useRouter()
 const projectName = ref('')
-const drawer = ref(false)
 const detailType = ref(1) // 1 语音明细 2视频合成明细
+const popup = reactive({
+    drawer: false, // 右侧抽屉
+    changePwd: false, // 更改密码
+})
+const form = reactive({
+    pldPwd: '',
+    newPwd: '',
+    confirmPwd: '',
+})
 function opneDrawer(){
-    drawer.value = true
+    popup.drawer = true
 }
 function handleCommand(command){
     switch (command) {
         case 'changePwd':
-            
+            popup.changePwd = true
             break;
         case 'exit':
             user.logOut()
@@ -113,6 +147,20 @@ function createNewPro(){
     // setInterval(()=>runOnce('欢迎智网网络进入直播间'), 3000)
     runOnce('欢迎智网网络进入直播间')
     // ipcRenderer.send('open-win', {path: 'live', width: 375, height: 670})
+}
+async function changePwdSubmit(formEl){
+    if (!formEl) return
+	await formEl.validate((valid, fields) => {
+		if (valid) {
+			changePwd({oldPassword: form.oldPwd, newPassword: form.newPwd}).then(() => {
+				ElMessageBox.alert(t('success2'), '', {type: 'success'})
+                user.logOut()
+				router.replace('/login')
+			})
+		} else {
+			console.log('error submit!', fields)
+		}
+	})
 }
 </script>
 
@@ -250,11 +298,11 @@ function createNewPro(){
         padding-right: 0;
     }
     .balanceDetail{
-        color: #fff;
         .detailTit{
-            margin-top: 60px;
+            margin-top: 40px;
             font-size: 24px;
             padding-left: 20px;
+            color: #fff;
         }
         .item{
             width: 100%;
@@ -265,6 +313,7 @@ function createNewPro(){
             justify-content: space-between;
             padding: 20px;
             font-size: 16px;
+            color: #fff;
             .vcenter{
                 justify-content: space-between;
             }
@@ -272,6 +321,14 @@ function createNewPro(){
                 color: #ccc;
                 font-size: 14px;
             }
+        }
+    }
+    .pwdForm{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        :deep(.el-form-item__content){
+            width: 300px!important;
         }
     }
 }
