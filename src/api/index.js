@@ -4,7 +4,7 @@ import request from '../utils/request'
 export function login(data) {
 	return request({
 		loading: true,
-		url: '/login',
+		url: '/user/login',
 		method: 'post',
 		data
 	})
@@ -13,7 +13,7 @@ export function login(data) {
 // userinfo
 export function getUserInfo(params) {
 	return request({
-		url: '/water/user',
+		url: '/user/info',
 		method: 'get',
 		params
 	})

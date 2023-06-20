@@ -20,6 +20,11 @@ const routes = [
         name: 'preview',
         component: () => import('../views/home/Preview.vue'),
       },
+      {
+        path: 'creatlive',
+        name: 'creatlive',
+        component: () => import('../views/home/CreateLive.vue'),
+      },
     ]
   },
   {

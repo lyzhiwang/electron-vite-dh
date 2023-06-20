@@ -32,6 +32,7 @@
 import { User, Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores'
+import { login } from '../api'
 
 const router = useRouter()
 const user = useUserStore()
@@ -52,22 +53,21 @@ const rules = reactive({
 })
 // 提交表单
 const submitForm = async (formEl) => {
-//   if (!formEl) return
-//   await formEl.validate((valid, fields) => {
-//     if (valid) {
-//       login(form).then(res => {
-//         // 登录成功
-//         loginSuccess(res.data)
-//       })
-//     } else {
-//       console.log('error submit!', fields)
-//     }
-//   })
-    loginSuccess({token: 11111, user: {}})
+    if (!formEl) return
+    await formEl.validate((valid, fields) => {
+        if (valid) {
+            login(form).then(res => {
+              // 登录成功
+              loginSuccess(res.data)
+              // loginSuccess({token: 11111, user: {}})
+            })
+        } else {
+            console.log('error submit!', fields)
+        }
+    })
 }
 const loginSuccess = (data) => {
     user.setUserToken(data.token)
-    user.setUserInfo(data.user)
     router.push('/')
 }
 </script>
@@ -85,6 +85,7 @@ const loginSuccess = (data) => {
     display: flex;
     justify-content: center;
     align-items: center;
+    --el-text-color-regular: #666;
     .boxCenter{
       width: 1078px;
       height: 340px;

@@ -2,7 +2,7 @@
 
 // 秒转成时分秒
 export function getTime(time) {
-    // 转换为式分秒
+    // 转换为时分秒
     let h = parseInt(time / 60 / 60 % 24)
     h = h < 10 ? '0' + h : h   // 也可使用padStart()补0
     let m = parseInt(time / 60 % 60)

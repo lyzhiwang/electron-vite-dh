@@ -18,14 +18,6 @@
                     <el-icon><icon-menu /></el-icon>
                     <span>首页</span>
                 </el-menu-item>
-                <el-menu-item index="3">
-                    <el-icon><document /></el-icon>
-                    <span>直播配置</span>
-                </el-menu-item>
-                <el-menu-item index="4">
-                    <el-icon><setting /></el-icon>
-                    <span>直播间</span>
-                </el-menu-item>
             </el-menu>
         </el-aside>
         <!-- 视图容器 -->

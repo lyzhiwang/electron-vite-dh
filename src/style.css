@@ -41,6 +41,10 @@ body {
   font-family: 'Microsoft YaHei, Microsoft YaHei-Regular';
   --el-border-color: transparent;
 }
+ul{
+  list-style: none;
+  padding: 0;
+}
 button{
   outline: none;
   border: 0;

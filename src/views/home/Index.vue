@@ -30,11 +30,12 @@
             </div>
         </div>
     </div>
+    <!-- 用户信息 -->
     <div class="right" :span="4">
         <div class="block userinfo">
             <div class="box nickName vcenter">
                 <el-avatar class="avatar"><Avatar /></el-avatar>
-                <span class="name ell">用户名</span>
+                <span class="name ell">{{ user.info.username }}</span>
                 <el-dropdown  @command="handleCommand">
                     <el-icon class="editName"><Edit /></el-icon>
                     <template #dropdown>
@@ -46,12 +47,12 @@
                 </el-dropdown>
             </div>
            <div class="box limitBox">
-                <p class="label">系统到期时长：</p>
-                <p class="val">132小时52分10秒</p>
+                <p class="label">系统到期时间：</p>
+                <p class="val">{{ user.info.end_time }}</p>
                 <p class="label">语音合成剩余次数：</p>
-                <p class="val">66次</p>
+                <p class="val">{{ user.info.voice_number }}次</p>
                 <p class="label">视频合成可用时长：</p>
-                <p class="val">132小时52分10秒</p>
+                <p class="val">{{ hms }}</p>
            </div>
            <div class="viewDetail">
                 <el-button color="#191919" class="detailBtn" @click="opneDrawer">
@@ -80,13 +81,13 @@
         center
     >
         <el-form ref="changePwdRef" class="pwdForm" label-width="100" status-icon scroll-to-error>
-            <el-form-item prop="username" label="初始密码">
+            <el-form-item prop="pldPwd" label="初始密码">
                 <el-input type="password" v-model.trim="form.pldPwd" placeholder="请输入初始密码" show-password></el-input>
             </el-form-item>
-            <el-form-item prop="username" label="新密码">
+            <el-form-item prop="newPwd" label="新密码">
                 <el-input type="password" v-model.trim="form.newPwd" placeholder="请输入新密码" show-password></el-input>
             </el-form-item>
-            <el-form-item prop="username" label="确认密码">
+            <el-form-item prop="confirmPwd" label="确认密码">
                 <el-input type="password" v-model.trim="form.confirmPwd" placeholder="请输入确认密码" show-password></el-input>
             </el-form-item>
         </el-form>
@@ -112,6 +113,7 @@
 import { Edit, Avatar, Microphone, VideoPlay } from '@element-plus/icons-vue'
 import { useUserStore } from '../../stores'
 import { useRouter } from 'vue-router'
+import { getTime } from '../../utils/helper'
 import { runOnce } from '../../utils/voice'
 
 const changePwdRef = ref()
@@ -127,6 +129,10 @@ const form = reactive({
     pldPwd: '',
     newPwd: '',
     confirmPwd: '',
+})
+const hms = computed(()=>{
+    const [h, m, s] = getTime(user.info.duration)
+    return `${h}时${m}分${s}秒`
 })
 function opneDrawer(){
     popup.drawer = true
@@ -144,8 +150,10 @@ function handleCommand(command){
     // ElMessage(`click on item ${command}`)
 }
 function createNewPro(){
+    if(!projectName.value) return ElMessageBox.alert('请输入项目名称')
+    router.push('/creatlive?pn='+projectName.value)
     // setInterval(()=>runOnce('欢迎智网网络进入直播间'), 3000)
-    runOnce('欢迎智网网络进入直播间')
+    // runOnce('欢迎智网网络进入直播间')
     // ipcRenderer.send('open-win', {path: 'live', width: 375, height: 670})
 }
 async function changePwdSubmit(formEl){
@@ -162,6 +170,9 @@ async function changePwdSubmit(formEl){
 		}
 	})
 }
+onBeforeMount(()=>{
+    user.getUserInfo()
+})
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,4 @@
 import axios from 'axios'
-// import ElMessage from './singleMsg'
 import { useUserStore } from '../stores'
 import router from '../router'
 // import md5 from 'js-md5'
@@ -8,7 +7,7 @@ import router from '../router'
 axios.defaults.retry = 2
 axios.defaults.retryDelay = 1000
 // http://192.168.3.244:5001
-const baseURL = (process.env.NODE_ENV === "development") ? "/api" : `https://adminsix.dpj0413.xyz`;
+const baseURL = (process.env.NODE_ENV === "development") ? "http://szr.zwstk.cn/api" : `https://adminsix.dpj0413.xyz`;
 // 创建axios实例
 const service = axios.create({
     baseURL, // api 的 base_url
@@ -17,7 +16,8 @@ const service = axios.create({
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': true,
+        'type': 2,
+        'oemid': 2,
     }
 })
 
@@ -26,7 +26,7 @@ let loading = null
 service.interceptors.request.use(
     config => {
         if (config.loading) {
-            // loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(255, 255, 255, 0.6)' })
+            loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(255, 255, 255, 0.6)' })
         }
         const userStore = useUserStore()
         if (userStore.token) {
@@ -43,7 +43,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
     response => {
         if (response.config.loading) {
-            // loading.close()
+            loading.close()
         }
         const res = response.data
         if (res) {
@@ -52,7 +52,7 @@ service.interceptors.response.use(
             } else {
                 // 先提示错误信息
                 if (res.message) {
-                    // ElMessage({ type: 'warning', message: res.message, offset: 100 })
+                    ElMessage({ type: 'warning', message: res.message, offset: 100 })
                 }
                 /**
                  * '700003' => '认证失败',
@@ -61,9 +61,10 @@ service.interceptors.response.use(
                 const userStore = useUserStore()
                 switch (res.code) {
                     case 700003: // 刷新用户 token
-                        // userStore.$reset()
+                        userStore.$reset()
+                        router.replace('/login')
                         break;
-                    case -3: // 登录超时，退出登录状态
+                    case 700004: // 登录超时，退出登录状态
                         userStore.logOut()
                         router.replace('/login')
                         break;
@@ -89,7 +90,7 @@ service.interceptors.response.use(
         }
         const response = error.response || { status: 400 }
         const status = response.status
-        // ElMessage({ type: 'error', message:  resposeCode[status], offset: 100 })
+        ElMessage({ type: 'error', message:  resposeCode[status], offset: 100 })
         return Promise.reject(error)
     }
 )
