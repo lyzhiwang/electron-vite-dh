@@ -1,44 +1,89 @@
 <template>
 <div class="createPage">
     <div class="fixedHead vcenter">
-        <el-input v-model="projectName" placeholder="素材名称" class="partName"/>
+        <el-input v-model="form.footages[partAct].name" placeholder="素材名称" class="partName" v-if="form.footages[partAct]"/>
+        <el-input v-model="part.name" placeholder="素材名称" class="partName" v-else/>
         <el-button link class="save" @click="saveToDrafts"><el-icon class="cgxIcon"><Collection /></el-icon>保存到草稿箱</el-button>
-        <el-button color="#333" class="">横板</el-button>
-        <el-button color="#333" class="">竖版</el-button>
-        <el-button type="primary" round class="CreateLive" @click="createLive">创建直播</el-button>
+        <button :class="['banBtn',{'act': part.screen==1}]" @click="setHs(1)">竖版</button>
+        <button :class="['banBtn',{'act': part.screen==2}]" @click="setHs(2)">横板</button>
+        <el-button type="primary" round class="CreateLive" @click="crtCfmPop = true">创建直播</el-button>
     </div>
     <div class="leftArea">
         <p class="h3">选择形象</p>
         <ul class="pList">
-            <li v-for="item in 5"><el-image src="" class="person"/></li>
+            <el-image 
+                v-for="item in dpList" 
+                :key="item.id" 
+                :src="item.image" 
+                :class="['person',{'checked': part.human_id==item.human_id }]" 
+                loading="lazy" 
+                @click="selectHuman(item.human_id, item.image)"
+            />
         </ul>
     </div>
     <div class="rightArea">
-        <!-- {{ projectName }} -->
-        <div class="topCon">
-            <el-image src="" class="dpview"/>
+        <div class="topCon center">
+            <div class="dpBox">
+                <el-image :src="currentImg" :class="part.screen==1?'vertical':'horizontal'" fit="contain"/>
+            </div>
         </div>
         <div class="botCon">
+            <!-- 操作片段区 -->
             <div class="btnGroup vcenter">
-                <el-icon class="btnIcon"><CopyDocument /></el-icon>
-                <el-icon class="btnIcon"><DeleteFilled /></el-icon>
-                <el-upload
+                <el-tooltip
+                    effect="dark"
+                    content="复制选中素材"
+                    placement="top"
+                >
+                    <el-icon class="btnIcon" @click="copyPart"><CopyDocument /></el-icon>
+                </el-tooltip>
+                <el-tooltip
+                    effect="dark"
+                    content="删除选中素材"
+                    placement="top"
+                >
+                    <el-icon class="btnIcon" @click="delePart"><DeleteFilled /></el-icon>
+                </el-tooltip>
+                <!-- <el-upload
                     class="upload-voice center"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                    :limit="3"
+                    action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
+                    data=""
+                    :limit="1"
+                    :before-upload="beforeUpload"
                     :on-exceed="handleExceed"
                     :on-success="voiceSuccess"
                 >
+                </el-upload> -->
+                <Upload 
+                    :beforeUpload="beforeUpload" 
+                    :uploadSuccess="uploadSuccess"
+                    :showFileList="false" 
+                    class="upload-voice center"
+                >
                     <el-button color="#333" class="upload">
                         <el-icon class="insertIcon"><CirclePlusFilled /></el-icon>
-                        上传录音
+                        <span v-if="form.footages[partAct]&&form.footages[partAct].audio_id">修改录音</span>
+                        <span v-else>上传录音</span>
                     </el-button>
-                </el-upload>
+                </Upload>
             </div>
+            <!-- 片段列表区 -->
             <el-scrollbar class="scrollview">
                 <ul class="partList">
-                    <li :class="['item',{'act': item===act}]" v-for="item in 3"><el-image class="img" src=""/></li>
-                    <li class="item center create">
+                    <li 
+                        :class="['item',{'act': i===partAct}]" 
+                        v-for="(item, i) in form.footages"
+                        :key="i"
+                        @click="selectPart(i)"
+                    >
+                        <el-image class="img center" :src="item.image" loading="lazy" fit="contain">
+                            <template #error>
+                                <el-icon class="errorIcon"><Picture /></el-icon>
+                            </template>
+                        </el-image>
+                        <div class="status center" v-if="i===partAct">编辑中</div>
+                    </li>
+                    <li class="item center create" @click="createPart">
                         <el-icon class="insertIcon"><DocumentAdd /></el-icon>
                         <p>新建素材</p>
                     </li>
@@ -55,9 +100,10 @@
         align-center
         center
     >
-        <p style="text-align: center">预计消耗合成时长1分钟（以实际合成时长为准），预计创建等待时间4分钟，确认后开始创建</p>
+        <!-- 预计创建等待时间4分钟， -->
+        <p style="text-align: center">预计消耗合成时长1分钟（以实际合成时长为准），确认后开始创建</p>
         <template #footer>
-            <el-button type="primary" @click="changePwdSubmit(changePwdRef)">确定创建</el-button>
+            <el-button type="primary" @click="createLive">确定创建</el-button>
             <el-button @click="crtCfmPop = false">取消创建</el-button>
         </template>
     </el-dialog>
@@ -65,30 +111,120 @@
 </template>
 
 <script setup>
-import { CopyDocument, DeleteFilled, CirclePlusFilled, DocumentAdd, Collection } from '@element-plus/icons-vue'
+import { CopyDocument, DeleteFilled, CirclePlusFilled, DocumentAdd, Collection, Picture } from '@element-plus/icons-vue'
+import { humanList, createProJect } from '../../api'
 import { useRoute } from 'vue-router'
-const route = useRoute()
-const projectName = ref('')
-const act = ref(1)
-const crtCfmPop = ref(false)
-const form = reactive({
+import { clone, remove } from 'lodash-es'
+import { computed } from 'vue';
 
+const route = useRoute()
+const partAct = ref(null) // 选中的片段下标
+const crtCfmPop = ref(false)
+const dpList = ref([]) 
+const form = reactive({
+    name: '', // 项目名称
+    footages: [], // 片段集合
 })
+const part = reactive({
+    name: '',
+    image: '',
+    human_id: null,
+    audio_id: null,
+    screen: 1,
+})
+const currentImg = computed(()=>form.footages[partAct.value]&&form.footages[partAct.value].image)
+
 onBeforeMount(()=>{
-    console.log(111, route.query.pn)
-    projectName.value = route.query.pn
+    form.name = route.query.pn
+    humanList().then(res=>{
+        if(res&&res.data){
+            dpList.value = res.data
+        }
+    })
 })
+function partInit(){
+    part.name = ''
+    part.image = ''
+    part.human_id = null
+    part.audio_id = null
+}
+function setHs(num){ // 设置横竖屏
+    part.screen = num
+    if(form.footages.length > 0){
+        form.footages = form.footages.map(item=>{
+            return {...item, screen: num}
+        })
+    }
+}
+function selectHuman(id, image){ // 选择数字人
+    part.human_id = id
+    part.image = image
+    if(form.footages.length>0 && partAct.value!==null){
+        form.footages[partAct.value].human_id = id
+        form.footages[partAct.value].image = image
+    }
+}
+function selectPart(i){ // 选择片段
+    partAct.value = i
+    // 重置选择的数字人
+    partInit()
+}
+function createPart(){ // 创建片段
+    if(part.human_id){
+        const temp = clone(toRaw(part))
+        form.footages.push(temp)
+    }else{
+        form.footages.push({
+            name: '',
+            image: '',
+            human_id: null,
+            audio_id: null,
+            screen: part.screen,
+        })
+    }
+}
+function copyPart(){ // 复制片段
+    if(partAct.value === null) return ElMessage({ type: 'warning', message: '复制前请先选择一个素材' })
+    const targetPart = clone(form.footages[partAct.value])
+    form.footages.push(targetPart)
+}
+function delePart(){ // 删除片段
+    if(partAct.value === null) return ElMessage({ type: 'warning', message: '删除前请先选择一个素材' })
+    remove(form.footages,(item, index) => index==partAct.value)
+    partAct.value = null // 重置
+    partInit()
+}
 function saveToDrafts(){
     ElMessage({ type: 'success', message: '已保存' })
+}
+function beforeUpload(){
+    if(partAct.value === null){
+        ElMessage({ type: 'warning', message: '请先选择一个素材,再上传录音！' })
+        return false
+    }
 }
 function handleExceed(){
     // 超出上传限制时的钩子函数
 }
-function voiceSuccess(){
-
+function uploadSuccess(res, file){
+    console.log(333, res)
+    const audio_id = res.data.id
+    // 上传成功设置音频ID
+    part.audio_id = audio_id
+    if(form.footages.length>0 && partAct.value!==null){
+        form.footages[partAct.value].audio_id = audio_id
+    }
+    ElMessage({ type: 'success', message: '上传录音成功！' })
 }
 function createLive(){
-    crtCfmPop.value = true
+    console.log(1111, form)
+    // 1.先获取音频时长
+    // 2.保存到草稿箱（草稿箱的作用？）
+    // 3.根据项目ID生成视频
+    // createProJect(form).then(res=>{
+    //     if(res&&res.data){
+    //     }
+    // })
 }
 </script>
 
@@ -122,10 +258,21 @@ function createLive(){
         .save{
             margin: 0 35px;
         }
+        .banBtn{
+            width: 60px;
+            height: 28px;
+            background: #333;
+            border-radius: 4px;
+            margin: 0 10px;
+            font-size: 14px;
+            &.act{
+                background: #666!important;
+            }
+        }
     }
     .leftArea{
         width: 295px;
-        height: 824px;
+        min-height: 824px;
         background: #282828;
         padding: 14px 20px;
         margin-right: 11px;
@@ -133,16 +280,25 @@ function createLive(){
             font-size: 14px;
         }
         .pList{
-            display: flex;
-            flex-wrap: wrap;
+            // display: flex;
+            // flex-wrap: wrap;
             margin: 20px -5px 0;
+            column-width: 122px;
+            column-count: auto;
+            column-gap: 10px;
         }
         .person{
             display: block;
-            width: 122px;
-            height: 217px;
             background: #1e1e1e;
-            margin: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            // width: 122px;
+            // height: 217px;
+            // margin: 10px 5px;
+            &.checked{
+                border: 1px solid #1182fb;
+                border-radius: 4px;
+            }
         }
     }
     .rightArea{
@@ -177,9 +333,18 @@ function createLive(){
                 margin-right: 4px;
             }
         }
-        .dpview{
-            width: 865px;
+        .dpBox{
+            background-color: #000;
             height: 567px;
+            display: flex;
+            align-items: flex-end;
+            .horizontal{
+                width: 865px;
+                height: 567px;
+            }
+            .vertical{
+                width: 325px;
+            }
         }
     }
     .scrollview{
@@ -191,6 +356,7 @@ function createLive(){
         padding: 20px 0;
         box-sizing: border-box;
         .item{
+            position: relative;
             min-width: 192px;
             width: 192px;
             height: 108px;
@@ -211,6 +377,20 @@ function createLive(){
         .img{
             width: 100%;
             height: 100%;
+            display: flex!important;
+        }
+        .status{
+            width: 188px;
+            height: 40px;
+            background-color: rgba(0,0,0,0.50);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 14px;
+        }
+        .errorIcon{
+            font-size: 20px;
+            color: #fff;
         }
     }
 }

@@ -1,9 +1,11 @@
 <template>
-<router-view v-slot="{ Component }">
-    <Transition>
-        <component :is="Component" />
-    </Transition>
-</router-view>
+<el-config-provider :message="{max: 1}">
+  <router-view v-slot="{ Component }">
+      <Transition>
+          <component :is="Component" />
+      </Transition>
+  </router-view>
+</el-config-provider>
 </template>
 
 <script setup>
