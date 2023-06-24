@@ -13,18 +13,18 @@
                 <span>最近项目</span>
                 <router-link to="/project" class="viewAll">查看全部</router-link>
             </h1>
-            <!-- <el-row :gutter="20"><el-col :span="8" v-for="item in 3"></el-col></el-row> -->
             <el-row class="list">
-                <el-col :span="8" v-for="item in 3">
-                    <ProjectCard/>
+                <el-col :span="8" v-for="item in projct.list">
+                    <ProjectCard :data="item" :key="item.id"/>
                 </el-col>
+                <el-empty description="暂无数据" v-if="projct.list.length==0" class="noData"/>
             </el-row>
             <el-divider class="placeholder"/>
             <div class="bottom">
-                <span>共: 11个项目</span>
+                <span>共: {{ projct.list.length }}个项目</span>
                 <div class="vcenter">
                     <span class="label">项目名称：</span>
-                    <el-input v-model="projectName" placeholder="请先输入项目名称" />
+                    <el-input v-model.trim="projectName" placeholder="请先输入项目名称" />
                 </div>
                 <el-button type="primary" class="creatBtn" @click="createNewPro">新建项目</el-button>
             </div>
@@ -111,13 +111,14 @@
 
 <script setup>
 import { Edit, Avatar, Microphone, VideoPlay } from '@element-plus/icons-vue'
-import { useUserStore } from '../../stores'
+import { useUserStore, useProjectStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
 import { runOnce } from '../../utils/voice'
 
 const changePwdRef = ref()
 const user = useUserStore()
+const projct = useProjectStore()
 const router = useRouter()
 const projectName = ref('')
 const detailType = ref(1) // 1 语音明细 2视频合成明细
@@ -172,6 +173,7 @@ async function changePwdSubmit(formEl){
 }
 onBeforeMount(()=>{
     user.getUserInfo()
+    projct.getList({page: 1, size: 3})
 })
 </script>
 
@@ -208,7 +210,14 @@ onBeforeMount(()=>{
             margin: 0 -10px;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            // justify-content: space-between;
+        }
+        .noData{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
     h1{

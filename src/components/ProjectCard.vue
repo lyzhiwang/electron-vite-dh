@@ -1,15 +1,20 @@
 <template>
     <div class="project center">
-        <p class="status">已合成</p>
-        <el-image src="" class="pic"/>
-        <p class="title">智网网络-直播-测试</p>
-        <p class="time">2023-5-30</p>
-        <div class="btnGroup center">
+        <p class="status">{{ transCode(data.status) }}</p>
+        <div class="picBox"><el-image :src="data.cover" class="pic" fit="contain"/></div>
+        <p class="title ell">{{ data.name }}</p>
+        <p class="time">{{ data.created_at }}</p>
+        <div class="btnGroup center" v-if="data.status===1">
+            <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
+            <el-button color="#333333">删除</el-button>
+        </div>
+        <div class="btnGroup center" v-else-if="data.status===3">
             <el-button color="#333333" @click="router.push('/preview')">预览</el-button>
             <el-button color="#333333">互动设置</el-button>
             <el-button color="#333333" @click="openLiveWin">打开直播</el-button>
             <!-- <el-button color="#333333" @click="playLive">开播</el-button> -->
         </div>
+        <div class="btnGroup center" v-else></div>
     </div>
     <!-- 直播窗口打开前的互动配置 -->
     <el-dialog
@@ -40,6 +45,14 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
+
+const props = defineProps({
+    data: {
+        type: Object,
+        require: true,
+    },
+})
+
 const router = useRouter()
 const cfgPop = ref(false)
 const checkedArr = ref(['1', '2'])
@@ -56,6 +69,16 @@ function openLiveWin(){
 function playLive(){
     ipcRenderer.send('play-live')
 }
+function transCode(code){
+    switch (code) {
+        case 1:
+            return '编辑中'
+        case 2:
+            return '合成中'
+        case 3:
+            return '已合成'
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -66,6 +89,7 @@ function playLive(){
     position: relative;
     flex-direction: column;
     margin: 0 5px 10px;
+    padding: 0 5px;
     color: #ccc;
     .status{
         font-size: 16px;
@@ -73,15 +97,21 @@ function playLive(){
         top: 10px;
         left: 10px;
     }
-    .pic{
+    .picBox{
         width: 122px;
         height: 217px;
-        background: #000000;
+        background-color: #000;
+        display: flex;
+        align-items: flex-end;
+    }
+    .pic{
+        width: 122px;
     }
     .title{
         margin: 9px 0;
         font-size: 20px;
         line-height: 20px;
+        max-width: 100%;
     }
     .time{
         font-size: 16px;
@@ -90,6 +120,7 @@ function playLive(){
     .btnGroup{
         width: 100%;
         padding: 15px 0;
+        min-height: 60px;
     }
     button{
         min-width: 65px;

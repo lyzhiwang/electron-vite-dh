@@ -26,7 +26,7 @@ let loading = null
 service.interceptors.request.use(
     config => {
         if (config.loading) {
-            loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(255, 255, 255, 0.6)' })
+            loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(255, 255, 255, 0)' })
         }
         const userStore = useUserStore()
         if (userStore.token) {

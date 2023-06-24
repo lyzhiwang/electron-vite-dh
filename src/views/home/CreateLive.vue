@@ -1,12 +1,12 @@
 <template>
 <div class="createPage">
     <div class="fixedHead vcenter">
-        <el-input v-model="form.footages[partAct].name" placeholder="素材名称" class="partName" v-if="form.footages[partAct]"/>
-        <el-input v-model="part.name" placeholder="素材名称" class="partName" v-else/>
-        <el-button link class="save" @click="saveToDrafts"><el-icon class="cgxIcon"><Collection /></el-icon>保存到草稿箱</el-button>
+        <el-input v-model.trim="form.footages[partAct].name" placeholder="素材名称" class="partName" v-if="form.footages[partAct]"/>
+        <el-input v-model.trim="part.name" placeholder="素材名称" class="partName" v-else/>
+        <el-button link class="save" @click="saveToTemp"><el-icon class="cgxIcon"><Collection /></el-icon>保存到草稿箱</el-button>
         <button :class="['banBtn',{'act': part.screen==1}]" @click="setHs(1)">竖版</button>
         <button :class="['banBtn',{'act': part.screen==2}]" @click="setHs(2)">横板</button>
-        <el-button type="primary" round class="CreateLive" @click="crtCfmPop = true">创建直播</el-button>
+        <el-button type="primary" round class="CreateLive" @click="startCfmCrate">创建直播</el-button>
     </div>
     <div class="leftArea">
         <p class="h3">选择形象</p>
@@ -101,7 +101,7 @@
         center
     >
         <!-- 预计创建等待时间4分钟， -->
-        <p style="text-align: center">预计消耗合成时长1分钟（以实际合成时长为准），确认后开始创建</p>
+        <p style="text-align: center">预计消耗合成时长{{usedTime}}秒（以实际合成时长为准），确认后开始创建</p>
         <template #footer>
             <el-button type="primary" @click="createLive">确定创建</el-button>
             <el-button @click="crtCfmPop = false">取消创建</el-button>
@@ -112,14 +112,15 @@
 
 <script setup>
 import { CopyDocument, DeleteFilled, CirclePlusFilled, DocumentAdd, Collection, Picture } from '@element-plus/icons-vue'
-import { humanList, createProJect } from '../../api'
-import { useRoute } from 'vue-router'
+import { humanList, createProJect, updateProJect, projectDetail, compositeVideo, videoNeedTime } from '../../api'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { clone, remove } from 'lodash-es'
-import { computed } from 'vue';
 
 const route = useRoute()
+const router = useRouter()
 const partAct = ref(null) // 选中的片段下标
 const crtCfmPop = ref(false)
+const usedTime = ref('') // 生成视频预计消耗时长
 const dpList = ref([]) 
 const form = reactive({
     name: '', // 项目名称
@@ -133,15 +134,52 @@ const part = reactive({
     screen: 1,
 })
 const currentImg = computed(()=>form.footages[partAct.value]&&form.footages[partAct.value].image)
-
+let project_id = null // 项目ID
 onBeforeMount(()=>{
-    form.name = route.query.pn
-    humanList().then(res=>{
-        if(res&&res.data){
-            dpList.value = res.data
-        }
-    })
+    const { pn, pid} = route.query
+    if(pid){ // 编辑
+        project_id = pid // 同步项目ID
+        Promise.all([
+            new Promise((resolve, reject) => {
+                projectDetail(pid).then(res=>resolve(res.data)).catch(()=>resolve(null))
+            }),
+            getHumanList(),
+        ]).then(res=>{
+            const data = res[0]
+            if(data){
+                const { name, footages } = data
+                form.name = name
+                form.footages = footages.map(item=>{
+                    const findObj = dpList.value.find(dp=>dp.human_id===item.human_id)
+                    if(findObj){
+                        item.image = findObj.image
+                    }
+                    return item
+                })
+                const first = form.footages[0]
+                if(first){
+                    partAct.value = 0
+                    part.screen = first.screen
+                }
+            }
+        })
+    }else{ // 新建
+        form.name = pn
+        getHumanList()
+    }
 })
+// onBeforeRouteLeave(async()=>{ // 离开页面前保存草稿箱
+//     const flag = await saveToTemp()
+//     if (!flag) return false
+// })
+async function getHumanList(){
+    const res = await humanList()
+    if(res && res.data){
+        dpList.value = res.data
+        return res.data
+    }
+    return false
+}
 function partInit(){
     part.name = ''
     part.image = ''
@@ -194,9 +232,6 @@ function delePart(){ // 删除片段
     partAct.value = null // 重置
     partInit()
 }
-function saveToDrafts(){
-    ElMessage({ type: 'success', message: '已保存' })
-}
 function beforeUpload(){
     if(partAct.value === null){
         ElMessage({ type: 'warning', message: '请先选择一个素材,再上传录音！' })
@@ -216,15 +251,41 @@ function uploadSuccess(res, file){
     }
     ElMessage({ type: 'success', message: '上传录音成功！' })
 }
-function createLive(){
-    console.log(1111, form)
-    // 1.先获取音频时长
-    // 2.保存到草稿箱（草稿箱的作用？）
-    // 3.根据项目ID生成视频
-    // createProJect(form).then(res=>{
-    //     if(res&&res.data){
-    //     }
-    // })
+function startCfmCrate(){ // 1.先获取音频时长
+    const footages = form.footages.map(item=>item.audio_id)
+    videoNeedTime({footages}).then(res=>{
+        if(res&&res.data){
+            usedTime.value = res.data.duration
+            crtCfmPop.value = true
+        }
+    })
+}
+async function saveToTemp(){ // 2.保存到草稿箱
+    try {
+        const res = (project_id === null) ? await createProJect(form) : await updateProJect(project_id, form)
+        if(res && res.data){
+            if(project_id === null)  project_id = res.data.id;
+            ElMessage({ type: 'success', message: '保存到草稿箱成功' })
+        }
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+async function createLive(){
+    try {
+        // 2.保存到草稿箱
+        await saveToTemp();
+        // 3.根据项目ID生成视频
+        const res = await compositeVideo({project_id});
+        if(res && res.data){
+            ElMessage({ type: 'success', message: '创建直播成功！' })
+            router.back()
+        }
+    } catch (error) {
+        console.log(error)
+    }
 }
 </script>
 
@@ -334,7 +395,7 @@ function createLive(){
             }
         }
         .dpBox{
-            background-color: #000;
+            background-color: #1e1e1e;
             height: 567px;
             display: flex;
             align-items: flex-end;
