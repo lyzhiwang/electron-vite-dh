@@ -12,7 +12,7 @@ export const useProjectStore = defineStore('project', {
                 if(res&&res.data){
                     this.list = res.data;
                 }
-                return res
+                return res.meta
             } catch (error) {
                 throw error
             }

@@ -10,6 +10,16 @@ export function login(data) {
 	})
 }
 
+// change password
+export function changePwd(data) {
+	return request({
+		loading: true,
+		url: '/reset/password',
+		method: 'patch',
+		data
+	})
+}
+
 // userinfo
 export function getUserInfo(params) {
 	return request({
@@ -90,6 +100,24 @@ export function videoNeedTime(params){
 	return request({
 		loading: true,
 		url: '/project/duration',
+		method: 'get',
+		params
+	})
+}
+
+// 视频记录
+export function videoRecord(params){
+	return request({
+		url: '/video/record',
+		method: 'get',
+		params
+	})
+}
+
+// 语音记录
+export function voiceRecord(params){
+	return request({
+		url: '/voice/record',
 		method: 'get',
 		params
 	})

@@ -12,6 +12,16 @@
             <ProjectCard :data="item" :key="item.id"/>
         </el-col>
     </div>
+    <div class="layout_right">
+        <el-pagination 
+            background 
+            layout="prev, pager, next" 
+            :total="total" 
+            :page-size="size" 
+            :current-page="page"
+            @current-change="queryList"
+        />
+    </div>
 </div>
 </template>
 
@@ -22,11 +32,23 @@ import { useRouter } from 'vue-router'
 const projct = useProjectStore()
 const router = useRouter()
 const projectName = ref('')
+const total = ref(0)
+const page = ref(1)
+const size = 23
 
 function createNewPro(){
     if(!projectName.value) return ElMessageBox.alert('请输入项目名称')
     router.push('/creatlive?pn='+projectName.value)
 }
+function queryList(p){
+    if(p) page.value = p
+    projct.getList({page: page.value, size}).then(meta=>{
+        if(meta){
+            total.value = meta.total
+        }
+    })
+}
+onBeforeMount(queryList)
 </script>
 
 <style lang="scss" scoped>
@@ -58,6 +80,11 @@ function createNewPro(){
             font-weight: bold;
             font-size: 20px;
         }
+    }
+    .layout_right{
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
     }
 }
 </style>

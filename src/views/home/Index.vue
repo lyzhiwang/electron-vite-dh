@@ -14,14 +14,14 @@
                 <router-link to="/project" class="viewAll">查看全部</router-link>
             </h1>
             <el-row class="list">
-                <el-col :span="8" v-for="item in projct.list">
+                <el-col :span="8" v-for="item in proList">
                     <ProjectCard :data="item" :key="item.id"/>
                 </el-col>
-                <el-empty description="暂无数据" v-if="projct.list.length==0" class="noData"/>
+                <el-empty description="暂无数据" v-if="proList.length==0" class="noData"/>
             </el-row>
             <el-divider class="placeholder"/>
             <div class="bottom">
-                <span>共: {{ projct.list.length }}个项目</span>
+                <span>共: {{ listTotal }}个项目</span>
                 <div class="vcenter">
                     <span class="label">项目名称：</span>
                     <el-input v-model.trim="projectName" placeholder="请先输入项目名称" />
@@ -55,11 +55,11 @@
                 <p class="val">{{ hms }}</p>
            </div>
            <div class="viewDetail">
-                <el-button color="#191919" class="detailBtn" @click="opneDrawer">
+                <el-button color="#191919" class="detailBtn" @click="opneDrawer(1)">
                     <el-icon class="btnIcon"><Microphone /></el-icon>
                     语音消耗明细
                 </el-button>
-                <el-button color="#191919" class="detailBtn" @click="opneDrawer">
+                <el-button color="#191919" class="detailBtn" @click="opneDrawer(2)">
                     <el-icon class="btnIcon"><VideoPlay /></el-icon>
                     视频消耗明细
                 </el-button>
@@ -80,9 +80,9 @@
         align-center
         center
     >
-        <el-form ref="changePwdRef" class="pwdForm" label-width="100" status-icon scroll-to-error>
-            <el-form-item prop="pldPwd" label="初始密码">
-                <el-input type="password" v-model.trim="form.pldPwd" placeholder="请输入初始密码" show-password></el-input>
+        <el-form :model="form" :rules="rules" ref="changePwdRef" class="pwdForm" label-width="100" status-icon scroll-to-error>
+            <el-form-item prop="oldPwd" label="初始密码">
+                <el-input type="password" v-model.trim="form.oldPwd" placeholder="请输入初始密码" show-password></el-input>
             </el-form-item>
             <el-form-item prop="newPwd" label="新密码">
                 <el-input type="password" v-model.trim="form.newPwd" placeholder="请输入新密码" show-password></el-input>
@@ -98,13 +98,8 @@
     </el-dialog>
     <!-- 右侧侧滑抽屉 -->
     <el-drawer v-model="popup.drawer" title="I am the title" :with-header="false">
-        <el-scrollbar wrap-class="balanceDetail">
-            <p class="detailTit">语音消耗明细</p>
-            <div class="item" v-for="item in 20">
-                <p class="vcenter"><span class="name">智网网络测试直播4</span><span class="used">消耗10次</span></p>
-                <p class="vcenter"><span class="date">2023-6-06 18:00 -21:00</span><span class="times">剩余60次</span></p>
-            </div>
-        </el-scrollbar>
+        <VoiceDetail v-if="popup.detailType===1"/>
+        <VideoDetail v-else />
     </el-drawer>
 </div>
 </template>
@@ -115,6 +110,7 @@ import { useUserStore, useProjectStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
 import { runOnce } from '../../utils/voice'
+import { changePwd } from '../../api'
 
 const changePwdRef = ref()
 const user = useUserStore()
@@ -122,21 +118,52 @@ const projct = useProjectStore()
 const router = useRouter()
 const projectName = ref('')
 const detailType = ref(1) // 1 语音明细 2视频合成明细
+const listTotal = ref(0) // 项目总个数
 const popup = reactive({
     drawer: false, // 右侧抽屉
     changePwd: false, // 更改密码
+    detailType: 1, // 1语音 2视频 
 })
 const form = reactive({
-    pldPwd: '',
+    oldPwd: '',
     newPwd: '',
     confirmPwd: '',
+})
+const noTypePwd = '请输入您的密码'
+const trigger = ['blur', 'change']
+const validatePass = (rule, value, callback) => {
+    if (value === form.oldPwd) {
+        callback(new Error('您填写的新旧密码一样'))
+    } else {
+        callback()
+    }
+}
+const validateCfmPass = (rule, value, callback) => {
+    if (value !== form.newPwd) {
+        callback(new Error('您填写的确认密码和新密码不一致'))
+    } else {
+        callback()
+    }
+}
+const rules = reactive({
+	oldPwd: [{ required: true, message: noTypePwd, trigger }],
+    newPwd: [
+        { required: true, message: noTypePwd, trigger },
+        { validator: validatePass, trigger },
+    ],
+    confirmPwd: [
+        { required: true, message: noTypePwd, trigger },
+        { validator: validateCfmPass, trigger: 'blur' },
+    ],
 })
 const hms = computed(()=>{
     const [h, m, s] = getTime(user.info.duration)
     return `${h}时${m}分${s}秒`
 })
-function opneDrawer(){
+const proList = computed(()=>projct.list.slice(0, 3))
+function opneDrawer(type){
     popup.drawer = true
+    popup.detailType = type
 }
 function handleCommand(command){
     switch (command) {
@@ -161,8 +188,8 @@ async function changePwdSubmit(formEl){
     if (!formEl) return
 	await formEl.validate((valid, fields) => {
 		if (valid) {
-			changePwd({oldPassword: form.oldPwd, newPassword: form.newPwd}).then(() => {
-				ElMessageBox.alert(t('success2'), '', {type: 'success'})
+			changePwd({old_password: form.oldPwd, password: form.newPwd, password_confirmation: form.confirmPwd }).then(() => {
+				ElMessageBox.alert('更改密码成功！', '', {type: 'success'})
                 user.logOut()
 				router.replace('/login')
 			})
@@ -173,7 +200,9 @@ async function changePwdSubmit(formEl){
 }
 onBeforeMount(()=>{
     user.getUserInfo()
-    projct.getList({page: 1, size: 3})
+    projct.getList({page: 1, size: 3}).then(res=>{
+        if(res)  listTotal.value = res.total
+    })
 })
 </script>
 
@@ -316,32 +345,6 @@ onBeforeMount(()=>{
     :deep(.el-drawer__body){
         padding-left: 0;
         padding-right: 0;
-    }
-    .balanceDetail{
-        .detailTit{
-            margin-top: 40px;
-            font-size: 24px;
-            padding-left: 20px;
-            color: #fff;
-        }
-        .item{
-            width: 100%;
-            height: 90px;
-            border-bottom: 1px solid #4B4B4B;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-            font-size: 16px;
-            color: #fff;
-            .vcenter{
-                justify-content: space-between;
-            }
-            .date{
-                color: #ccc;
-                font-size: 14px;
-            }
-        }
     }
     .pwdForm{
         display: flex;
