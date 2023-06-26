@@ -11,8 +11,8 @@
         <div class="btnGroup center" v-else-if="data.status===3">
             <el-button color="#333333" @click="router.push('/preview')">预览</el-button>
             <el-button color="#333333">互动设置</el-button>
-            <el-button color="#333333" @click="openLiveWin">打开直播</el-button>
-            <!-- <el-button color="#333333" @click="playLive">开播</el-button> -->
+            <el-button color="#333333" @click="playLive" v-if="project.liveWin===data.id">开播</el-button>
+            <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
         <div class="btnGroup center" v-else></div>
     </div>
@@ -45,6 +45,7 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
+import { useProjectStore } from '../stores'
 
 const props = defineProps({
     data: {
@@ -53,6 +54,7 @@ const props = defineProps({
     },
 })
 
+const project = useProjectStore()
 const router = useRouter()
 const cfgPop = ref(false)
 const checkedArr = ref(['1', '2'])
@@ -61,7 +63,11 @@ const form = reactive({
 })
 
 function savedSetup(){
+    // 打开直播窗口
     ipcRenderer.send('open-win', {path: 'live', width: 375, height: 670})
+    // 设置直播的项目ID
+    project.setLiveWin(props.data.id)
+    cfgPop.value = false
 }
 function openLiveWin(){
     cfgPop.value = true

@@ -1,18 +1,25 @@
 import { defineStore } from 'pinia'
 import { connectWebsocket, sendDate, closeWebsocket } from '../utils/socket'
 import pb from '../utils/douyin_pb'
+import { runOnce } from '../utils/voice'
+import { random } from 'lodash-es'
+// import { ipcRenderer } from 'electron'
 var pako = require('pako');
 
 export const useLiveStore = defineStore('live', {
   state: () => ({
     msg: [],
     wsObj: null,
+    playIng: false, // 语音播放状态
   }),
   actions: {
     setMsg(m){
         this.msg.push(m)
     },
-    globelMessage(backdata) {
+    setPlayStatus(bool){
+        this.playIng = bool
+    },
+    async globelMessage(backdata) {
         try {
             var frameMsg = pb.PushFrame.deserializeBinary(backdata);
             var origin_bytes = pako.inflate(frameMsg.array[7]);
@@ -20,20 +27,32 @@ export const useLiveStore = defineStore('live', {
             for(let item of responseMsg.array[0]){
                 switch (item[0]) {
                     case 'WebcastChatMessage': // 评论
-                        var chatMessage = pb.ChatMessage.deserializeBinary(item[1]);
-                        console.log(`【${chatMessage.array[1][2]}】: ${chatMessage.array[2]}`)
-                        this.setMsg(`【${chatMessage.array[1][2]}】: ${chatMessage.array[2]}`)
+                        if(!this.playIng){ // 当前没有在播放的音频再执行
+                            var chatMessage = pb.ChatMessage.deserializeBinary(item[1]);
+                            const comment = chatMessage.array[2]
+                            // 匹配关键字，播放答案语音
+                            if(comment.match(new RegExp('无敌|今天', 'g'))){
+                                // 从匹配结果的录音中随机选取一个播放
+                                random(5)
+                            }
+                        }
+                        // console.log(`【${chatMessage.array[1][2]}】: ${chatMessage.array[2]}`)
+                        // this.setMsg(`【${chatMessage.array[1][2]}】: ${chatMessage.array[2]}`)
                         break;
                     case 'WebcastMemberMessage':  // 进入直播间
                         var enterMsg = pb.MemberMessage.deserializeBinary(item[1]);
-                        console.log(333, `【${enterMsg.array[1][2]}】 进入直播间`)
-                        this.setMsg(`【${enterMsg.array[1][2]}】 进入直播间`)
+                        this.playIng = true
+                        await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`)
+                        this.playIng = false
+                        // ipcRenderer.send('welcome', {type: 1, name: enterMsg.array[1][2]})
+                        // console.log(333, `【${enterMsg.array[1][2]}】 进入直播间`)
+                        // this.setMsg(`【${enterMsg.array[1][2]}】 进入直播间`)
                         break;
-                    case 'WebcastGiftMessage':  // 送礼物（打赏）
-                        var giftMsg = pb.GiftMessage.deserializeBinary(item[1]);
-                        console.log(4444, `【${giftMsg.array[6][2]}】--${giftMsg.array[14][1]}`)
-                        this.setMsg(`【${giftMsg.array[6][2]}】--${giftMsg.array[14][1]}`)
-                        break;
+                    // case 'WebcastGiftMessage':  // 送礼物（打赏）
+                        // var giftMsg = pb.GiftMessage.deserializeBinary(item[1]);
+                        // console.log(4444, `【${giftMsg.array[6][2]}】--${giftMsg.array[14][1]}`)
+                        // this.setMsg(`【${giftMsg.array[6][2]}】--${giftMsg.array[14][1]}`)
+                        // break;
                     default:
                         break;
                 }

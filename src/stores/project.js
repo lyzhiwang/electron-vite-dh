@@ -4,6 +4,7 @@ import { proJectList } from '../api'
 export const useProjectStore = defineStore('project', {
     state: () => ({
         list: [],
+        liveWin: null,
     }),
     actions: {
         async getList(params) {
@@ -16,6 +17,9 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 throw error
             }
+        },
+        setLiveWin(id){
+            this.liveWin = id; 
         },
     }
 })

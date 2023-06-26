@@ -9,7 +9,14 @@
 </template>
 
 <script setup>
+import { ipcRenderer } from 'electron'
+import { useProjectStore } from './stores'
 
+const project = useProjectStore()
+
+ipcRenderer.on('liveClose',()=>{
+  project.setLiveWin(null)
+})
 </script>
 
 <style lang="scss">

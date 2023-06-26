@@ -122,3 +122,12 @@ export function voiceRecord(params){
 		params
 	})
 }
+
+// 轮播图
+export function getBanner(params){
+	return request({
+		url: '/banners/list',
+		method: 'get',
+		params
+	})
+}

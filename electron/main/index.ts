@@ -153,6 +153,10 @@ ipcMain.on('open-win', (_, parame) => { // 主进程打开新窗口
   } else {
     liveWin.loadFile(indexHtml, { hash: path })
   }
+  // 直播窗口关闭
+  liveWin.on('close', () => {
+    win.webContents.send('liveClose')
+  });
 })
 
 ipcMain.on('play-live', () => {

@@ -3,8 +3,8 @@
     <div class="left" :span="20">
         <!-- 轮播图 -->
         <el-carousel class="swiperContainer">
-            <el-carousel-item v-for="item in 4" :key="item">
-                <h3 class="swiperItem" text="2xl">{{ item }}</h3>
+            <el-carousel-item v-for="item in banner" :key="item.id">
+                <el-image :src="item.image.path" class="swiperItem" fit="cover"/>
             </el-carousel-item>
         </el-carousel>
         <!-- 项目 -->
@@ -110,15 +110,15 @@ import { useUserStore, useProjectStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
 import { runOnce } from '../../utils/voice'
-import { changePwd } from '../../api'
+import { changePwd, getBanner } from '../../api'
 
 const changePwdRef = ref()
 const user = useUserStore()
 const projct = useProjectStore()
 const router = useRouter()
 const projectName = ref('')
-const detailType = ref(1) // 1 语音明细 2视频合成明细
 const listTotal = ref(0) // 项目总个数
+const banner = ref([])
 const popup = reactive({
     drawer: false, // 右侧抽屉
     changePwd: false, // 更改密码
@@ -202,6 +202,9 @@ onBeforeMount(()=>{
     user.getUserInfo()
     projct.getList({page: 1, size: 3}).then(res=>{
         if(res)  listTotal.value = res.total
+    })
+    getBanner().then(res=>{
+        if(res && res.data) banner.value = res.data  
     })
 })
 </script>

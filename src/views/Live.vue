@@ -1,7 +1,7 @@
 <template>
   <!-- <Suspense><Camera /></Suspense> -->
   <div class="livePage">
-    <video src="https://zwklt.oss-cn-beijing.aliyuncs.com/video/13/2023-04-20/ZQdXMPiLYREHu4vzShWy.mp4" ref="live" loop></video>
+    <video src="https://zwklt.oss-cn-beijing.aliyuncs.com/video/13/2023-04-20/ZQdXMPiLYREHu4vzShWy.mp4" ref="vRef" loop></video>
     <audio :src="soundUrl" class="sound" ref="welcome" @ended="welcomeEnd"></audio>
   </div>
 </template>
@@ -9,33 +9,51 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { runOnce } from '../utils/voice'
-const live = ref()
+import { useLiveStore } from '../stores'
+import { closeWebsocket } from '../utils/socket'
+
+const live = useLiveStore()
+const vRef = ref()
 const welcome = ref()
 const soundUrl = ref('')
 
 onMounted(()=>{
   ipcRenderer.on('play-live',()=>{
-    live.value.play()
+    // 开始播放
+    vRef.value.play()
+    live.setPlayStatus(true)
+    live.openLonglink()
   })
+  /*ipcRenderer.on('welcome', (_, {type, name, url})=>{
+    switch (type) {
+      case 1: // 欢迎
+        runOnce(`欢迎${name}进入直播间`)
+        break;
+      case 2: // 问答
+        soundUrl.value = url
+        vRef.value.volume = 0.2
+        welcome.value.autoplay = true
+        welcome.value.play()
+        break;
+      default:
+        break;
+    }
+  })*/
   /*ipcRenderer.on('change-volume', (_, num)=>{
-    let vol = (live.value.volume + num)
+    let vol = (vRef.value.volume + num)
     if(vol>1) vol = 1
     if(vol<0) vol = 0
-    live.value.volume = vol
+    vRef.value.volume = vol
   })*/
-  ipcRenderer.on('welcome', (_, url)=>{
-    soundUrl.value = url
-    live.value.volume = 0.2
-    welcome.value.autoplay = true
-    welcome.value.play()
-  })
   // setInterval(()=>runOnce('欢迎智网网络进入直播间'), 3000)
 })
 
 function welcomeEnd(){
   welcome.value.autoplay = false
-  live.value.volume = 1
+  vRef.value.volume = 1
+  live.setPlayStatus(false)
 }
+onBeforeUnmount(closeWebsocket)
 </script>
 
 <style lang="scss" scoped>
