@@ -131,3 +131,77 @@ export function getBanner(params){
 		params
 	})
 }
+
+// ---------------------------------------------------
+// 欢迎语设置详情
+export function getwelcome(project_id) {
+	return request({
+		// /welcome/{project_id}
+		url: '/welcome/' + project_id,
+		method: 'get'
+	})
+}
+// 欢迎语 设置
+// 欢迎语规则设置
+export function postwelcome(data) {
+	return request({
+		url: '/welcome',
+		method: 'post',
+		data
+	})
+}
+// 音色列表
+export function gettimbre(params) {
+	return request({
+		url: '/timbre',
+		method: 'get',
+		params
+	})
+}
+
+// -------------------------------------------------
+// 关键词互动
+// 关键词互动规则列表
+// 互动规则列表
+export function getinteract(params) {
+	return request({
+		url: '/interact/'+params.project_id,
+		method: 'get',
+		params
+	})
+}
+// 添加关键词 互动规则
+// 添加互动规则
+export function postinteract(data) {
+	return request({
+		url: '/interact',
+		method: 'post',
+		data
+	})
+}
+// 删除关键词 互动规则
+export function delinteract(data) {
+	return request({
+		url: '/del/interact/' + data.id,
+		method: 'post',
+		data
+	})
+}
+// 更新关键词 互动规则
+export function updateinteract(data) {
+	return request({
+		url: '/update/interact/' + data.id,
+		method: 'post',
+		data
+	})
+}
+// 关键词匹配
+export function keywordinteract(data) {
+	return request({
+		url: '/keyword/matching',
+		method: 'post',
+		data
+	})
+}
+
+// -----------------------------------------------------

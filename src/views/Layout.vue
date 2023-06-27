@@ -18,6 +18,10 @@
                     <el-icon><icon-menu /></el-icon>
                     <span>首页</span>
                 </el-menu-item>
+                <el-menu-item index="/livesettings" route="/livesettings">
+                    <el-icon><Setting/></el-icon>
+                    <span>设置</span>
+                </el-menu-item>
             </el-menu>
         </el-aside>
         <!-- 视图容器 -->

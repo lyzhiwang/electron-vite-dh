@@ -25,6 +25,12 @@ const routes = [
         name: 'creatlive',
         component: () => import('../views/home/CreateLive.vue'),
       },
+      {
+        // 直播设置
+        path: 'livesettings',
+        name: 'livesettings',
+        component: () => import('../views/livesettings/index.vue'),
+      },
     ]
   },
   {
