@@ -27,12 +27,12 @@
         center
     >
         <el-form :model="form" class="cfgForm" label-width="100" label-position="left">
-            <el-checkbox-group v-model="checkedArr" class="selectOpton">
-                <el-checkbox label="1">欢迎加入</el-checkbox>
-                <el-checkbox label="2">回答问题</el-checkbox>
-            </el-checkbox-group>
-            <el-form-item prop="url" label="抖音网址">
-                <el-input v-model.trim="form.url" placeholder="请输入抖音直播间网址"></el-input>
+            <div class="selectOpton">
+                <el-checkbox v-model="form.welcome_switch" :true-label="1" :false-label="0" label="欢迎加入" />
+                <el-checkbox v-model="form.interactive_switch" :true-label="1" :false-label="0" label="回答问题" />
+            </div>
+            <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
+                <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>
@@ -45,7 +45,8 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
-import { useProjectStore } from '../stores'
+import { useProjectStore, useLiveStore } from '../stores'
+import { setLiveRoom, liveRoomInfo } from '../api'
 
 const props = defineProps({
     data: {
@@ -55,19 +56,38 @@ const props = defineProps({
 })
 
 const project = useProjectStore()
+const live = useLiveStore()
 const router = useRouter()
 const cfgPop = ref(false)
-const checkedArr = ref(['1', '2'])
 const form = reactive({
-    url: '',
+    live_url: '',
+    welcome_switch: 0,
+    interactive_switch: 0,
 })
-
-function savedSetup(){
-    // 打开直播窗口
-    ipcRenderer.send('open-win', {path: 'live', width: 375, height: 670})
-    // 设置直播的项目ID
-    project.setLiveWin(props.data.id)
-    cfgPop.value = false
+function getLiveRoom(){
+    liveRoomInfo(props.data.id).then(res=>{
+        if(res && res.data){
+            // 保存设置信息到本地存储
+            live.setLiveInfo(res.data)
+            // 打开直播窗口
+            const screen = (res.data.screen===1 ? {width: 375, height: 670} : {width: 1600, height: 900})
+            ipcRenderer.send('open-win', {path: 'live', ...screen})
+            // 设置直播的项目ID
+            project.setLiveWin(props.data.id)
+            cfgPop.value = false
+        }
+    })
+}
+async function savedSetup(){
+    if((form.welcome_switch===1||form.interactive_switch===1) && !form.live_url){
+        return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间网址不能为空' })
+    }
+    // 1.先保存直播间开启设置
+    const res = await setLiveRoom({project_id: props.data.id, ...form})
+    if(res){
+        // 2.获取直播间信息后再打开直播窗口
+        getLiveRoom()
+    }
 }
 function openLiveWin(){
     cfgPop.value = true
@@ -143,7 +163,7 @@ function transCode(code){
     flex-direction: column;
     align-items: center;
     .selectOpton{
-        width: 400px;
+        width: 410px;
     }
     :deep(.el-form-item__content){
         width: 300px!important;

@@ -53,7 +53,7 @@ async function createWindow() {
     //   symbolColor: '#000',
     //   height: 30
     // },
-    title: '数字人',
+    title: '智星AI数字人',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
@@ -133,7 +133,8 @@ ipcMain.on('open-win', (_, parame) => { // 主进程打开新窗口
   const { width, height, path } = parame
   liveWin = new BrowserWindow({
     // parent: win,
-    title: '视频流',
+    title: '直播窗口',
+    icon: join(process.env.PUBLIC, 'favicon.ico'),
     width,
     height,
     minimizable: false, // 是否可以最小化
@@ -150,6 +151,7 @@ ipcMain.on('open-win', (_, parame) => { // 主进程打开新窗口
   })
   if (process.env.VITE_DEV_SERVER_URL) {
     liveWin.loadURL(`${url}#${path}`)
+    liveWin.webContents.openDevTools()
   } else {
     liveWin.loadFile(indexHtml, { hash: path })
   }

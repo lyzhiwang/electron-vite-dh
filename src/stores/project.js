@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { proJectList } from '../api'
+import { proJectList, aliToken } from '../api'
 
 export const useProjectStore = defineStore('project', {
     state: () => ({
         list: [],
         liveWin: null,
+        ossData: null,
     }),
     actions: {
         async getList(params) {
@@ -14,6 +15,17 @@ export const useProjectStore = defineStore('project', {
                     this.list = res.data;
                 }
                 return res.meta
+            } catch (error) {
+                throw error
+            }
+        },
+        async queryAliToken() {
+            try {
+                const res = await aliToken()
+                if(res && res.data){
+                    this.ossData = res.data;
+                }
+                return true
             } catch (error) {
                 throw error
             }

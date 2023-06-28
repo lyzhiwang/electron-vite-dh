@@ -132,6 +132,31 @@ export function getBanner(params){
 	})
 }
 
+// 直播间信息
+export function liveRoomInfo(project_id){
+	return request({
+		loading: true,
+		url: '/broadcast/' + project_id,
+		method: 'get',
+	})
+}
+// 设置直播间信息
+export function setLiveRoom(data){
+	return request({
+		loading: true,
+		url: '/broadcast/setting',
+		method: 'post',
+		data
+	})
+}
+// 记录语音生成次数
+export function voiceOrder(project_id){
+	return request({
+		url: '/add/voice/'+project_id,
+		method: 'post',
+		data
+	})
+}
 // ---------------------------------------------------
 // 欢迎语设置详情
 export function getwelcome(project_id) {

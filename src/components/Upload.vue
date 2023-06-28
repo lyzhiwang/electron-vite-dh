@@ -3,7 +3,7 @@
         action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
         :show-file-list="showFileList"
         :http-request="ossUpload"
-        :limit="1"
+        :limit="limit"
         :before-upload="beforeUpload"
         :on-exceed="handleExceed"
         :on-success="uploadSuccess"
@@ -15,9 +15,11 @@
 <script setup>
 import OSS from 'ali-oss'
 import { format } from 'date-fns'
-import { aliToken } from '../api'
 import { sampleSize } from 'lodash-es'
+import { storeToRefs } from 'pinia'
+import { useProjectStore } from '../stores'
 
+const { ossData } = storeToRefs(useProjectStore())
 const props = defineProps({
     params: {
       type: Object,
@@ -34,18 +36,13 @@ const props = defineProps({
     showFileList: {
         type: Boolean,
         default: true
-    }
+    },
+    limit: {
+        type: Number,
+        default: 1
+    },
 })
 
-
-const ossData = ref(null)
-onBeforeMount(()=>{
-    aliToken().then(res=>{
-        if(res&&res.data){
-            ossData.value = res.data
-        }
-    })
-})
 function randomString(len) {
     const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     return sampleSize(charSet, len).toString().replace(/,/g, '')

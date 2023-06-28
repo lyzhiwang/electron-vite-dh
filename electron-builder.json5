@@ -14,11 +14,13 @@
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
+    "icon": "public/icon.ico",
     "target": [
       "dmg"
     ]
   },
   "win": {
+    "icon": "public/icon.ico",
     "target": [
       {
         "target": "nsis",

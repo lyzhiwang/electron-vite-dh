@@ -115,9 +115,11 @@ import { CopyDocument, DeleteFilled, CirclePlusFilled, DocumentAdd, Collection, 
 import { humanList, createProJect, updateProJect, projectDetail, compositeVideo, videoNeedTime } from '../../api'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { clone, remove } from 'lodash-es'
+import { useProjectStore } from '../../stores'
 
 const route = useRoute()
 const router = useRouter()
+const project = useProjectStore()
 const partAct = ref(null) // 选中的片段下标
 const crtCfmPop = ref(false)
 const usedTime = ref('') // 生成视频预计消耗时长
@@ -167,6 +169,7 @@ onBeforeMount(()=>{
         form.name = pn
         getHumanList()
     }
+    project.queryAliToken()
 })
 // onBeforeRouteLeave(async()=>{ // 离开页面前保存草稿箱
 //     const flag = await saveToTemp()

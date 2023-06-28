@@ -8,21 +8,28 @@
 
 <script setup>
 import { ipcRenderer } from 'electron'
-import { runOnce } from '../utils/voice'
 import { useLiveStore } from '../stores'
 import { closeWebsocket } from '../utils/socket'
+// import { runOnce } from '../utils/voice'
 
 const live = useLiveStore()
 const vRef = ref()
 const welcome = ref()
 const soundUrl = ref('')
 
+onBeforeMount(()=>{
+  console.log(1111, live.liveInfo.live_url)
+})
+
 onMounted(()=>{
   ipcRenderer.on('play-live',()=>{
     // 开始播放
     vRef.value.play()
-    live.setPlayStatus(true)
-    live.openLonglink()
+    const { live_url } = live.liveInfo
+    if(live_url){
+      live.setPlayStatus(true)
+      live.openLonglink()
+    }
   })
   /*ipcRenderer.on('welcome', (_, {type, name, url})=>{
     switch (type) {
@@ -53,7 +60,10 @@ function welcomeEnd(){
   vRef.value.volume = 1
   live.setPlayStatus(false)
 }
-onBeforeUnmount(closeWebsocket)
+onBeforeUnmount(()=>{
+  live.setLiveInfo(null)
+  if(live.wsObj) closeWebsocket()
+})
 </script>
 
 <style lang="scss" scoped>
