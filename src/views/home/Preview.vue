@@ -1,5 +1,9 @@
 <template>
 <div class="preview">
+    <!-- <div class="">
+        <el-icon><Back/></el-icon>
+        <span>返回首页</span>
+    </div> -->
     <div class="page">
         <video 
             class="v" 

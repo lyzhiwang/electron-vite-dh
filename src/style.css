@@ -39,6 +39,7 @@ body {
   min-height: 100vh;
   overflow: hidden;
   font-family: 'Microsoft YaHei, Microsoft YaHei-Regular';
+  user-select: none;
   --el-border-color: transparent;
 }
 ul{
@@ -48,6 +49,9 @@ ul{
 button{
   outline: none;
   border: 0;
+}
+img{
+  -webkit-user-drag: none; 
 }
 #app {
   min-width: 1366px;

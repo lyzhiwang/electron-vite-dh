@@ -1,4 +1,4 @@
-// import { cloneDeep } from 'lodash-es' // throttle 节流  debounce 防抖 请调用lodash内的函数
+import { last, shuffle, nth } from 'lodash-es' // throttle 节流  debounce 防抖 请调用lodash内的函数
 
 // 秒转成时分秒
 export function getTime(time) {
@@ -61,4 +61,19 @@ export function toArrayBuffer(buf) {
       view[i] = buf[i];
   }
   return ab;
+}
+
+// 随机播放函数
+export function randomArr(data){
+  // 先获取最后一个元素
+  const lastOne = last(data)
+  // 创建新的随机数组
+  const newArr = shuffle(data)
+  const first = nth(newArr, 0)
+  if(first===lastOne){
+    const second = nth(newArr, 1)
+    newArr[0] = second
+    newArr[1] = first
+  }
+  return newArr
 }

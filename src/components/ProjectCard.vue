@@ -4,17 +4,19 @@
         <div class="picBox"><el-image :src="data.cover" class="pic" fit="contain"/></div>
         <p class="title ell">{{ data.name }}</p>
         <p class="time">{{ data.created_at }}</p>
-        <div class="btnGroup center" v-if="data.status===1">
+        <!-- <div class="btnGroup center" v-if="data.status===1">
             <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
             <el-button color="#333333">删除</el-button>
         </div>
-        <div class="btnGroup center" v-else-if="data.status===3">
+        <div class="btnGroup center" v-else-if="data.status===3"> -->
+        <div class="btnGroup center">
+            <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
             <el-button color="#333333" @click="router.push('/preview')">预览</el-button>
             <el-button color="#333333">互动设置</el-button>
             <el-button color="#333333" @click="playLive" v-if="project.liveWin===data.id">开播</el-button>
             <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
-        <div class="btnGroup center" v-else></div>
+        <!-- <div class="btnGroup center" v-else></div> -->
     </div>
     <!-- 直播窗口打开前的互动配置 -->
     <el-dialog
@@ -65,22 +67,23 @@ const form = reactive({
     interactive_switch: 0,
 })
 function getLiveRoom(){
-    liveRoomInfo(props.data.id).then(res=>{
-        if(res && res.data){
-            // 保存设置信息到本地存储
-            live.setLiveInfo(res.data)
-            // 打开直播窗口
-            const screen = (res.data.screen===1 ? {width: 375, height: 670} : {width: 1600, height: 900})
-            ipcRenderer.send('open-win', {path: 'live', ...screen})
-            // 设置直播的项目ID
-            project.setLiveWin(props.data.id)
-            cfgPop.value = false
-        }
-    })
+    // 保存设置信息到本地存储
+    const liveInfo = { ...live.liveInfo, ...form }
+    live.setLiveInfo(liveInfo)
+    // 打开直播窗口
+    const screen = (liveInfo.screen===1 ? {width: 375, height: 670} : {width: 1600, height: 900})
+    ipcRenderer.send('open-win', {path: 'live', ...screen})
+    // 设置直播的项目ID
+    project.setLiveWin(props.data.id)
+    cfgPop.value = false
 }
 async function savedSetup(){
-    if((form.welcome_switch===1||form.interactive_switch===1) && !form.live_url){
+    const wsOpen = (form.welcome_switch===1||form.interactive_switch===1);
+    if(wsOpen && !form.live_url){
         return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间网址不能为空' })
+    }
+    if(wsOpen){
+        // 检查项目的互动设置是否填写
     }
     // 1.先保存直播间开启设置
     const res = await setLiveRoom({project_id: props.data.id, ...form})
@@ -90,7 +93,16 @@ async function savedSetup(){
     }
 }
 function openLiveWin(){
-    cfgPop.value = true
+    liveRoomInfo(props.data.id).then(res=>{
+        if(res && res.data){
+            const { live_url, interactive_switch, welcome_switch } = res.data
+            form.live_url = live_url||''
+            form.interactive_switch = interactive_switch||0
+            form.welcome_switch = welcome_switch||0
+            cfgPop.value = true
+            live.setLiveInfo(res.data)
+        }
+    })
 }
 function playLive(){
     ipcRenderer.send('play-live')
@@ -115,8 +127,10 @@ function transCode(code){
     position: relative;
     flex-direction: column;
     margin: 0 5px 10px;
-    padding: 0 5px;
+    padding: 0 10px;
     color: #ccc;
+    display: flex;
+    flex-wrap: wrap;
     .status{
         font-size: 16px;
         position: absolute;
@@ -149,7 +163,7 @@ function transCode(code){
         min-height: 60px;
     }
     button{
-        min-width: 65px;
+        min-width: 30px;
         height: 30px;
         font-size: 14px;
         color: #ccc;

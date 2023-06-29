@@ -86,22 +86,21 @@ export function proJectList(params) {
 	})
 }
 // 生成视频
-export function compositeVideo(data){
+export function compositeVideo(project_id){
 	return request({
 		loading: true,
-		url: '/create/video/{project_id}',
+		url: `/create/video/${project_id}`,
 		method: 'post',
-		data
 	})
 }
 
 // 获取预计生成时长
-export function videoNeedTime(params){
+export function videoNeedTime(data){
 	return request({
 		loading: true,
-		url: '/project/duration',
-		method: 'get',
-		params
+		url: '/count/project/duration',
+		method: 'post',
+		data
 	})
 }
 
@@ -155,6 +154,14 @@ export function voiceOrder(project_id){
 		url: '/add/voice/'+project_id,
 		method: 'post',
 		data
+	})
+}
+// 获取抖音ws地址
+export function getTiktokWs(params){
+	return request({
+		url: '/tiktok/data',
+		method: 'get',
+		params
 	})
 }
 // ---------------------------------------------------

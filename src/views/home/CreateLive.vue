@@ -66,6 +66,15 @@
                         <span v-else>上传录音</span>
                     </el-button>
                 </Upload>
+                <el-switch 
+                    class="roundOpt"
+                    v-if="form.footages.length>2" 
+                    v-model="form.is_random" 
+                    style="--el-switch-off-color: #4C4D4F;"
+                    active-text="随机播放"
+                    :active-value="1"
+                    :inactive-value="0"
+                />
             </div>
             <!-- 片段列表区 -->
             <el-scrollbar class="scrollview">
@@ -127,6 +136,7 @@ const dpList = ref([])
 const form = reactive({
     name: '', // 项目名称
     footages: [], // 片段集合
+    is_random: 0,
 })
 const part = reactive({
     name: '',
@@ -149,8 +159,9 @@ onBeforeMount(()=>{
         ]).then(res=>{
             const data = res[0]
             if(data){
-                const { name, footages } = data
+                const { name, footages, is_random } = data
                 form.name = name
+                form.is_random = Number(is_random)
                 form.footages = footages.map(item=>{
                     const findObj = dpList.value.find(dp=>dp.human_id===item.human_id)
                     if(findObj){
@@ -254,16 +265,19 @@ function uploadSuccess(res, file){
     }
     ElMessage({ type: 'success', message: '上传录音成功！' })
 }
-function startCfmCrate(){ // 1.先获取音频时长
-    const footages = form.footages.map(item=>item.audio_id)
-    videoNeedTime({footages}).then(res=>{
+async function startCfmCrate(){ 
+    // 1.先保存到草稿箱
+    await saveToTemp()
+    // const footages = form.footages.map(item=>item.audio_id)
+    // 2.获取音频时长
+    await videoNeedTime({project_id}).then(res=>{
         if(res&&res.data){
             usedTime.value = res.data.duration
             crtCfmPop.value = true
         }
     })
 }
-async function saveToTemp(){ // 2.保存到草稿箱
+async function saveToTemp(){ // 保存到草稿箱
     try {
         const res = (project_id === null) ? await createProJect(form) : await updateProJect(project_id, form)
         if(res && res.data){
@@ -278,10 +292,9 @@ async function saveToTemp(){ // 2.保存到草稿箱
 }
 async function createLive(){
     try {
-        // 2.保存到草稿箱
-        await saveToTemp();
+        // await saveToTemp();
         // 3.根据项目ID生成视频
-        const res = await compositeVideo({project_id});
+        const res = await compositeVideo(project_id);
         if(res && res.data){
             ElMessage({ type: 'success', message: '创建直播成功！' })
             router.back()
@@ -456,6 +469,9 @@ async function createLive(){
             font-size: 20px;
             color: #fff;
         }
+    }
+    .roundOpt{
+        margin-left: 10px;
     }
 }
 </style>

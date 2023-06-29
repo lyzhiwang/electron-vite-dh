@@ -3,11 +3,12 @@ const Nls = require('alibabacloud-nls')
 // import { useLiveStore } from '../stores'
 // const fs = require("fs")
 // require('log-timestamp')(`${process.pid}`)
+// APPKEY = '3nLfFsHczu6JV0nE', TOKEN = 'fc65d2814cbd4abfbbc47fcb25782cb7',
 let loadIndex = 0
-const APPKEY = '3nLfFsHczu6JV0nE', TOKEN = 'fc65d2814cbd4abfbbc47fcb25782cb7', URL = 'wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1';
+const URL = 'wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1';
 const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs))
 
-export async function runOnce(line) {
+export async function runOnce(line, {appkey, token}) {
     console.log(`speak: ${line}`)
     loadIndex++
     
@@ -18,11 +19,7 @@ export async function runOnce(line) {
     var audioContext = new AudioContext({
       sampleRate: 8000,
     });
-    let tts = new Nls.SpeechSynthesizer({
-      url: URL,
-      appkey: APPKEY,
-      token: TOKEN
-    })
+    let tts = new Nls.SpeechSynthesizer({ url: URL, appkey, token })
   
     tts.on("meta", (msg)=>{
       console.log("Client recv metainfo:", msg)

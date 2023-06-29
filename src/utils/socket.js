@@ -24,9 +24,9 @@ let sendDatas = {}
  * @param {function} successCallback 接收到ws数据，对数据进行处理的回调函数
  * @param {function} errCallback ws连接错误的回调函数
  */
-export const connectWebsocket = (url, agentData, successCallback, errCallback) => {
+export const connectWebsocket = (url, agentData, successCallback, errCallback, ttwid) => {
   wsUrl = url
-  createWebSoket()
+  createWebSoket(ttwid)
   messageCallback = successCallback
   errorCallback = errCallback
   sendDatas = agentData
@@ -57,7 +57,7 @@ export const sendDateByChannel = (data) => {
 }
 
 // 创建ws函数
-const createWebSoket = () => {
+const createWebSoket = (ttwid) => {
   if (typeof (WebSocket) === 'undefined') {
     writeToScreen('您的浏览器不支持WebSocket，无法获取数据')
     return false
@@ -70,7 +70,7 @@ const createWebSoket = () => {
   // wsUrl = "ws://" + host + "/websoket" + userId;
 
   try {
-    var cookie = "ttwid=1%7ClH9IQgoOuNDIe6zPUBMxdRXWocOaWVplMtTGLV-v0Us%7C1685148036%7C18258c8cb08891413b59c70a4ac5af4bbfd27487933db7e7e7ded034c6eb1dc6"
+    var cookie = "ttwid="+ttwid
     var ops = {
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
