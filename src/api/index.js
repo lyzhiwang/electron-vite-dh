@@ -56,7 +56,14 @@ export function createProJect(data) {
 		data
 	})
 }
-
+// 删除项目
+export function delProJect(id) {
+	return request({
+		loading: true,
+		url: `/project/${id}`,
+		method: 'delete',
+	})
+}
 // 更新项目
 export function updateProJect(id, data) {
 	return request({

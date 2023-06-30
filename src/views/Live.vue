@@ -2,7 +2,7 @@
   <!-- <Suspense><Camera /></Suspense> -->
   <div class="livePage">
     <video :src="vsrc" ref="vRef" @ended="videoEnd"></video>
-    <audio :src="soundUrl" class="sound" ref="welcome" @ended="welcomeEnd"></audio>
+    <audio :src="soundUrl" class="sound" ref="answer" @ended="answerEnd"></audio>
   </div>
 </template>
 
@@ -14,21 +14,26 @@ import { randomArr } from '../utils/helper'
 
 const live = useLiveStore()
 const vRef = ref()
-const welcome = ref()
+const answer = ref()
 const soundUrl = ref('')
-const vsrc = ref('https://zwklt.oss-cn-beijing.aliyuncs.com/video/13/2023-04-20/ZQdXMPiLYREHu4vzShWy.mp4')
+const vsrc = ref('')
 let round = 1, current = 0, videoArr = []; // 轮数和当前播放的第几个
 
 onBeforeMount(()=>{
+  // 先预加载第一段视频
   videoArr = live.liveInfo.video_list
+  // 'https://zwklt.oss-cn-beijing.aliyuncs.com/video/13/2023-04-20/ZQdXMPiLYREHu4vzShWy.mp4'
+  vsrc.value = videoArr[0]
 })
 
 onMounted(()=>{
+  // 获取视频和音频标签的Dom
+  live.setLiveDom(vRef.value, answer.value)
+  // 监听播放按钮
   ipcRenderer.on('play-live',()=>{
     const { live_url } = live.liveInfo
     // 开始播放
-    vRef.value.src = videoArr[0]
-    vRef.value.play()
+    vRef.value.autoplay = true
     if(live_url){
       // 开启请求ws地址
       live.getWsUrl({live_url}).then(data=>{
@@ -59,7 +64,7 @@ onMounted(()=>{
   })*/
 })
 function nextRound(){ // 播放下一轮
-    videoArr = randomArr(video_list)
+    videoArr = randomArr(videoArr)
     current = 0
     round++
 }
@@ -70,11 +75,10 @@ function videoEnd(){
     current++
   }
   vRef.value.src = videoArr[current]
-  vRef.value.play()
-  // autoplay
+  // vRef.value.play()
 }
-function welcomeEnd(){
-  welcome.value.autoplay = false
+function answerEnd(){ // 回答话外音播放结束
+  answer.value.autoplay = false
   vRef.value.volume = 1
   live.setPlayStatus(false)
 }

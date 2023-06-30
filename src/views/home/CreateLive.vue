@@ -123,7 +123,7 @@
 import { CopyDocument, DeleteFilled, CirclePlusFilled, DocumentAdd, Collection, Picture } from '@element-plus/icons-vue'
 import { humanList, createProJect, updateProJect, projectDetail, compositeVideo, videoNeedTime } from '../../api'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
-import { clone, remove } from 'lodash-es'
+import { clone, remove, uniqBy } from 'lodash-es'
 import { useProjectStore } from '../../stores'
 
 const route = useRoute()
@@ -279,6 +279,13 @@ async function startCfmCrate(){
 }
 async function saveToTemp(){ // 保存到草稿箱
     try {
+        // 先去重片段中的重复数据
+        const data1 = form.footages.map(item=>{
+            item.key = `${item.human_id}-${item.audio_id}`
+            return item
+        })
+        form.footages = uniqBy(data1, 'key');
+        // 再组合form发出请求
         const res = (project_id === null) ? await createProJect(form) : await updateProJect(project_id, form)
         if(res && res.data){
             if(project_id === null)  project_id = res.data.id;

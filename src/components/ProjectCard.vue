@@ -4,19 +4,21 @@
         <div class="picBox"><el-image :src="data.cover" class="pic" fit="contain"/></div>
         <p class="title ell">{{ data.name }}</p>
         <p class="time">{{ data.created_at }}</p>
-        <!-- <div class="btnGroup center" v-if="data.status===1">
+        <div class="btnGroup center" v-if="data.status===1">
             <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
-            <el-button color="#333333">删除</el-button>
+            <el-button color="#333333" @click="delect">删除</el-button>
         </div>
-        <div class="btnGroup center" v-else-if="data.status===3"> -->
-        <div class="btnGroup center">
-            <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
+        <div class="btnGroup center" v-else-if="data.status===3">
+        <!-- <div class="btnGroup center"> -->
+            <template v-if="!project.liveWin">
+                <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
+                <el-button color="#333333">互动设置</el-button>
+            </template>
             <el-button color="#333333" @click="router.push('/preview')">预览</el-button>
-            <el-button color="#333333">互动设置</el-button>
             <el-button color="#333333" @click="playLive" v-if="project.liveWin===data.id">开播</el-button>
             <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
-        <!-- <div class="btnGroup center" v-else></div> -->
+        <div class="btnGroup center" v-else></div>
     </div>
     <!-- 直播窗口打开前的互动配置 -->
     <el-dialog
@@ -48,8 +50,8 @@
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
 import { useProjectStore, useLiveStore } from '../stores'
-import { setLiveRoom, liveRoomInfo } from '../api'
-
+import { setLiveRoom, liveRoomInfo, delProJect } from '../api'
+const goRefresh = inject('reload')
 const props = defineProps({
     data: {
         type: Object,
@@ -106,6 +108,17 @@ function openLiveWin(){
 }
 function playLive(){
     ipcRenderer.send('play-live')
+}
+function delect(){
+    ElMessageBox.confirm('是否删除当前项目?', 'Warning', {type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消'}).then(() => {
+        delProJect(props.data.id).then(res=>{
+            if(res){
+                ElMessage({type: 'success', message: '删除成功'})
+                // 更新刷新页面
+                goRefresh()
+            }
+        })
+    })
 }
 function transCode(code){
     switch (code) {

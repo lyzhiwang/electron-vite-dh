@@ -27,7 +27,7 @@
         <!-- 视图容器 -->
         <el-scrollbar wrap-class="scrollView">
             <el-main class="content">
-                <router-view v-slot="{ Component }">
+                <router-view v-slot="{ Component }" v-if="isRouterAlive">
                     <Transition>
                         <component :is="Component" />
                     </Transition>
@@ -39,15 +39,23 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { Document,  Menu as IconMenu, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const router = useRouter()
+// const router = useRouter()
 const activeIndex = ref('/')
+const isRouterAlive = ref(true)
 const handleSelect = (path) => {
 //   activeIndex.value = route.matched[1].path
 }
+const reload = ()=> {
+    isRouterAlive.value = false
+    nextTick(()=>{
+        isRouterAlive.value = true
+    })
+}
+provide('reload', reload)
 onBeforeMount(()=>{
   activeIndex.value = route.matched[1].path
 })

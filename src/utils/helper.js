@@ -68,7 +68,7 @@ export function randomArr(data){
   // 先获取最后一个元素
   const lastOne = last(data)
   // 创建新的随机数组
-  const newArr = shuffle(data)
+  let newArr = shuffle(data)
   const first = nth(newArr, 0)
   if(first===lastOne){
     const second = nth(newArr, 1)
@@ -76,4 +76,14 @@ export function randomArr(data){
     newArr[1] = first
   }
   return newArr
+}
+
+// 测试随机函数
+export function testRandom(){
+  let arr = [{id:1,name:'北京'}, {id:2,name:'上海'}, {id:3,name:'广州'}, {id:4,name:'深圳'}]
+  console.log(111, arr)
+  setInterval(()=>{
+    arr = randomArr(arr)
+    console.log(2222, arr)
+  },2000)
 }
