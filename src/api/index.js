@@ -173,16 +173,15 @@ export function getTiktokWs(params){
 }
 // ---------------------------------------------------
 // 欢迎语设置详情
-export function getwelcome(project_id) {
+export function getWelcome(project_id) {
 	return request({
-		// /welcome/{project_id}
 		url: '/welcome/' + project_id,
 		method: 'get'
 	})
 }
 // 欢迎语 设置
 // 欢迎语规则设置
-export function postwelcome(data) {
+export function postWelcome(data) {
 	return request({
 		url: '/welcome',
 		method: 'post',
@@ -190,7 +189,7 @@ export function postwelcome(data) {
 	})
 }
 // 音色列表
-export function gettimbre(params) {
+export function getTimbre(params) {
 	return request({
 		url: '/timbre',
 		method: 'get',
@@ -202,16 +201,15 @@ export function gettimbre(params) {
 // 关键词互动
 // 关键词互动规则列表
 // 互动规则列表
-export function getinteract(params) {
+export function getInteract(project_id) {
 	return request({
-		url: '/interact/'+params.project_id,
-		method: 'get',
-		params
+		url: '/interact/'+project_id,
+		method: 'get'
 	})
 }
 // 添加关键词 互动规则
 // 添加互动规则
-export function postinteract(data) {
+export function postInteract(data) {
 	return request({
 		url: '/interact',
 		method: 'post',
@@ -219,7 +217,7 @@ export function postinteract(data) {
 	})
 }
 // 删除关键词 互动规则
-export function delinteract(data) {
+export function delInteract(data) {
 	return request({
 		url: '/del/interact/' + data.id,
 		method: 'post',
@@ -227,7 +225,7 @@ export function delinteract(data) {
 	})
 }
 // 更新关键词 互动规则
-export function updateinteract(data) {
+export function updateInteract(data) {
 	return request({
 		url: '/update/interact/' + data.id,
 		method: 'post',
@@ -235,7 +233,7 @@ export function updateinteract(data) {
 	})
 }
 // 关键词匹配
-export function keywordinteract(data) {
+export function keywordInteract(data) {
 	return request({
 		url: '/keyword/matching',
 		method: 'post',

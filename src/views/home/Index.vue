@@ -15,7 +15,7 @@
             </h1>
             <el-row class="list">
                 <el-col :span="8" v-for="item in proList">
-                    <ProjectCard :data="item" :key="item.id"/>
+                    <ProjectCard :data="item" :pagetype="pagetype" :key="item.id"/>
                 </el-col>
                 <el-empty description="暂无数据" v-if="proList.length==0" class="noData"/>
             </el-row>
@@ -112,6 +112,7 @@ import { getTime } from '../../utils/helper'
 import { runOnce } from '../../utils/voice'
 import { changePwd, getBanner } from '../../api'
 
+const pagetype = ref('1')
 const changePwdRef = ref()
 const user = useUserStore()
 const projct = useProjectStore()

@@ -16,16 +16,14 @@
     <div v-if="set_radio === '2'" class="set_module">
         <Welcome />
     </div>
+
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive,nextTick } from 'vue';
-import { ElInput } from 'element-plus'
-import type { UploadProps, UploadUserFile } from 'element-plus'
-const trigger = ['blur', 'change'];
+import { ref} from 'vue';
 
-const set_radio = ref('1');
+const set_radio = ref<any>('1');
 </script>
 
 <style lang="scss" scoped>
