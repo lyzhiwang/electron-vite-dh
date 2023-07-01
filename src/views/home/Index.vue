@@ -10,7 +10,10 @@
         <!-- 项目 -->
         <div class="block RecentProject">
             <h1 class="between">
-                <span>最近项目</span>
+                <div class="vcenter">
+                    <span>最近项目</span>
+                    <el-icon class="refresh" @click="getThreeProject"><RefreshRight /></el-icon>
+                </div>
                 <router-link to="/project" class="viewAll">查看全部</router-link>
             </h1>
             <el-row class="list">
@@ -105,12 +108,12 @@
 </template>
 
 <script setup>
-import { Edit, Avatar, Microphone, VideoPlay } from '@element-plus/icons-vue'
+import { Edit, Avatar, Microphone, VideoPlay, RefreshRight } from '@element-plus/icons-vue'
 import { useUserStore, useProjectStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
-import { runOnce } from '../../utils/voice'
 import { changePwd, getBanner } from '../../api'
+// import { runOnce } from '../../utils/voice'
 
 const pagetype = ref('1')
 const changePwdRef = ref()
@@ -199,11 +202,14 @@ async function changePwdSubmit(formEl){
 		}
 	})
 }
-onBeforeMount(()=>{
-    user.getUserInfo()
+function getThreeProject(){
     projct.getList({page: 1, size: 3}).then(res=>{
         if(res)  listTotal.value = res.total
     })
+}
+onBeforeMount(()=>{
+    user.getUserInfo()
+    getThreeProject()
     getBanner().then(res=>{
         if(res && res.data) banner.value = res.data  
     })
@@ -236,6 +242,11 @@ onBeforeMount(()=>{
         padding: 20px;
         min-height: 524px;
         margin-top: 11px;
+        .refresh{
+            font-size: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
         .viewAll{
             color: #ccc;
         }

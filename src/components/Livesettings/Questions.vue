@@ -189,12 +189,11 @@ import {
   getInteract,
   postInteract,
   delInteract,
-  updateInteract,
-  keywordInteract,
+  updateInteract
 } from '../../api/index';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import type { FormInstance, ElInput } from 'element-plus';
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useProjectStore } from '../../stores'
 const ruleRef = ref<FormInstance>();
 const route = useRoute()
@@ -240,7 +239,6 @@ onMounted(() => {
     loading.close()
   }, 500)
 });
-
 
 
 const validateName = (rule: any, value: any, callback: any) => {

@@ -4,21 +4,21 @@
         <div class="picBox"><el-image :src="data.cover" class="pic" fit="contain"/></div>
         <p class="title ell">{{ data.name }}</p>
         <p class="time">{{ data.created_at }}</p>
-        <!-- <div class="btnGroup center" v-if="data.status===1">
+        <div class="btnGroup center" v-if="data.status===1">
             <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
             <el-button color="#333333" @click="delect">删除</el-button>
         </div>
-        <div class="btnGroup center" v-else-if="data.status===3"> -->
-        <div class="btnGroup center">
+        <div class="btnGroup center" v-else-if="data.status===3">
+        <!-- <div class="btnGroup center"> -->
             <template v-if="!project.liveWin">
                 <el-button color="#333333" @click="router.push('/creatlive?pid='+data.id)">继续编辑</el-button>
                 <el-button color="#333333" @click="router.push('/livesettings?pid='+data.id+'&pagetype='+pagetype)">互动设置</el-button>
             </template>
-            <el-button color="#333333" @click="router.push('/preview')">预览</el-button>
+            <el-button color="#333333" @click="router.push('/preview?pid='+data.id)">预览</el-button>
             <el-button color="#333333" @click="playLive" v-if="project.liveWin===data.id">开播</el-button>
             <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
-        <!-- <div class="btnGroup center" v-else></div> -->
+        <div class="btnGroup center" v-else></div>
     </div>
     <!-- 直播窗口打开前的互动配置 -->
     <el-dialog

@@ -4,6 +4,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "YourAppID",
+  "productName": "智星AI数字人",
   "asar": true,
   "directories": {
     "output": "release/${version}"
@@ -14,13 +15,13 @@
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
-    "icon": "public/icon.ico",
+    "icon": "public/favicon.ico",
     "target": [
       "dmg"
     ]
   },
   "win": {
-    "icon": "public/icon.ico",
+    "icon": "public/favicon.ico",
     "target": [
       {
         "target": "nsis",
@@ -35,6 +36,10 @@
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+    "deleteAppDataOnUninstall": false,
+    "installerIcon": "public/favicon.ico",
+    "uninstallerIcon": "public/favicon.ico",
+    "installerHeaderIcon": "public/favicon.ico",
+    "createDesktopShortcut": true
   }
 }

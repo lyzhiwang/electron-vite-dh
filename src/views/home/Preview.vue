@@ -7,14 +7,21 @@
     <div class="page">
         <video 
             class="v" 
-            src="https://zwklt.oss-cn-beijing.aliyuncs.com/video/13/2023-04-20/ZQdXMPiLYREHu4vzShWy.mp4" 
+            :src="actItem.video_path" 
             controls
         ></video>
     </div>
     <div class="page mat10">
         <el-scrollbar>
             <ul class="partList">
-                <li :class="['item',{'act': item===act}]" v-for="item in 10" @click="selectPart(item)"><el-image class="img" src=""/></li>
+                <li 
+                    :class="['item',{'act': item.id===actItem.id}]" 
+                    v-for="item in details.footages" 
+                    @click="selectPart(item)"
+                    :key="item.id"
+                >
+                    <el-image class="img" :src="item.video_path+'?x-oss-process=video/snapshot,t_1000,f_jpg,m_fast,ar_auto,w_192'" loading="lazy" fit="contain"/>
+                </li>
             </ul>
         </el-scrollbar>
     </div>
@@ -22,11 +29,28 @@
 </template>
     
 <script setup>
-const act = ref(1)
+import { useRoute } from 'vue-router'
+import { projectDetail } from '../../api'
+
+const route = useRoute()
+const details = ref({
+    footages: [],
+})
+const actItem = ref(1)
+
 function selectPart(item){
-    console.log(1111, item)
-    act.value = item
+    actItem.value = item
 }
+
+onBeforeMount(()=>{
+    const { pid } = route.query
+    projectDetail(pid).then(res=>{
+        if(res && res.data){
+            details.value = res.data
+            selectPart(details.value.footages[0])
+        }
+    })
+})
 </script>
 
 <style lang="scss" scoped>

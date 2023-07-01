@@ -160,7 +160,6 @@ export function voiceOrder(project_id){
 	return request({
 		url: '/add/voice/'+project_id,
 		method: 'post',
-		data
 	})
 }
 // 获取抖音ws地址

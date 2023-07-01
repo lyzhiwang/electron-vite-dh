@@ -34,6 +34,7 @@ onMounted(()=>{
     const { live_url } = live.liveInfo
     // 开始播放
     vRef.value.autoplay = true
+    vRef.value.play()
     if(live_url){
       // 开启请求ws地址
       live.getWsUrl({live_url}).then(data=>{

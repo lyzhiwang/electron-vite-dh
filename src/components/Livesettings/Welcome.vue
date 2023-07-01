@@ -1,18 +1,26 @@
 <template>
   <div class="welcomedata">
     <el-form
-      ref="form_data"
+      ref="ruleRefWel"
       :model="form_data"
       label-width="100px"
       :style="'width:300px'"
-      :rules="rules"
       status-icon
       scroll-to-error
     >
       <!-- <el-form-item label="触发条件" prop="describe">
         <div class="count_unit">全场</div>
       </el-form-item> -->
-      <el-form-item label="回复频率" prop="time">
+      <el-form-item 
+        label="回复频率" 
+        prop="time"
+        :rules="{
+          validator: validateKeyword,
+          required: true,
+          message: '请输入回复频率',
+          trigger: 'blur',
+        }"
+        >
         <div class="count">
           <div class="count_unit">每</div>
           <el-input-number
@@ -31,7 +39,16 @@
           <div class="count_unit">次</div>
         </div>
       </el-form-item>
-      <el-form-item label="选择音色" prop="timbre_id">
+      <el-form-item 
+        label="选择音色" 
+        prop="timbre_id"
+        :rules="{
+          validator: validateTimbre,
+          required: true,
+          message: '请选择音色',
+          trigger: 'blur',
+        }"
+        >
         <div class="timbre_list_two">
           <el-radio-group v-model="temporary_timbre">
             <div v-for="(item, index) in timbre_list" :key="index">
@@ -59,7 +76,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="submitForm(form_data)">
+        <el-button type="primary" @click="submitForm(ruleRefWel)">
           立即提交
         </el-button>
       </el-form-item>
@@ -71,11 +88,14 @@
 import { getTimbre, getWelcome, postWelcome } from '../../api/index';
 import { ref, reactive, onMounted } from 'vue';
 import { VideoPlay } from '@element-plus/icons-vue';
-import { ElInput, ElMessage, FormRules, ElLoading } from 'element-plus';
+import { ElMessage, ElLoading } from 'element-plus';
+import type { FormInstance } from 'element-plus';
+const ruleRefWel = ref<FormInstance>();
 const trigger = ['blur', 'change'];
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
-const route = useRoute()
-const router = useRouter()
+import { useRoute, useRouter } from 'vue-router';
+const route = useRoute();
+const router = useRouter();
+import { runOnce } from '../../utils/voice';
 
 const form_data = reactive<any>({
   id: '',
@@ -87,8 +107,8 @@ const form_data = reactive<any>({
 
 const project_id = ref<any>('11');
 const page_type = ref<any>('1');
-const form_data_time = ref(1)
-const form_data_number = ref(1)
+const form_data_time = ref(1);
+const form_data_number = ref(1);
 
 onMounted(() => {
   // project_id.value = 11
@@ -96,16 +116,16 @@ onMounted(() => {
     lock: true,
     text: 'Loading',
     background: 'rgba(0, 0, 0, 0.7)',
-  })
-  const { pid, pagetype } = route.query
-  project_id.value = pid
-  page_type.value = pagetype
+  });
+  const { pid, pagetype } = route.query;
+  project_id.value = pid;
+  page_type.value = pagetype;
 
   gettimbrelist();
   getwelcomedetail(project_id);
   setTimeout(() => {
-    loading.close()
-  }, 500)
+    loading.close();
+  }, 500);
 });
 
 // 临时值 选中音色
@@ -125,7 +145,12 @@ const timbre_list = reactive<any>([
 ]);
 
 const validateKeyword = (rule: any, value: any, callback: any) => {
-  if ((form_data.time && form_data.time > 0) && (form_data.number && form_data.number > 0)) {
+  if (
+    form_data.time &&
+    form_data.time > 0 &&
+    form_data.number &&
+    form_data.number > 0
+  ) {
     callback();
   } else {
     callback(new Error('时间或次数不能为空'));
@@ -139,17 +164,17 @@ const validateTimbre = (rule: any, value: any, callback: any) => {
   }
 };
 
-const rules = reactive<FormRules>({
-  time: [{ validator: validateKeyword, trigger: 'blur' }],
-  timbre_id: [
-    {
-      validator: validateTimbre,
-      required: true,
-      message: '请选择音色',
-      trigger,
-    },
-  ],
-});
+// const rules = reactive<FormRules>({
+//   time: [{ validator: validateKeyword, trigger: 'blur' }],
+//   timbre_id: [
+//     {
+//       validator: validateTimbre,
+//       required: true,
+//       message: '请选择音色',
+//       trigger,
+//     },
+//   ],
+// });
 
 //
 const handleChangetime = async (value: number) => {
@@ -183,18 +208,17 @@ const getwelcomedetail = async (project_id: any) => {
       form_data.time = res.data.time;
       form_data_time.value = res.data.time;
       form_data.number = res.data.number;
-      form_data_number.value= res.data.number;
+      form_data_number.value = res.data.number;
       temporary_timbre.value = res.data.timbre_id;
     } else {
-      form_data.timbre_id = timbre_list[0].id,
-      form_data.time = 1,
-      form_data_time.value = 1,
-      form_data.number = 1,
-      form_data_number.value= 1,
-      form_data.value = project_id.value;
+      (form_data.timbre_id = timbre_list[0].id),
+        (form_data.time = 1),
+        (form_data_time.value = 1),
+        (form_data.number = 1),
+        (form_data_number.value = 1),
+        (form_data.value = project_id.value);
       temporary_timbre.value = timbre_list[0].id;
     }
-
   });
 };
 
@@ -215,10 +239,10 @@ const submitForm = async (form_data: any) => {
       postWelcome(params).then((res) => {
         // console.log(res);
         ElMessage({ type: 'success', message: '设置成功！' });
-        if(page_type.value==='1'){
-          router.push('/')
+        if (page_type.value === '1') {
+          router.push('/');
         } else {
-          router.push('/project')
+          router.push('/project');
         }
       });
     } else {
@@ -231,6 +255,8 @@ const submitForm = async (form_data: any) => {
 const playmusic = async (item: any) => {
   console.log('播放音色音频');
   console.log(item);
+  // audition_url
+  // runOnce('',ali,item,audition_url)
 };
 </script>
 
