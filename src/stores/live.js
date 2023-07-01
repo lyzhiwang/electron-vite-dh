@@ -4,6 +4,7 @@ import pb from '../utils/douyin_pb'
 import { runOnce } from '../utils/voice'
 import { sample } from 'lodash-es'
 import { voiceOrder, getTiktokWs } from '../api'
+import { isBefore, isAfter, addSeconds } from 'date-fns'
 // import { ipcRenderer } from 'electron'
 var pako = require('pako');
 
@@ -20,6 +21,8 @@ export const useLiveStore = defineStore('live', {
         liveInfo: null,
         vRef: null,
         answer: null,
+        expireTime: null, // 欢迎到期时间
+        times: null,
     }),
     actions: {
         setPlayStatus(bool){
@@ -64,11 +67,21 @@ export const useLiveStore = defineStore('live', {
                         case 'WebcastMemberMessage':  // 进入直播间
                             const { project_id, welcome_switch, welcome } = this.liveInfo
                             if(welcome_switch===1 && !this.playIng){
-                                this.playIng = true
-                                var enterMsg = pb.MemberMessage.deserializeBinary(item[1]);
-                                await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali)
-                                this.playIng = false
-                                voiceOrder(project_id)
+                                const nowTime = new Date()
+                                if(this.times === null || isAfter(nowTime, this.expireTime)){
+                                    // 第一次进入 或者 超过时间重置记录到期时间
+                                    this.expireTime = addSeconds(nowTime, welcome.time);
+                                    this.times = welcome.number 
+                                }
+                                if(isBefore(nowTime, this.expireTime) && this.times>0){ 
+                                    // 在时间内并且播放次数没消耗完
+                                    this.playIng = true
+                                    var enterMsg = pb.MemberMessage.deserializeBinary(item[1]);
+                                    await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali, welcome.timbre)
+                                    this.times--
+                                    this.playIng = false
+                                    voiceOrder(project_id)
+                                }
                             }
                             // ipcRenderer.send('welcome', {type: 1, name: enterMsg.array[1][2]})
                             // console.log(333, `【${enterMsg.array[1][2]}】 进入直播间`)

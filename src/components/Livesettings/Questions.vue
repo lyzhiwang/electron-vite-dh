@@ -193,14 +193,7 @@ import {
   keywordInteract,
 } from '../../api/index';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
-import {
-  ElInput,
-  ElMessage,
-  FormRules,
-  ElMessageBox,
-  ElLoading,
-} from 'element-plus';
-import type { FormInstance } from 'element-plus';
+import type { FormInstance, ElInput } from 'element-plus';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useProjectStore } from '../../stores'
 const ruleRef = ref<FormInstance>();
