@@ -38,6 +38,7 @@ export const useLiveStore = defineStore('live', {
         playAnserVoice(url){
             this.answer.autoplay = true
             this.answer.src = url
+            // this.answer.play()
             this.vRef.volume = 0.2
         },
         async globelMessage(backdata) {
@@ -77,10 +78,13 @@ export const useLiveStore = defineStore('live', {
                                     // 在时间内并且播放次数没消耗完
                                     this.playIng = true
                                     var enterMsg = pb.MemberMessage.deserializeBinary(item[1]);
-                                    await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali, welcome.timbre)
+                                    this.vRef.volume = 0.2
+                                    await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali, welcome.timbre, ()=>{
+                                        this.vRef.volume = 1
+                                        voiceOrder(project_id)
+                                    })
                                     this.times--
                                     this.playIng = false
-                                    voiceOrder(project_id)
                                 }
                             }
                             // ipcRenderer.send('welcome', {type: 1, name: enterMsg.array[1][2]})

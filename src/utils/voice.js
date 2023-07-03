@@ -8,7 +8,7 @@ let loadIndex = 0
 const URL = 'wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1';
 const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs))
 
-export async function runOnce(line, {appkey, token}, timbre) {
+export async function runOnce(line, {appkey, token}, timbre, callback) {
     console.log(`speak: ${line}`)
     loadIndex++
     
@@ -63,6 +63,7 @@ export async function runOnce(line, {appkey, token}, timbre) {
     param.voice = timbre||"aixia"
     try {
       await tts.start(param, true, 6000)
+      callback()
     } catch(error) {
       console.log("error on start:", error)
       return

@@ -7,6 +7,7 @@
         :before-upload="beforeUpload"
         :on-exceed="handleExceed"
         :on-success="uploadSuccess"
+        accept=".mp3,.ogg,.wav,.wma,.flac"
     >
         <slot></slot>
     </el-upload>
