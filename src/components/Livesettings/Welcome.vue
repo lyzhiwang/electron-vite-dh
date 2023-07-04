@@ -56,15 +56,15 @@
                 <div class="group_item">
                   <div class="item_left">
                     <!-- <icon type="" :size="23" color="" /> -->
-                    <el-icon :size="20">
+                    <el-icon class="autionIcon">
                       <VideoPlay />
                     </el-icon>
                     <div class="item_left_content">
                       {{ item.name }}&nbsp;&nbsp;({{ item.type }})
                     </div>
                   </div>
-                  <div class="item_right" @click.stop="playmusic(item)">
-                    <el-icon :size="20">
+                  <div v-if="item.audition_url" class="item_right" @click.stop="playmusic(item)">
+                    <el-icon class="autionIcon">
                       <VideoPlay />
                     </el-icon>
                   </div>
@@ -81,6 +81,9 @@
         </el-button>
       </el-form-item>
     </el-form>
+
+
+    <audio id="timbresound" :src="timbreSoundUrl" ref="timbreAudio" @ended="timbreanswerEnd" />
   </div>
 </template>
 
@@ -91,11 +94,9 @@ import { VideoPlay } from '@element-plus/icons-vue';
 import { ElMessage, ElLoading } from 'element-plus';
 import type { FormInstance } from 'element-plus';
 const ruleRefWel = ref<FormInstance>();
-const trigger = ['blur', 'change'];
 import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
-import { runOnce } from '../../utils/voice';
 
 const form_data = reactive<any>({
   id: '',
@@ -109,6 +110,8 @@ const project_id = ref<any>('11');
 const page_type = ref<any>('1');
 const form_data_time = ref(1);
 const form_data_number = ref(1);
+
+
 
 onMounted(() => {
   // project_id.value = 11
@@ -140,7 +143,7 @@ const timbre_list = reactive<any>([
   //   type: '知性女生',//类型
   //   scene: '通用场景',//场景
   //   icons: 'nva',
-  //   url:"",
+  //   audition_url:"",
   // }
 ]);
 
@@ -251,13 +254,45 @@ const submitForm = async (form_data: any) => {
   });
 };
 
+
+const timbreAudio = ref()
+const timbreSoundUrl = ref('');
+const isAudio = ref<Boolean>(true)
 // 播放音色音频
 const playmusic = async (item: any) => {
-  console.log('播放音色音频');
-  console.log(item);
-  // audition_url
-  // runOnce('',ali,item,audition_url)
+  // console.log('播放音色音频');
+  // console.log(item);
+  if(isAudio){
+    isAudio.value = false
+    if(item.audition_url){
+      timbreSoundUrl.value = item.audition_url
+      timbreAudio.value.autoplay = true
+      // const music = new Audio(item.audition_url);
+      // music.play();
+      // const audio = document.getElementById('audio')
+      // audio.load()
+      // audio.pause()
+    }
+  } else {
+    // timbreSoundUrl.value = ''
+    // timbreAudio.value.autoplay = false
+    // // isAudio.value = false、
+    // isAudio.value = false
+    
+    if(timbreSoundUrl.value){
+      ElMessage({ message: '请等待当前音频播放完毕！' });
+    } else {
+      ElMessage({ message: '选中音频无法播放！' });
+    }
+  }
 };
+
+const timbreanswerEnd = async (item: any) => {
+  // console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+  isAudio.value = true
+  timbreSoundUrl.value = ''
+  timbreAudio.value.autoplay = false
+}
 </script>
 
 <style lang="scss" scoped>
@@ -346,5 +381,9 @@ const playmusic = async (item: any) => {
     border: 1px solid rgb(88, 86, 86);
     // box-shadow: none;
   }
+}
+
+.autionIcon{
+  font-size: 20px;
 }
 </style>
