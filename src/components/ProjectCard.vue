@@ -15,7 +15,7 @@
                 <el-button color="#333333" @click="router.push('/livesettings?pid='+data.id+'&pagetype='+pagetype)">互动设置</el-button>
             </template>
             <el-button color="#333333" @click="router.push('/preview?pid='+data.id)">预览</el-button>
-            <el-button color="#333333" @click="playLive" v-if="project.liveWin===data.id">开播</el-button>
+            <el-button color="#333333" @click="playLive(data.id)" v-if="project.liveWin===data.id">开播</el-button>
             <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
         <div class="btnGroup center" v-else></div>
@@ -50,7 +50,7 @@
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
 import { useProjectStore, useLiveStore } from '../stores'
-import { setLiveRoom, liveRoomInfo, delProJect } from '../api'
+import { setLiveRoom, liveRoomInfo, delProJect, startLive } from '../api'
 const goRefresh = inject('reload')
 const props = defineProps({
     data: {
@@ -110,7 +110,13 @@ function openLiveWin(){
         }
     })
 }
-function playLive(){
+function playLive(id){
+    // 记录开播
+    startLive(id).then(res=>{
+        if(res){
+            project.setLiveOpen(true)
+        }
+    })
     ipcRenderer.send('play-live')
 }
 function delect(){

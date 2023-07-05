@@ -57,7 +57,8 @@
                 <Upload 
                     :beforeUpload="beforeUpload" 
                     :uploadSuccess="uploadSuccess"
-                    :showFileList="false" 
+                    :showFileList="false"
+                    accept=".mp3,.wav" 
                     class="upload-voice center"
                 >
                     <el-button color="#333" class="upload">
@@ -267,15 +268,17 @@ function uploadSuccess(res, file){
 }
 async function startCfmCrate(){ 
     // 1.先保存到草稿箱
-    await saveToTemp()
+    const flag = await saveToTemp()
     // const footages = form.footages.map(item=>item.audio_id)
     // 2.获取音频时长
-    await videoNeedTime({project_id}).then(res=>{
-        if(res&&res.data){
-            usedTime.value = res.data.duration
-            crtCfmPop.value = true
-        }
-    })
+    if(flag){
+        await videoNeedTime({project_id}).then(res=>{
+            if(res&&res.data){
+                usedTime.value = res.data.duration
+                crtCfmPop.value = true
+            }
+        })
+    }
 }
 async function saveToTemp(){ // 保存到草稿箱
     try {

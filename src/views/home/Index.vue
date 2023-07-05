@@ -18,7 +18,7 @@
             </h1>
             <el-row class="list">
                 <el-col :span="8" v-for="item in proList">
-                    <ProjectCard :data="item" :pagetype="pagetype" :key="item.id"/>
+                    <ProjectCard :data="item" pagetype="1" :key="item.id"/>
                 </el-col>
                 <el-empty description="暂无数据" v-if="proList.length==0" class="noData"/>
             </el-row>
@@ -69,7 +69,7 @@
            </div>
         </div>
         <div class="block codeBox center">
-            <el-image src="" class="qrcode"/>
+            <el-image :src="sys.qrcode" class="qrcode"/>
             <p>投诉反馈</p>
             <p>添加客服微信进行咨询</p>
         </div>
@@ -100,7 +100,7 @@
         </template>
     </el-dialog>
     <!-- 右侧侧滑抽屉 -->
-    <el-drawer v-model="popup.drawer" title="I am the title" :with-header="false">
+    <el-drawer v-model="popup.drawer" title="I am the title" :with-header="false" destroy-on-close>
         <VoiceDetail v-if="popup.detailType===1"/>
         <VideoDetail v-else />
     </el-drawer>
@@ -112,10 +112,9 @@ import { Edit, Avatar, Microphone, VideoPlay, RefreshRight } from '@element-plus
 import { useUserStore, useProjectStore } from '../../stores'
 import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
-import { changePwd, getBanner } from '../../api'
+import { changePwd, getBanner, sysInfo } from '../../api'
 // import { runOnce } from '../../utils/voice'
 
-const pagetype = ref('1')
 const changePwdRef = ref()
 const user = useUserStore()
 const projct = useProjectStore()
@@ -123,6 +122,11 @@ const router = useRouter()
 const projectName = ref('')
 const listTotal = ref(0) // 项目总个数
 const banner = ref([])
+const sys = ref({  //系统设置
+    logo: '',
+    name: '',
+    qrcode: '',
+})
 const popup = reactive({
     drawer: false, // 右侧抽屉
     changePwd: false, // 更改密码
@@ -210,8 +214,13 @@ function getThreeProject(){
 onBeforeMount(()=>{
     user.getUserInfo()
     getThreeProject()
-    getBanner().then(res=>{
-        if(res && res.data) banner.value = res.data  
+    Promise.all([
+        new Promise(resolve => getBanner().then(res=>resolve(res.data)).catch(()=>resolve(null))),
+        new Promise(resolve => sysInfo().then(res=>resolve(res.data)).catch(()=>resolve(null))),
+    ]).then( data => {
+        const [ b, s ] = data
+        banner.value = b
+        sys.value = s
     })
 })
 </script>

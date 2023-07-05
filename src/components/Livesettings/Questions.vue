@@ -102,6 +102,8 @@
                       :beforeUpload="beforeUpload"
                       :uploadSuccess="uploadSuccess"
                       :showFileList="false"
+                      :multiple="true"
+                      accept=".mp3,.ogg,.wav"
                     >
                       <el-button
                         v-if="item.audio.length < 5"
@@ -284,7 +286,7 @@ const delitem = async (item: any, index: any) => {
           // console.log('删除已提交问题');
           // console.log(res);
           formdata.splice(formdata.indexOf(item), 1);
-          ElMessage({ message: '删除成功！' });
+          ElMessage({ type: 'success', message: '删除成功！' });
         });
       })
       .catch(() => {
@@ -293,7 +295,7 @@ const delitem = async (item: any, index: any) => {
   } else {
     // console.log('删除问题');
     formdata.splice(formdata.indexOf(item), 1);
-    ElMessage({ message: '删除成功！' });
+    ElMessage({ type: 'success', message: '删除成功！' });
   }
 };
 

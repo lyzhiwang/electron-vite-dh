@@ -2,12 +2,12 @@
     <el-upload
         action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
         :show-file-list="showFileList"
+        :multiple="multiple"
         :http-request="ossUpload"
-        :limit="limit"
         :before-upload="beforeUpload"
         :on-exceed="handleExceed"
         :on-success="uploadSuccess"
-        accept=".mp3,.ogg,.wav,.wma,.flac"
+        :accept="accept"
     >
         <slot></slot>
     </el-upload>
@@ -42,6 +42,14 @@ const props = defineProps({
         type: Number,
         default: 1
     },
+    multiple: {
+      type: Boolean,
+      default: false
+    },
+    accept: {
+      type: String,
+      default: '.mp3,.wav',
+    }
 })
 
 function randomString(len) {
@@ -55,8 +63,9 @@ function getSuffix(name) {
 function getRandomName(name) {
     return randomString(20) + getSuffix(name)
 }
-function handleExceed(){
+function handleExceed(files){
     // 超出上传限制时的钩子函数
+    console.log('超出上传限制', files)
 }
 function ossUpload(e){
     const { file, onProgress, onSuccess, onError } = e

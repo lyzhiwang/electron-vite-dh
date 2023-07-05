@@ -6,6 +6,7 @@ export const useProjectStore = defineStore('project', {
         list: [],
         liveWin: null,
         ossData: null,
+        isOpen: false,
     }),
     actions: {
         async getList(params) {
@@ -33,5 +34,8 @@ export const useProjectStore = defineStore('project', {
         setLiveWin(id){
             this.liveWin = id; 
         },
+        setLiveOpen(bool){
+            this.isOpen = bool
+        }
     }
 })

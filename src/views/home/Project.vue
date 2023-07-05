@@ -9,7 +9,7 @@
             </div>
         </el-col>
         <el-col :span="6" v-for="item in projct.list">
-            <ProjectCard :data="item" :pagetype="pagetype" :key="item.id"/>
+            <ProjectCard :data="item" pagetype="2" :key="item.id"/>
         </el-col>
     </div>
     <div class="layout_right">
@@ -35,7 +35,6 @@ const projectName = ref('')
 const total = ref(0)
 const page = ref(1)
 const size = 23
-const pagetype = ref('2')
 
 function createNewPro(){
     if(!projectName.value) return ElMessageBox.alert('请输入项目名称')

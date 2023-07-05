@@ -262,7 +262,7 @@ const isAudio = ref<Boolean>(true)
 const playmusic = async (item: any) => {
   // console.log('播放音色音频');
   // console.log(item);
-  if(isAudio){
+  if(isAudio.value){
     isAudio.value = false
     if(item.audition_url){
       timbreSoundUrl.value = item.audition_url
@@ -280,9 +280,9 @@ const playmusic = async (item: any) => {
     // isAudio.value = false
     
     if(timbreSoundUrl.value){
-      ElMessage({ message: '请等待当前音频播放完毕！' });
+      ElMessage({ type: 'error', message: '请等待当前音频播放完毕！' });
     } else {
-      ElMessage({ message: '选中音频无法播放！' });
+      ElMessage({ type: 'error', message: '选中音频无法播放！' });
     }
   }
 };

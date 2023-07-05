@@ -11,10 +11,14 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { useProjectStore } from './stores'
+import { endLive } from './api'
 
 const project = useProjectStore()
 
 ipcRenderer.on('liveClose',()=>{
+  // 请求关播接口
+  if(project.isOpen) endLive(project.liveWin)
+  // 清空项目ID
   project.setLiveWin(null)
 })
 </script>

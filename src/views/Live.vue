@@ -65,7 +65,9 @@ onMounted(()=>{
   })*/
 })
 function nextRound(){ // 播放下一轮
-    videoArr = randomArr(videoArr)
+    if(live.liveInfo.is_random && videoArr.length>1){
+      videoArr = randomArr(videoArr)
+    }
     current = 0
     round++
 }

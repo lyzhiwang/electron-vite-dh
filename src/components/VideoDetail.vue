@@ -15,7 +15,7 @@ const list = ref([])
 onBeforeMount(()=>{
     videoRecord({size: 20, page: 1}).then(res=>{
         if(res && res.data){
-            // list.value = res.data
+            list.value = res.data
             // list.value = [
             //     {
             //         "id":2,

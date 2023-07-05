@@ -38,6 +38,30 @@ export function humanList(params) {
 	})
 }
 
+// 系统信息
+export function sysInfo(){
+	return request({
+		url: '/sys/info',
+		method: 'get',
+	})
+}
+
+// 开播
+export function startLive(project_id){
+	return request({
+		url: '/start/broadcast/'+project_id,
+		method: 'post',
+	})
+}
+
+// 关播
+export function endLive(project_id){
+	return request({
+		url: '/end/broadcast/'+project_id,
+		method: 'post',
+	})
+}
+
 // 阿里云token
 export function aliToken(params){
 	return request({
