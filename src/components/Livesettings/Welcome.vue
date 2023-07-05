@@ -3,7 +3,6 @@
     <el-form
       ref="ruleRefWel"
       :model="form_data"
-      label-width="100px"
       :style="'width:300px'"
       status-icon
       scroll-to-error
@@ -75,11 +74,11 @@
         </div>
       </el-form-item>
 
-      <el-form-item>
+      <div class="keyword_operate">
         <el-button type="primary" @click="submitForm(ruleRefWel)">
           立即提交
         </el-button>
-      </el-form-item>
+      </div>
     </el-form>
 
 
@@ -325,34 +324,10 @@ const timbreanswerEnd = async (item: any) => {
     line-height: 6px;
   }
 
-  // .timbre_list {
-  //   margin-top: 4px;
-  //   .timbre_list_item {
-  //     display: flex;
-  //     width: 275px;
-  //     height: 40px;
-  //     background: #333333;
-  //     border-radius: 4px;
-  //     color: #ffffff;
-  //     justify-content: space-around;
-  //     align-items: center;
-  //     .item_left {
-  //     }
-  //     .item_right {
-  //       cursor: pointer;
-  //       padding-top: 10px;
-  //     }
-  //   }
-  //   .timbre_list_item:hover {
-  //     // background-color: #282828;
-  //     background-color: #434343;
-  //   }
-  //   .selected_timbre {
-  //     // background-color: #191919;
-  //     // background-color: #252323;
-  //     background-color: aquamarine;
-  //   }
-  // }
+  .keyword_operate {
+    padding-left: 130px;
+  }
+
 }
 
 .timbre_list_two {
@@ -381,6 +356,11 @@ const timbreanswerEnd = async (item: any) => {
     border: 1px solid rgb(88, 86, 86);
     // box-shadow: none;
   }
+}
+
+:deep .el-form-item__label{
+  width: 130px;
+  // border: 1px solid red;
 }
 
 .autionIcon{
