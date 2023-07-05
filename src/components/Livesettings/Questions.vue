@@ -2,11 +2,12 @@
   <div class="questions">
     <div class="formdata_list">
       <div>
+        <!--           label-width="100px"
+          :style="'width:500px'" -->
         <el-form
           ref="ruleRef"
           :model="formdata"
-          label-width="100px"
-          :style="'width:500px'"
+          class="form_style"
         >
           <!-- status-icon scroll-to-error -->
           <div
@@ -544,6 +545,9 @@ function uploadSuccess(res: any, file: any) {
 <style lang="scss" scoped>
 .questions {
   .formdata_list {
+    .form_style {
+      width: 500px;
+    }
     .formdata_item {
       display: flex;
       justify-content: space-between;
@@ -555,6 +559,7 @@ function uploadSuccess(res: any, file: any) {
       width: 75vw;
       padding-right: 10vw;
       .item_left {
+
         .tag_lest {
           // border: 1px solid red;
           display: flex;
@@ -662,6 +667,10 @@ function uploadSuccess(res: any, file: any) {
   }
 }
 
+:deep .el-form-item__label{
+  width: 130px;
+  // border: 1px solid red;
+}
 .el-form-item__content {
   width: 300px !important;
   .el-input {
