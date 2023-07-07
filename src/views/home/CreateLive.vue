@@ -179,7 +179,15 @@ onBeforeMount(()=>{
         })
     }else{ // 新建
         form.name = pn
-        getHumanList()
+        getHumanList().then(data=>{
+            // 新建的时候创建一个默认的片段并选中
+            if(data && data.length>0){
+                const { human_id, image } = data[0]
+                selectHuman(human_id, image)
+            }
+            createPart()
+            selectPart(0)
+        })
     }
     project.queryAliToken()
 })

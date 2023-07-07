@@ -23,8 +23,12 @@ export const useLiveStore = defineStore('live', {
         answer: null,
         expireTime: null, // 欢迎到期时间
         times: null,
+        current: 0, // 当前播放的第几个视频
     }),
     actions: {
+        setCurrent(i){
+            this.current = i
+        },
         setPlayStatus(bool){
             this.playIng = bool
         },
@@ -34,12 +38,13 @@ export const useLiveStore = defineStore('live', {
         setLiveDom(vRef, answer){
             this.vRef = vRef
             this.answer = answer
+            this.current = 0
         },
         playAnserVoice(url){
             this.answer.autoplay = true
             this.answer.src = url
             // this.answer.play()
-            this.vRef.volume = 0.2
+            this.vRef[this.current].volume = 0.2
         },
         async globelMessage(backdata) {
             try {
@@ -78,9 +83,11 @@ export const useLiveStore = defineStore('live', {
                                     // 在时间内并且播放次数没消耗完
                                     this.playIng = true
                                     var enterMsg = pb.MemberMessage.deserializeBinary(item[1]);
-                                    this.vRef.volume = 0.2
+                                    var vdom = this.vRef[this.current]
+                                    vdom.volume = 0.2
                                     await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali, welcome.timbre, ()=>{
-                                        this.vRef.volume = 1
+                                        vdom.volume = 1 // 老视频声音重置
+                                        this.vRef[this.current] = 1 // 新视频声音重置
                                         voiceOrder(project_id)
                                     })
                                     this.times--

@@ -161,15 +161,15 @@ ipcMain.on('open-win', (_, parame) => { // 主进程打开新窗口
   });
 })
 
-ipcMain.on('play-live', () => {
+ipcMain.on('play-live', (_, liveInfo) => {
   //给live窗体渲染进程发消息
-  if(liveWin) liveWin.webContents.send('play-live')
+  if(liveWin) liveWin.webContents.send('play-live', liveInfo)
 })
 
 // ipcMain.on('change-volume', (_, parame) => {
 //   if(liveWin) liveWin.webContents.send('change-volume', parame)
 // })
 
-ipcMain.on('welcome', (_, url) => {
-  if(liveWin) liveWin.webContents.send('welcome', url)
-})
+// ipcMain.on('welcome', (_, url) => {
+//   if(liveWin) liveWin.webContents.send('welcome', url)
+// })

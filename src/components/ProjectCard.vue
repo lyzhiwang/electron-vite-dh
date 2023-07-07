@@ -1,6 +1,9 @@
 <template>
     <div class="project center">
-        <p class="status">{{ transCode(data.status) }}</p>
+        <p class="status vcenter">
+            <span>{{ transCode(data.status) }}</span>
+            <el-icon class="is-loading" v-if="data.status==2"><Loading /></el-icon>
+        </p>
         <div class="picBox"><el-image :src="data.cover" class="pic" fit="contain"/></div>
         <p class="title ell">{{ data.name }}</p>
         <p class="time">{{ data.created_at }}</p>
@@ -15,7 +18,7 @@
                 <el-button color="#333333" @click="router.push('/livesettings?pid='+data.id+'&pagetype='+pagetype)">互动设置</el-button>
             </template>
             <el-button color="#333333" @click="router.push('/preview?pid='+data.id)">预览</el-button>
-            <el-button color="#333333" @click="playLive(data.id)" v-if="project.liveWin===data.id">开播</el-button>
+            <el-button color="#333333" @click="cfgPop = true" v-if="project.liveWin===data.id">开播</el-button>
             <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin">打开直播</el-button>
         </div>
         <div class="btnGroup center" v-else></div>
@@ -49,6 +52,7 @@
 <script setup>
 import { ipcRenderer } from 'electron'
 import { useRouter } from 'vue-router'
+import { Loading } from '@element-plus/icons-vue'
 import { useProjectStore, useLiveStore } from '../stores'
 import { setLiveRoom, liveRoomInfo, delProJect, startLive } from '../api'
 const goRefresh = inject('reload')
@@ -72,7 +76,7 @@ const form = reactive({
     welcome_switch: 0,
     interactive_switch: 0,
 })
-function getLiveRoom(){
+/*function getLiveRoom(){
     // 保存设置信息到本地存储
     const liveInfo = { ...live.liveInfo, ...form }
     live.setLiveInfo(liveInfo)
@@ -82,20 +86,27 @@ function getLiveRoom(){
     // 设置直播的项目ID
     project.setLiveWin(props.data.id)
     cfgPop.value = false
-}
+}*/
 async function savedSetup(){
     const wsOpen = (form.welcome_switch===1||form.interactive_switch===1);
     if(wsOpen && !form.live_url){
         return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间网址不能为空' })
     }
-    if(wsOpen){
-        // 检查项目的互动设置是否填写
+    const reg = /(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g;
+    if(wsOpen && !reg.test(form.live_url)){
+        return ElMessage({ type: 'warning', message: '请填写正确的直播间地址' })
+    }
+    if(form.welcome_switch===0&&form.interactive_switch===0){
+        form.live_url = ''
     }
     // 1.先保存直播间开启设置
     const res = await setLiveRoom({project_id: props.data.id, ...form})
     if(res){
-        // 2.获取直播间信息后再打开直播窗口
-        getLiveRoom()
+        // 2. 保存成功后开播
+        const liveInfo = { ...live.liveInfo, ...form }
+        live.setLiveInfo(liveInfo)
+        playLive(props.data.id)
+        cfgPop.value = false
     }
 }
 function openLiveWin(){
@@ -105,8 +116,13 @@ function openLiveWin(){
             form.live_url = live_url||''
             form.interactive_switch = interactive_switch||0
             form.welcome_switch = welcome_switch||0
-            cfgPop.value = true
+            // cfgPop.value = true
             live.setLiveInfo(res.data)
+            // 打开直播窗口
+            const screen = (live.liveInfo.screen===1 ? {width: 375, height: 670} : {width: 1600, height: 900})
+            ipcRenderer.send('open-win', {path: 'live', ...screen})
+            // 设置直播的项目ID
+            project.setLiveWin(props.data.id)
         }
     })
 }
@@ -117,7 +133,7 @@ function playLive(id){
             project.setLiveOpen(true)
         }
     })
-    ipcRenderer.send('play-live')
+    ipcRenderer.send('play-live', JSON.stringify(live.liveInfo))
 }
 function delect(){
     ElMessageBox.confirm('是否删除当前项目?', 'Warning', {type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消'}).then(() => {
@@ -159,6 +175,10 @@ function transCode(code){
         position: absolute;
         top: 10px;
         left: 10px;
+        .is-loading{
+            margin-left: 5px;
+            font-size: 22px;
+        }
     }
     .picBox{
         width: 122px;

@@ -20,6 +20,7 @@ ipcRenderer.on('liveClose',()=>{
   if(project.isOpen) endLive(project.liveWin)
   // 清空项目ID
   project.setLiveWin(null)
+  project.setLiveOpen(false)
 })
 </script>
 
