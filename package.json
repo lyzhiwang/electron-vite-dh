@@ -31,7 +31,7 @@
     "sass": "^1.62.1",
     "typescript": "^5.0.2",
     "unplugin-auto-import": "^0.16.2",
-    "unplugin-vue-components": "^0.24.1",
+    "unplugin-vue-components": "^0.25.1",
     "vite": "^4.1.4",
     "vite-plugin-electron": "^0.11.2",
     "vite-plugin-electron-renderer": "^0.14.1",
