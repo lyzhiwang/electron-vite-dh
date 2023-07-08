@@ -386,7 +386,7 @@ const submitform = async (formEl: FormInstance | undefined) => {
         ElMessage({ type: 'success', message: '更新成功！' });
 
         if(page_type.value==='1'){
-          router.push('/')
+          router.push('/home')
         } else {
           router.push('/project')
         }
@@ -667,7 +667,7 @@ function uploadSuccess(res: any, file: any) {
   }
 }
 
-:deep .el-form-item__label{
+:deep(.el-form-item__label) {
   width: 130px;
   // border: 1px solid red;
 }

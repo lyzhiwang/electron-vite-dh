@@ -68,7 +68,7 @@ const submitForm = async (formEl) => {
 }
 const loginSuccess = (data) => {
     user.setUserToken(data.token)
-    router.push('/')
+    router.push('/home')
 }
 </script>
 

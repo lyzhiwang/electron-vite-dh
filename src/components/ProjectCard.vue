@@ -176,8 +176,8 @@ function transCode(code){
         top: 10px;
         left: 10px;
         .is-loading{
-            margin-left: 5px;
-            font-size: 22px;
+            margin-left: 3px;
+            font-size: 20px;
         }
     }
     .picBox{
@@ -191,7 +191,7 @@ function transCode(code){
         width: 122px;
     }
     .title{
-        margin: 9px 0;
+        margin: 12px 0;
         font-size: 20px;
         line-height: 20px;
         max-width: 100%;

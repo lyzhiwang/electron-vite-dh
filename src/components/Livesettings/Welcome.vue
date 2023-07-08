@@ -242,7 +242,7 @@ const submitForm = async (form_data: any) => {
         // console.log(res);
         ElMessage({ type: 'success', message: '设置成功！' });
         if (page_type.value === '1') {
-          router.push('/');
+          router.push('/home');
         } else {
           router.push('/project');
         }
@@ -358,7 +358,7 @@ const timbreanswerEnd = async (item: any) => {
   }
 }
 
-:deep .el-form-item__label{
+:deep(.el-form-item__label){
   width: 130px;
   // border: 1px solid red;
 }

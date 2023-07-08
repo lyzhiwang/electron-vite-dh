@@ -1,20 +1,20 @@
 <template>
 <el-container class="layout">
     <el-header class="header">
-        <div class="logo center">智星AI数字人</div>
+        <div class="logo center"></div>
     </el-header>
     <el-container>
         <el-aside class="leftNav">
+            <!-- active-text-color="#ffd04b" -->
             <el-menu
                 router
                 :default-active="activeIndex"
-                active-text-color="#ffd04b"
                 background-color="transparent"
                 class="el-menu-vertical-demo"
                 text-color="#ccc"
                 @select="handleSelect"
             >
-                <el-menu-item index="/" route="/">
+                <el-menu-item index="/home" route="/home">
                     <el-icon><icon-menu /></el-icon>
                     <span>首页</span>
                 </el-menu-item>
@@ -40,7 +40,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import { Document,  Menu as IconMenu, Setting } from '@element-plus/icons-vue'
+import { Menu as IconMenu, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 // const router = useRouter()
@@ -72,11 +72,14 @@ onBeforeMount(()=>{
         background-color: #282828;
         padding: 0;
         .logo{
-            width: 190px;
+            width: 180px;
             height: 100%;
-            border: 2px solid #949494;
             font-size: 27px;
             color: #fff;
+            background: url('../assets/images/logo.png') center no-repeat;
+            background-size: contain;
+            margin-left: 10px;
+            // border: 2px solid #949494;
         }
     }
     .leftNav{
