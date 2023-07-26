@@ -87,7 +87,7 @@ export const useLiveStore = defineStore('live', {
                                     vdom.volume = 0.2
                                     await runOnce(`欢迎${enterMsg.array[1][2]}进入直播间`, this.ali, welcome.timbre, ()=>{
                                         vdom.volume = 1 // 老视频声音重置
-                                        this.vRef[this.current] = 1 // 新视频声音重置
+                                        this.vRef[this.current].volume = 1 // 新视频声音重置
                                         voiceOrder(project_id)
                                     })
                                     this.times--
