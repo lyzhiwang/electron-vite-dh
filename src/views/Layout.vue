@@ -1,7 +1,10 @@
 <template>
 <el-container class="layout">
     <el-header class="header">
-        <div class="logo center"></div>
+        <!-- <div class="logo center"></div> -->
+        <!-- <div> -->
+            <el-image :src="config.logo" class="config_logo"/>
+        <!-- </div> -->
     </el-header>
     <el-container>
         <el-aside class="leftNav">
@@ -40,11 +43,13 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
+import { useConfigStore } from '../stores'
 import { Menu as IconMenu, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 // const router = useRouter()
 const activeIndex = ref('/')
+const config = useConfigStore()
 const isRouterAlive = ref(true)
 const handleSelect = (path) => {
 //   activeIndex.value = route.matched[1].path
@@ -80,6 +85,11 @@ onBeforeMount(()=>{
             background-size: contain;
             margin-left: 10px;
             // border: 2px solid #949494;
+        }
+        .config_logo{
+            width: 180px;
+            height: 100%;
+            margin-left: 10px;
         }
     }
     .leftNav{

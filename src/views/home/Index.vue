@@ -52,16 +52,16 @@
            <div class="box limitBox">
                 <p class="label">系统到期时间：</p>
                 <p class="val">{{ user.info.end_time }}</p>
-                <p class="label">语音合成剩余次数：</p>
-                <p class="val">{{ user.info.voice_number }}次</p>
+                <!-- <p class="label">语音合成剩余次数：</p>
+                <p class="val">{{ user.info.voice_number }}次</p> -->
                 <p class="label">视频合成可用时长：</p>
                 <p class="val">{{ hms }}</p>
            </div>
            <div class="viewDetail">
-                <el-button color="#191919" class="detailBtn" @click="opneDrawer(1)">
+                <!-- <el-button color="#191919" class="detailBtn" @click="opneDrawer(1)">
                     <el-icon class="btnIcon"><Microphone /></el-icon>
                     语音消耗明细
-                </el-button>
+                </el-button> -->
                 <el-button color="#191919" class="detailBtn" @click="opneDrawer(2)">
                     <el-icon class="btnIcon"><VideoPlay /></el-icon>
                     视频消耗明细
@@ -114,10 +114,12 @@ import { useRouter } from 'vue-router'
 import { getTime } from '../../utils/helper'
 import { changePwd, getBanner, sysInfo } from '../../api'
 // import { runOnce } from '../../utils/voice'
+import { useConfigStore } from '../../stores'
 
 const changePwdRef = ref()
 const user = useUserStore()
 const projct = useProjectStore()
+const config = useConfigStore()
 const router = useRouter()
 const projectName = ref('')
 const listTotal = ref(0) // 项目总个数
@@ -221,6 +223,7 @@ onBeforeMount(()=>{
         const [ b, s ] = data
         banner.value = b
         sys.value = s
+        config.setlogo(s.logo)
     })
 })
 </script>

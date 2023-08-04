@@ -179,11 +179,11 @@ const validateTimbre = (rule: any, value: any, callback: any) => {
 // });
 
 //
-const handleChangetime = async (value: number) => {
+const handleChangetime = async (value: any) => {
   form_data.time = value;
 };
 //
-const handleChangenumber = async (value: number) => {
+const handleChangenumber = async (value: any) => {
   form_data.number = value;
 };
 
