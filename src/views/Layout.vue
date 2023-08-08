@@ -1,9 +1,11 @@
 <template>
 <el-container class="layout">
     <el-header class="header">
+        <!-- <el-image :src="config.logo" class="config_logo"/> -->
         <!-- <div class="logo center"></div> -->
         <!-- <div> -->
             <el-image :src="config.logo" class="config_logo"/>
+            <div class="config_name">{{ config.name }}</div>
         <!-- </div> -->
     </el-header>
     <el-container>
@@ -20,6 +22,10 @@
                 <el-menu-item index="/home" route="/home">
                     <el-icon><icon-menu /></el-icon>
                     <span>首页</span>
+                </el-menu-item>
+                <el-menu-item index="/aicreate" route="/aicreate">
+                    <el-icon><icon-menu /></el-icon>
+                    <span>AI创作</span>
                 </el-menu-item>
                 <!-- <el-menu-item index="/livesettings" route="/livesettings">
                     <el-icon><Setting/></el-icon>
@@ -76,20 +82,33 @@ onBeforeMount(()=>{
         height: 56px;
         background-color: #282828;
         padding: 0;
-        .logo{
-            width: 180px;
-            height: 100%;
-            font-size: 27px;
-            color: #fff;
-            background: url('../assets/images/logo.png') center no-repeat;
-            background-size: contain;
-            margin-left: 10px;
-            // border: 2px solid #949494;
-        }
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 190px;
+        // .logo{
+        //     width: 180px;
+        //     height: 100%;
+        //     font-size: 27px;
+        //     color: #fff;
+        //     background: url('../assets/images/logo.png') center no-repeat;
+        //     background-size: contain;
+        //     margin-left: 10px;
+        //     // border: 2px solid #949494;
+        // }
+        // .config_logo{
+        //     width: 180px;
+        //     height: 100%;
+        //     margin-left: 10px;
+        // }
         .config_logo{
-            width: 180px;
-            height: 100%;
-            margin-left: 10px;
+            width: 36px;
+            height: 36px;
+        }
+        .config_name{
+            color: #999;
+            font-size: 16px;
+            margin-left: 5px;
         }
     }
     .leftNav{

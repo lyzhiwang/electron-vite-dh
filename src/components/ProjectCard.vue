@@ -38,8 +38,11 @@
                 <el-checkbox v-model="form.welcome_switch" :true-label="1" :false-label="0" label="欢迎加入" />
                 <el-checkbox v-model="form.interactive_switch" :true-label="1" :false-label="0" label="回答问题" />
             </div>
-            <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
+            <!-- <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
                 <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
+            </el-form-item> -->
+            <el-form-item prop="live_url_code" label="抖音直播间账号" v-show="form.welcome_switch||form.interactive_switch">
+                <el-input v-model.trim="form.live_url_code" placeholder="请输入抖音直播间账号"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>
@@ -73,6 +76,7 @@ const router = useRouter()
 const cfgPop = ref(false)
 const form = reactive({
     live_url: '',
+    live_url_code:'',
     welcome_switch: 0,
     interactive_switch: 0,
 })
@@ -89,13 +93,22 @@ const form = reactive({
 }*/
 async function savedSetup(){
     const wsOpen = (form.welcome_switch===1||form.interactive_switch===1);
-    if(wsOpen && !form.live_url){
-        return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间网址不能为空' })
+    // if(wsOpen && !form.live_url){
+    //     return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间网址不能为空' })
+    // }
+    if(wsOpen && !form.live_url_code){
+        return ElMessage({ type: 'warning', message: '开启“欢迎加入”或“回答问题”功能后，直播间ID不能为空' })
     }
-    const reg = /(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g;
-    if(wsOpen && !reg.test(form.live_url)){
-        return ElMessage({ type: 'warning', message: '请填写正确的直播间地址' })
+    // const reg = /(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g;
+    // if(wsOpen && !reg.test(form.live_url)){
+    //     return ElMessage({ type: 'warning', message: '请填写正确的直播间地址' })
+    // }
+    // https://live.douyin.com/752389399803
+    const reg =/[-A-Za-z0-9+&@#/%=~_|]/g
+    if(wsOpen && !reg.test(form.live_url_code)){
+        return ElMessage({ type: 'warning', message: '请填写正确的直播间ID' })
     }
+
     if(form.welcome_switch===0&&form.interactive_switch===0){
         form.live_url = ''
     }
@@ -103,7 +116,13 @@ async function savedSetup(){
     const res = await setLiveRoom({project_id: props.data.id, ...form})
     if(res){
         // 2. 保存成功后开播
-        const liveInfo = { ...live.liveInfo, ...form }
+        const patams = {
+            live_url: 'https://live.douyin.com/'+ form.live_url_code,
+            welcome_switch: form.welcome_switch,
+            interactive_switch: form.interactive_switch,
+        }
+        // const liveInfo = { ...live.liveInfo, ...form }
+        const liveInfo = { ...live.liveInfo, patams }
         live.setLiveInfo(liveInfo)
         playLive(props.data.id)
         cfgPop.value = false
@@ -111,6 +130,8 @@ async function savedSetup(){
 }
 function openLiveWin(){
     liveRoomInfo(props.data.id).then(res=>{
+        console.log('1111111111')
+        console.log(res)
         if(res && res.data){
             const { live_url, interactive_switch, welcome_switch } = res.data
             form.live_url = live_url||''

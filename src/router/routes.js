@@ -32,6 +32,13 @@ const routes = [
         name: 'livesettings',
         component: () => import('../views/livesettings/index.vue'),
       },
+
+      {
+        // ai创作
+        path: 'aicreate',
+        name: 'aicreate',
+        component: () => import('../views/aicreate/index.vue'),
+      },
     ]
   },
   {

@@ -265,3 +265,13 @@ export function keywordInteract(data) {
 }
 
 // -----------------------------------------------------
+// chatgpt
+export function postchatgpt(data) {
+	return request({
+		url: '/chatgpt',
+		method: 'post',
+		data
+	})
+}
+
+// -----------------------------------------------------

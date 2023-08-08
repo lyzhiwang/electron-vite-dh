@@ -224,6 +224,7 @@ onBeforeMount(()=>{
         banner.value = b
         sys.value = s
         config.setlogo(s.logo)
+        config.setname(s.name)
     })
 })
 </script>

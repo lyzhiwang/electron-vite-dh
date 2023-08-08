@@ -6,7 +6,8 @@ export const useConfigStore = defineStore('config', {
     account: '',
     password: '',
     remeberPwd: false,
-    logo:''
+    logo:'',
+    name:""
   }),
   actions: {
     setRemeberPwd(val) {
@@ -18,6 +19,9 @@ export const useConfigStore = defineStore('config', {
     },
     setlogo(val) {
       this.logo = val
+    },
+    setname(val) {
+      this.name = val
     },
   }
 })

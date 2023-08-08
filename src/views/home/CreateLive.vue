@@ -111,7 +111,9 @@
         center
     >
         <!-- 预计创建等待时间4分钟， -->
-        <p style="text-align: center">预计消耗合成时长{{usedTime}}秒（以实际合成时长为准），确认后开始创建</p>
+        <!-- <p style="text-align: center">预计消耗合成时长{{usedTime}}秒（以实际合成时长为准），确认后开始创建</p> -->
+        <p style="text-align: center">预计消耗合成时长{{hms}}（以实际合成时长为准），确认后开始创建</p>
+        
         <template #footer>
             <el-button type="primary" @click="createLive">确定创建</el-button>
             <el-button @click="crtCfmPop = false">取消创建</el-button>
@@ -126,6 +128,7 @@ import { humanList, createProJect, updateProJect, projectDetail, compositeVideo,
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { clone, remove, uniqBy } from 'lodash-es'
 import { useProjectStore } from '../../stores'
+import { getTime } from '../../utils/helper'
 
 const route = useRoute()
 const router = useRouter()
@@ -147,6 +150,16 @@ const part = reactive({
     screen: 1,
 })
 const currentImg = computed(()=>form.footages[partAct.value]&&form.footages[partAct.value].image)
+
+const hms = computed(()=>{
+    if(usedTime.value){
+        const [h, m, s] = getTime(usedTime)
+        return `${h}时${m}分${s}秒`
+    } else {
+        return `${'0'}时${'4'}分${'16'}秒`
+    }
+})
+
 let project_id = null // 项目ID
 onBeforeMount(()=>{
     const { pn, pid} = route.query
