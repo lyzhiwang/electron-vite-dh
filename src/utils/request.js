@@ -7,8 +7,8 @@ import router from '../router'
 axios.defaults.retry = 2
 axios.defaults.retryDelay = 1000
 // http://192.168.3.244:5001
-const baseURL = (process.env.NODE_ENV === "development") ? "http://szr.zwstk.cn/api" : `https://api.lytklw.cn/api`;
-// const baseURL = (process.env.NODE_ENV === "development") ? "https://api.lytklw.cn/api" : `https://api.lytklw.cn/api`;
+// const baseURL = (process.env.NODE_ENV === "development") ? "http://szr.zwstk.cn/api" : `https://api.lytklw.cn/api`;
+const baseURL = (process.env.NODE_ENV === "development") ? "https://api.lytklw.cn/api" : `https://api.lytklw.cn/api`;
 // 创建axios实例
 const service = axios.create({
     baseURL, // api 的 base_url
