@@ -128,7 +128,7 @@ import { humanList, createProJect, updateProJect, projectDetail, compositeVideo,
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { clone, remove, uniqBy } from 'lodash-es'
 import { useProjectStore } from '../../stores'
-import { getTime } from '../../utils/helper'
+import { getTime_two } from '../../utils/helper'
 
 const route = useRoute()
 const router = useRouter()
@@ -153,10 +153,17 @@ const currentImg = computed(()=>form.footages[partAct.value]&&form.footages[part
 
 const hms = computed(()=>{
     if(usedTime.value){
-        const [h, m, s] = getTime(usedTime)
-        return `${h}时${m}分${s}秒`
+        const [h, m, s] = getTime_two(usedTime.value)
+        if(h!=='00'){
+            return `${h}时${m}分${s}秒`
+        }else if(m!=='00'){
+            return `${m}分${s}秒`
+        } else {
+            return `${s}秒`
+        }
+        // return `${h}时${m}分${s}秒`
     } else {
-        return `${'0'}时${'4'}分${'16'}秒`
+        return `${'1'}时${'4'}分${'16'}秒`
     }
 })
 
@@ -197,8 +204,11 @@ onBeforeMount(()=>{
             if(data && data.length>0){
                 const { human_id, image } = data[0]
                 selectHuman(human_id, image)
+                // createPart(human_id)
+                const temp = clone(toRaw(part))
+                form.footages.push(temp)
             }
-            createPart()
+            // createPart()
             selectPart(0)
         })
     }
@@ -244,18 +254,26 @@ function selectPart(i){ // 选择片段
     partInit()
 }
 function createPart(){ // 创建片段
-    if(part.human_id){
-        const temp = clone(toRaw(part))
-        form.footages.push(temp)
-    }else{
-        form.footages.push({
-            name: '',
-            image: '',
-            human_id: null,
-            audio_id: null,
-            screen: part.screen,
-        })
-    }
+    // console.log()
+    // if(part.human_id){
+    //     const temp = clone(toRaw(part))
+    //     form.footages.push(temp)
+    // }else{
+    //     form.footages.push({
+    //         name: '',
+    //         image: '',
+    //         human_id: null,
+    //         audio_id: null,
+    //         screen: part.screen,
+    //     })
+    // }
+    form.footages.push({
+        name: '',
+        image: dpList.value[0].image,
+        human_id: dpList.value[0].human_id,
+        audio_id: null,
+        screen: part.screen,
+    })
 }
 function copyPart(){ // 复制片段
     if(partAct.value === null) return ElMessage({ type: 'warning', message: '复制前请先选择一个素材' })
@@ -326,9 +344,23 @@ async function createLive(){
         // await saveToTemp();
         // 3.根据项目ID生成视频
         const res = await compositeVideo(project_id);
-        if(res && res.data){
+        const loading = ElLoading.service({
+            lock: true,
+            text: 'Loading',
+            background: 'rgba(0, 0, 0, 0.7)',
+        })
+        setTimeout(() => {
+            crtCfmPop.value = false
+            loading.close()
+        }, 6000)
+        if(res && res.code===0 && res.data){
+            crtCfmPop.value = false
+            loading.close()
             ElMessage({ type: 'success', message: '创建直播成功！' })
             router.back()
+        } else {
+            crtCfmPop.value = false
+            loading.close()
         }
     } catch (error) {
         console.log(error)

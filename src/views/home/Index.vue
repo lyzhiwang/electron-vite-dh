@@ -17,7 +17,7 @@
                 <router-link to="/project" class="viewAll">查看全部</router-link>
             </h1>
             <el-row class="list">
-                <el-col :span="8" v-for="item in proList">
+                <el-col :span="8" v-for="item in proList" :key="item.id" >
                     <ProjectCard :data="item" pagetype="1" :key="item.id"/>
                 </el-col>
                 <el-empty description="暂无数据" v-if="proList.length==0" class="noData"/>
@@ -171,6 +171,12 @@ const hms = computed(()=>{
     return `${h}时${m}分${s}秒`
 })
 const proList = computed(()=>projct.list.slice(0, 3))
+
+const qwelist = ref([])
+const ids = ref([])
+var timer = null
+
+
 function opneDrawer(type){
     popup.drawer = true
     popup.detailType = type
@@ -210,9 +216,57 @@ async function changePwdSubmit(formEl){
 }
 function getThreeProject(){
     projct.getList({page: 1, size: 3}).then(res=>{
-        if(res)  listTotal.value = res.total
+        // if(res)  listTotal.value = res.total
+        if(res){
+            listTotal.value = res.meta.total
+            qwelist.value = res.data.filter(item => item.status==2);
+            qwelist.value.forEach(item => {
+                ids.value.push(item.id)
+            })   
+            if(ids.value.length>0){
+                getsynthetizedetail(ids.value)
+                timer = setInterval(() => {
+                    getsynthetizedetail(ids.value)
+                }, 10000);
+                setTimeout(() => {  
+                    clearInterval(timer);   
+                }, 300000);
+            }
+        }
     })
 }
+
+function getsynthetizedetail(ids){
+    synthetizedetail({ids:ids}).then(res=>{
+        for (var i = 0; i < res.data.length; i++){
+            projct.list.forEach(item => {
+                if(item.id === res.data[i].id){
+                    item.already = res.data[i].already
+                    item.total = res.data[i].total
+                }
+            })
+        }
+    })
+}
+
+// 定义一个清除延时器的函数
+function clearTimers() {
+  // 获取所有具有 setTimeout 或 setInterval 方法的元素
+  var timers = document.querySelectorAll('[data-timer]');
+  // 循环遍历所有元素并清除它们的延时器
+  for (var i = 0; i < timers.length; i++) {
+    var timer = timers[i];
+    // 清除 setTimeout 延时器
+    // if (timer.dataset.timer !== undefined) {
+    //   clearTimeout(timer.dataset.timer);
+    // }
+    // 清除 setInterval 延时器
+    if (timer.dataset.interval !== undefined) {
+      clearInterval(timer.dataset.interval);
+    }
+  }
+}
+
 onBeforeMount(()=>{
     user.getUserInfo()
     getThreeProject()

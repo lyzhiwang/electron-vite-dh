@@ -39,6 +39,22 @@ const routes = [
         name: 'aicreate',
         component: () => import('../views/aicreate/index.vue'),
       },
+
+      {
+        // 短视频 列表
+        path: 'shortvideo',
+        name: 'shortvideo',
+        component: () => import('../views/shortvideo/index.vue'),
+      },
+
+      {
+        // 短视频 创建
+        path: 'createvideo',
+        name: 'createvideo',
+        component: () => import('../views/shortvideo/createvideo.vue'),
+      },
+
+      
     ]
   },
   {

@@ -13,6 +13,19 @@ export function getTime(time) {
     return [h, m, s]
 }
 
+// 秒转成时分秒
+export function getTime_two(time) {
+  // 转换为时分秒
+  let h = parseInt(time / 60 / 60 )
+  h = h < 10 ? '0' + h : h   // 也可使用padStart()补0
+  let m = parseInt(time / 60 % 60)
+  m = m < 10 ? '0' + m : m
+  let s = parseInt(time % 60)
+  s = s < 10 ? '0' + s : s
+  // 作为返回值返回
+  return [h, m, s]
+}
+
 // 倒计时 
 export const countDown = (sec) => {
   const timer = setInterval(() => {

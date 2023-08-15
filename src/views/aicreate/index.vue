@@ -282,7 +282,7 @@ const initialization = async () => {
 
 <style>
 .el-textarea__inner {
-  color: #333;
+  color: #ffffff;
   font-size: 16px;
 }
 </style>

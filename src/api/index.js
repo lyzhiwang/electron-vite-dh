@@ -39,7 +39,7 @@ export function humanList(params) {
 }
 
 // 系统信息
-export function sysInfo(){
+export function sysInfo() {
 	return request({
 		url: '/sys/info',
 		method: 'get',
@@ -47,23 +47,23 @@ export function sysInfo(){
 }
 
 // 开播
-export function startLive(project_id){
+export function startLive(project_id) {
 	return request({
-		url: '/start/broadcast/'+project_id,
+		url: '/start/broadcast/' + project_id,
 		method: 'post',
 	})
 }
 
 // 关播
-export function endLive(project_id){
+export function endLive(project_id) {
 	return request({
-		url: '/end/broadcast/'+project_id,
+		url: '/end/broadcast/' + project_id,
 		method: 'post',
 	})
 }
 
 // 阿里云token
-export function aliToken(params){
+export function aliToken(params) {
 	return request({
 		url: '/ali/token',
 		method: 'get',
@@ -99,7 +99,7 @@ export function updateProJect(id, data) {
 }
 
 // 项目详情
-export function projectDetail(id){
+export function projectDetail(id) {
 	return request({
 		loading: true,
 		url: `/project/${id}`,
@@ -117,7 +117,7 @@ export function proJectList(params) {
 	})
 }
 // 生成视频
-export function compositeVideo(project_id){
+export function compositeVideo(project_id) {
 	return request({
 		loading: true,
 		url: `/create/video/${project_id}`,
@@ -126,7 +126,7 @@ export function compositeVideo(project_id){
 }
 
 // 获取预计生成时长
-export function videoNeedTime(data){
+export function videoNeedTime(data) {
 	return request({
 		loading: true,
 		url: '/count/project/duration',
@@ -135,8 +135,25 @@ export function videoNeedTime(data){
 	})
 }
 
+// 直播生成进度
+// export function synthetizedetail(id) {
+// 	return request({
+// 		loading: false,
+// 		url: `/synthetize/detail/${id}`,
+// 		method: 'get',
+// 	})
+// }
+export function synthetizedetail(data) {
+	return request({
+		loading: false,
+		url: `/synthetize/detail`,
+		method: 'post',
+		data
+	})
+}
+
 // 视频记录
-export function videoRecord(params){
+export function videoRecord(params) {
 	return request({
 		url: '/video/record',
 		method: 'get',
@@ -145,7 +162,7 @@ export function videoRecord(params){
 }
 
 // 语音记录
-export function voiceRecord(params){
+export function voiceRecord(params) {
 	return request({
 		url: '/voice/record',
 		method: 'get',
@@ -154,7 +171,7 @@ export function voiceRecord(params){
 }
 
 // 轮播图
-export function getBanner(params){
+export function getBanner(params) {
 	return request({
 		url: '/banners/list',
 		method: 'get',
@@ -163,7 +180,7 @@ export function getBanner(params){
 }
 
 // 直播间信息
-export function liveRoomInfo(project_id){
+export function liveRoomInfo(project_id) {
 	return request({
 		loading: true,
 		url: '/broadcast/' + project_id,
@@ -171,7 +188,7 @@ export function liveRoomInfo(project_id){
 	})
 }
 // 设置直播间信息
-export function setLiveRoom(data){
+export function setLiveRoom(data) {
 	return request({
 		loading: true,
 		url: '/broadcast/setting',
@@ -180,14 +197,14 @@ export function setLiveRoom(data){
 	})
 }
 // 记录语音生成次数
-export function voiceOrder(project_id){
+export function voiceOrder(project_id) {
 	return request({
-		url: '/add/voice/'+project_id,
+		url: '/add/voice/' + project_id,
 		method: 'post',
 	})
 }
 // 获取抖音ws地址
-export function getTiktokWs(params){
+export function getTiktokWs(params) {
 	return request({
 		url: '/tiktok/data',
 		method: 'get',
@@ -226,7 +243,7 @@ export function getTimbre(params) {
 // 互动规则列表
 export function getInteract(project_id) {
 	return request({
-		url: '/interact/'+project_id,
+		url: '/interact/' + project_id,
 		method: 'get'
 	})
 }
@@ -275,3 +292,35 @@ export function postchatgpt(data) {
 }
 
 // -----------------------------------------------------
+// 短视频
+// 短视频背景图片列表
+export function shortvideoBackgroundList(params) {
+	return request({
+		url: '/shortvideo/background/list',
+		method: 'get',
+		params
+	})
+}
+
+// 字幕任务列表
+export function shortvideoBackjob(params) {
+	return request({
+		url: '/job',
+		method: 'get',
+		params
+	})
+}
+
+// 创建字幕任务
+export function postjob(data) {
+	return request({
+		url: '/job',
+		method: 'post',
+		data
+	})
+}
+
+
+
+// ----------------------------------------------------------
+// 文件列表
