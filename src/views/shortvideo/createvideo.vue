@@ -3,27 +3,44 @@
     <div class="fixedHead vcenter">
       <!-- <el-input v-if="form.footages[partAct]" v-model.trim="form.footages[partAct].name" placeholder="素材名称" class="partName" />
       <el-input v-else v-model.trim="part.name" placeholder="素材名称" class="partName" /> -->
-      <el-button link class="save" @click="saveToTemp">
+      <!-- <el-button link class="save" @click="saveToTemp">
         <el-icon class="cgxIcon">
           <Collection />
         </el-icon>
         保存到草稿箱
-      </el-button>
-      <button :class="['banBtn', { act: form.wideorvertical === 1 }]" @click="setHs(1)">
+      </el-button> -->
+      <!-- <button :class="['banBtn', { act: form.config.bg_upload_type === 1 }]" @click="setHs(1)">
         竖版
       </button>
-      <button :class="['banBtn', { act: form.wideorvertical === 2 }]" @click="setHs(2)">
+      <button :class="['banBtn', { act: form.config.bg_upload_type === 2 }]" @click="setHs(2)">
         横板
-      </button>
+      </button> -->
       <el-button type="primary" round class="CreateLive" @click="startCfmCrate">
         创建短视频
       </el-button>
     </div>
     
-    <!-- 选择形象 -->
-    <div v-if="pagetype==='1'" class="leftArea">
-      <p class="h3">选择形象</p>
-      <div class="leftArea_box">
+    <div class="leftArea">
+
+      <div class="option_title">
+        <el-radio-group v-model="pagetype">
+          <el-radio-button label="1" >选择形象</el-radio-button>
+          <el-radio-button label="2" >选择背景</el-radio-button>
+          <el-radio-button label="3" >选择花字</el-radio-button>
+        </el-radio-group>
+      </div>
+
+      <div v-if="pagetype==='2'" class="btn_hap">
+        <button :class="['banBtn', { act: form.config.bg_upload_type === 1 }]" @click="setHs(1)">
+          竖版
+        </button>
+        <button :class="['banBtn', { act: form.config.bg_upload_type === 2 }]" @click="setHs(2)">
+          横板
+        </button>
+      </div>
+      
+      <!-- 选择形象 -->
+      <div v-if="pagetype==='1'" class="leftArea_box">
         <ul class="pList">
           <el-image
             v-for="item in dpList"
@@ -31,132 +48,100 @@
             :src="item.image"
             :class="['person', { checked: form.human_id == item.human_id }]"
             loading="lazy"
-            @click="selectHuman(item.human_id, item.image)"
+            @click="selectHuman(item.human_id, item)"
           />
         </ul>
       </div>
-    </div>
-
-    <!-- 选择背景 -->
-    <div v-if="pagetype==='2'" class="leftArea">
-      <p class="h3">选择背景</p>
-      <div class="leftArea_box">
-        <el-button plain type="info" class="upload_btn" @click="uploadinfo">
+      <!-- 选择背景 -->
+      <div v-if="pagetype==='2'" class="leftArea_box">
+        <el-button plain type="info" class="upload_btn" @click="openFile" >
           <el-icon><Upload /></el-icon>
           上传图片或视频
         </el-button>
-        <div class="bgcolorList">
+        <!-- <div class="bgcolorList">
           <div v-for="(item,index) in bgcolorList" :key="index" :class="['bgcolorList_item',{ checked: form.bgcolor === item }]" :style="'background-color:'+item" @click="selectbg(1,item)"  />
-          <div :class="['bgcolorList_item','bgcolorList_item_color',{ checked: form.bgcolor === colorselection }]">
-            <el-color-picker v-model="colorselection" @change="selectbgcolor" />
-          </div>
-        </div>
+        </div> -->
+
         <ul class="pList">
           <li v-for="item in bgList" :key="item.id">
             <el-image
-              v-if="item.screen === form.wideorvertical"
+              v-if="item.screen === form.config.bg_upload_type"
               :src="item.bg.path"
-              :class="['person', { checked: form.bg_id == item.id }]"
+              :class="['person', { checked: form.config.background == item.id }]"
               loading="lazy"
-              @click="selectbg(2,item)"
+              @click="selectbg(1,item)"
             />
           </li>
         </ul>
       </div>
-    </div>
 
-    <!-- 选择花字 -->
-    <div v-if="pagetype==='3'" class="leftArea">
-      <p class="h3">选择花字</p>
-      <ul class="pList">
-        <el-image
-          v-for="item in signatureList"
-          :key="item.id"
-          :src="item.image"
-          :class="['person', { checked: part.human_id == item.human_id }]"
-          loading="lazy"
-          @click="selectsignature(item)"
-        />
-      </ul>
+      <div v-if="pagetype==='3'" class="leftArea_box">
+        <div class="signature_title">花字内容</div>
+        <el-input class="inpsty" v-model="form.config.font_content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" :placeholder="'请输入花字内容'" :maxlength="50" show-word-limit />
+
+        <div class="signature_title">选择字体</div>
+        <div class="fontarr_list">
+          <div v-for="(item, index) in shortvideo.fontarr" :key="index" :class="['fontarr_list_item', { checked: form.config.font_family.id === item.id }]" :style="{'font-family':item.font}" @click="changeFamily(item)">
+            {{ item.string }}
+          </div>
+        </div>
+
+        <div class="signature_title">花字样式</div>
+        <div class="fontstyle_list">
+          <div v-for="(item, index) in shortvideo.fontStyle" :key="index" :class="['fontstyle_list_item', { checked: fontstyleindex === index }]" :style="getnewStyle(item)" @click="changeStyle(item,index)">
+            字体颜色
+          </div>
+        </div>
+
+
+        <div class="signature_title">字幕样式</div>
+        <div class="subtitle_style_list">
+          <div v-for="(item, index) in shortvideo.subtitle_style" :key="index" :class="['subtitle_style_list_item', { checked: subtitlestyleindex === index }]" :style="getStyle(item)" @click="changeSubtitle(item,index)">
+            预览样式
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
     <div class="rightArea">
       <div class="topCon center">
-        <div class="dpBox" :style="form.bgcolor?'background-color:'+form.bgcolor:''">
-          <el-image v-if="form.bg_path"
-            :src="form.bg_path"
-            :class="['img_box_bg',form.wideorvertical === 1 ? 'vertical' : 'horizontal']"
+        <!-- :style="form.bgcolor?'background-color:'+form.bgcolor:''" -->
+        <div class="dpBox" >
+          <el-image v-if="bg_path"
+            :src="bg_path"
+            :class="['img_box_bg',form.config.bg_upload_type === 1 ? 'vertical' : 'horizontal']"
             fit="fill"
           />
           <el-image
             :src="HumanData.image"
-            :class="['img_box',form.wideorvertical === 1 ? 'vertical' : 'horizontal']"
+            :class="['img_box',form.config.bg_upload_type === 1 ? 'vertical' : 'horizontal']"
             fit="contain"
           />
         </div>
       </div>
 
       <div class="botCon">
-        <!-- 操作片段区 -->
-        <div class="btnGroup vcenter">
-          <!-- <el-tooltip effect="dark" content="复制选中素材" placement="top">
-            <el-icon class="btnIcon" @click="copyPart">
-                <CopyDocument/>
-            </el-icon>
-          </el-tooltip> -->
-          <!-- <el-tooltip effect="dark" content="删除选中素材" placement="top">
-            <el-icon class="btnIcon" @click="delePart">
-                <DeleteFilled/>
-            </el-icon>
-          </el-tooltip> -->
-          <!-- <Upload
-            :beforeUpload="beforeUpload"
-            :uploadSuccess="uploadSuccess"
-            :showFileList="false"
-            accept=".mp3,.wav"
-            class="upload-voice center"
-          >
-            <el-button color="#333" class="upload">
-              <el-icon class="insertIcon">
-                <CirclePlusFilled />
-              </el-icon>
-              <span v-if="form.footages[partAct] && form.footages[partAct].audio_id">
-                修改录音
-              </span>
-              <span v-else>上传录音</span>
-            </el-button>
-          </Upload> -->
-          <!-- <el-switch
-            class="roundOpt"
-            v-if="form.footages.length > 2"
-            v-model="form.is_random"
-            style="--el-switch-off-color: #4c4d4f"
-            active-text="随机播放"
-            :active-value="1"
-            :inactive-value="0"
-          /> -->
+        <!-- 操作区 -->
+        <div class="btnGroup">
+          <el-button color="#333" @click="setdub()">
+            选择配音
+          </el-button>
         </div>
-        <!-- 片段列表区 -->
-        <!-- <el-scrollbar class="scrollview">
-          <ul class="partList">
-            <li :class="['item', { act: i === partAct }]" v-for="(item, i) in form.footages" :key="i" @click="selectPart(i)">
-              <el-image class="img center" :src="item.image" loading="lazy" fit="contain" >
-                <template #error>
-                  <el-icon class="errorIcon"><Picture /></el-icon>
-                </template>
-              </el-image>
-              <div class="status center" v-if="i === partAct">
-                编辑中
-              </div>
-            </li>
-            <li class="item center create" @click="createPart">
-              <el-icon class="insertIcon">
-                <DocumentAdd />
-              </el-icon>
-              <p>新建素材</p>
-            </li>
-          </ul>
-        </el-scrollbar> -->
+
+        <!--  -->
+        <div v-if="pagetype==='3'" class="signature">
+          <div>花字位置</div>
+          <div class="">
+            <el-radio-group v-model="form.config.font_position">
+              <el-radio v-for="(item,index) in shortvideo.fontPostion" :key="index" :label="item.value">
+                {{ item.title }}
+              </el-radio>
+            </el-radio-group>
+            <div class="tip-font">建议开启字幕后不要选择 下-文字左对齐、下-文字居中、下-文字右对齐</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -173,8 +158,170 @@
       </template>
     </el-dialog>
 
+    <!-- 配音设置侧边弹窗 -->
+    <el-drawer v-model="isjobdrawer" border title="选择配音" size="50%">
+      <div class="jobdrawer_content">
 
-    <FileManager :showFileList="false" accept=".mp3,.wav" @closeupload="closeuploadinfo" />
+        <div class="">
+          <el-table :data="zmList" style="width: 100%" :empty-text="'暂无数据'">
+            <el-table-column :label="'请点击选择短视频需要绑定的音频'">
+              <template #default="scope">
+                <div class="flex_between">
+                  <div v-if="scope.row.detail.length && scope.row.detail[0].content" class="content">
+                    {{ scope.row.detail[0].content }}
+                  </div>
+                  <div v-else class="content">
+                    口播语音
+                  </div>
+                  <el-link v-if="scope.row.detail.length===1" @click="createAsr(scope.row)" type="primary" :underline="false">
+                    点击生成字幕
+                  </el-link>
+                  <el-link v-else-if="scope.row.detail.length>1" @click="modefiAsr(scope.row, scope.row.detail[1])" type="primary" :underline="false">
+                    字幕校验
+                  </el-link>
+                  <el-link v-else type="primary" :underline="false">
+                    字幕已生成
+                  </el-link>
+                </div>
+                <div class="flex_between">
+                  <div v-if="scope.row.detail[0] && scope.row.detail[0].uploads">
+                    <span>编号:{{ scope.row.detail[0].uploads.id }}</span>
+                    <span v-if="scope.row.detail[0].uploads.extensions">
+                      / 时长：{{ scope.row.detail[0].uploads.extensions.duration }}秒
+                    </span>
+                  </div>
+                  <div>
+                    <el-button v-if="isPlay && playVideo.id === scope.row.detail[0].uploads.id" size="small" @click="pauseVoice">
+                      <el-icon><VideoPause /></el-icon>
+                      暂停
+                    </el-button>
+                    <el-button v-else size="small" @click="playVoice(scope.row.detail[0].uploads)">
+                      <el-icon><VideoPlay /></el-icon>
+                      播放
+                    </el-button>
+
+                    <el-button v-if="scope.row.detail[1] && scope.row.detail[1].id" type="primary" size="small" @click="chooseVocie(1,scope.row)">
+                      <el-icon><Lock /></el-icon>
+                      {{ form.config.subtitle_id === scope.row.detail[1].id?'已选字幕':'选择字幕' }}
+                    </el-button>
+                    <el-button type="primary" size="small" @click="chooseVocie(2,scope.row)">
+                      <el-icon><Lock /></el-icon>
+                      {{ form.audio_id === scope.row.detail[0].uploads.id?'已选音频':'选择音频' }}
+                    </el-button>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <div class="paginationstyle">
+            <el-pagination 
+              :page-size="5" 
+              shide-on-single-page 
+              small background 
+              layout="prev, pager, next" 
+              :total="pagination.total" 
+              @size-change="sizechange"
+              @current-change="currentchange"
+              @prev-click="prevclick"
+              @next-click="nextclick"
+              class="mt-4"/>
+          </div>
+          
+        </div>
+        <div class="content_footer">
+          <el-upload
+            action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
+            :show-file-list="false"
+            :http-request="ossUpload"
+            :on-success="uploadSuccess"
+            :accept="'.mp3,.ogg,.wav,audio,img'"
+          >
+            <el-button type="primary" class="el-icon-upload">本地上传</el-button>
+          </el-upload>
+          <!-- <el-button v-has="'jobStore'" type="success" @click="createVoice">制作配音</el-button> -->
+          <el-button @click="closejobdrawer">返 回</el-button>
+        </div>
+      </div>
+    </el-drawer>
+
+    <!-- 字幕校验 -->
+    <el-drawer v-model="checkDrawer" title="字幕校验" size="50%" @close="closemodefiAsr" >
+      <div v-if="isasr" class="asr_content">
+        <!-- <el-form v-if="asr && asr.content" ref="asr" :rules="rulesForm" :model="asr.content" label-width="150px">
+          <el-form-item prop="content" label-width="0px">
+            <el-timeline >
+              <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
+                <el-form-item :prop="`content.${index}.content`" :rules="rulesForm.contentItem">
+                  <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
+                  <div style="width:40vw">
+                    <el-button type="primary" size="small" plain @click="addasritem(index)">
+                      拆分
+                    </el-button>
+                  </div>
+                </el-form-item>
+              </el-timeline-item>
+              <div v-if="asr.content && asr.content.length" class="endtime">
+                结束时间：{{ asr.content[asr.content.length-1].to }}ms
+              </div>
+            </el-timeline>
+          </el-form-item>
+        </el-form> -->
+        <!-- {{ asr }} -->
+
+        <!-- <el-form ref="asr" :model="asr" label-width="150px">
+          <el-form-item prop="content" label-width="0px">
+            <el-timeline >
+              <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
+                <el-form-item :prop="`content.${index}.content`" :rules="rulesForm.contentItem">
+                  <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
+                  <div style="width:40vw">
+                    <el-button type="primary" size="small" plain @click="addasritem(index)">
+                      拆分
+                    </el-button>
+                  </div>
+                </el-form-item>
+              </el-timeline-item>
+              <div v-if="asr.content && asr.content.length" class="endtime">
+                结束时间：{{ asr.content[asr.content.length-1].to }}ms
+              </div>
+            </el-timeline>
+          </el-form-item>
+        </el-form> -->
+
+        <!-- {{ asr }} -->
+        <el-timeline >
+          <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
+            <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
+            <div style="width:40vw;margin-top: 6px;">
+              <el-button type="primary" size="small" plain @click="addasritem(index)">
+                拆分
+              </el-button>
+            </div>
+          </el-timeline-item>
+          <div v-if="asr.content && asr.content.length" class="endtime">
+            结束时间：{{ asr.content[asr.content.length-1].to }}ms
+          </div>
+        </el-timeline>
+
+        <div class="asr_title">字幕校验说明</div>
+        <ul class="asr_rule">
+          <li>系统是根据你选择的语音自动生成的字幕，字幕中的文字本系统不保证完全正确，故需要您进行校验。</li>
+          <li>校验只能修改因读音不准确造成的文字识别错误，并不能进行大段文字修改。</li>
+          <li>如因系统无法识别造成段落过长，可进行拆分操作，如拆分错误可点击重置按钮重新拆分。</li>
+          <li>校验后的结果将在提交后生效。</li>
+        </ul>
+        <div class="asr_footer">
+          <el-button type="primary" @click="submitasr('asr')">提交校验</el-button>
+          <el-button type="warning" @click="initasr">重置</el-button>
+          <el-button @click="checkDrawer=false">取消</el-button>
+        </div>
+      </div>
+    </el-drawer>
+
+
+    <!-- 上传文件管理 -->
+    <FileManager :type="6" :pageSize="8" :isvisible="isFileCard" @change="changeFile"  @close="closeuploadinfo" />
 
   </div>
 </template>
@@ -187,7 +334,10 @@ import {
   DocumentAdd,
   Collection,
   Picture,
-  Upload
+  Upload,
+  VideoPause,
+  VideoPlay,
+  Lock
 } from '@element-plus/icons-vue';
 import {
   humanList,
@@ -197,78 +347,146 @@ import {
   // compositeVideo,
   // videoNeedTime,
   // 
-  shortvideoBackgroundList
+  shortvideoBackgroundList,
+  shortvideoBackjob,
+  postjob,
+  generateVideo,
+  putsubtitle,
+  svjobdetail,
+  generateDuration
 } from '../../api';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { clone, remove, uniqBy } from 'lodash-es';
 import { useProjectStore,shortvideoStore } from '../../stores';
-import { getTime } from '../../utils/helper';
+import { getTime, getTime_two } from '../../utils/helper';
+import OSS from 'ali-oss'
+import { format } from 'date-fns'
+import { sampleSize } from 'lodash-es'
+import { storeToRefs } from 'pinia'
+const { ossData } = storeToRefs(useProjectStore())
 
 const route = useRoute();
 const router = useRouter();
-// const project = useProjectStore(); //仓库 直播
+const project = useProjectStore(); // 仓库 直播
 const shortvideo = shortvideoStore(); //仓库 短视频
 const partAct = ref(null); // 选中的片段下标
 const crtCfmPop = ref(false); //是否显示创建弹窗
 const usedTime = ref(''); // 生成视频预计消耗时长
 const dpList = ref([]); // 数字人形象列表
 const bgList = ref([]); // 背景图列表
-const bgcolorList = ref([
-  '#fa436a',
-  '#e54d42',
-  '#f37b1d',
-  '#fbbd08',
-  '#8dc63f',
-  '#39b54a',
-  '#1cbbb4',
-  '#0081ff',
-  '#6739b6',
-  '#9c26b0',
-  '#e03997',
-]); // 背景颜色列表
+// const bgcolorList = ref([
+//   '#fa436a',
+//   '#e54d42',
+//   '#f37b1d',
+//   '#fbbd08',
+//   '#8dc63f',
+//   '#39b54a',
+//   '#1cbbb4',
+//   '#0081ff',
+//   '#6739b6',
+//   '#9c26b0',
+//   '#e03997',
+//   '#e03007',
+// ]); // 背景颜色列表
 const signatureList = ref([]); // 花字列表
 const pagetype = ref('1'); // 页面类型1：数字人  2：背景  3：花字
-const colorselection = ref('#409EFF'); // 颜色选择器
+// const colorselection = ref('#409EFF'); // 颜色选择器
 const form = reactive({
   id:'',
-  name: '', // 短视频名称
-  wideorvertical:1,// 1：宽屏  2：竖屏
-  human_id:'',//数字人id
-  bg_id:'', // 背景id
-  bg_path:"",
-  signature_id:'', // 花字id
-  bgcolor:'', // 背景色纯色
-  // footages: [], // 片段集合
-  // is_random: 0,
+  name: 'ceshi1', // 短视频名称
+  // wideorvertical:1, // 1：宽屏  2：竖屏
+  human_id:'',// 数字人id
+  audio_id:'',// 音频id
+  config:{
+    background:"", // 背景图id（图片记录id）
+    bg_type:'',// 背景上传图片 1系统 2自定义
+    bg_upload_type:1, // 背景类型 1竖屏 2横屏
+
+    font_family: { id: 1, font: 'zk-kuaile-font' }, //
+    font_position:'TopCenter', // 花字位置
+    font_style:null, // 花字样式
+    font_size:75, // 字体大小
+    font_content:"", //
+
+    subtitle_style:null, // 字幕样式
+    subtitle_id:"", // 字幕记录id
+  },
+
+
+  // bg_id:'', // 背景id
+  // bg_path:"",
+  // bgcolor:'', // 背景色纯色
+  // font_position:'TopCenter',
+  // font_style:null,
+  // font_familys: { id: 1, font: 'zk-kuaile-font' }
+
 });
+
+const asr = reactive({
+  // isAsrVisible: false,
+  id:null,
+  row: null,
+  content: null
+})
+const isasr = ref(true); // 是否显示字幕校验弹窗内容
+const asr_two = reactive({
+  id:null,
+  row: null,
+  content: null
+})
+const rulesForm = reactive({
+  content: [{ required: true, message: '请输入配音文字', trigger: 'blur' }],
+  contentItem: [{ required: true, message: '请填写文字', trigger: 'change' }]
+})
+
+
+const fontstyleindex  = ref(-1);// 选中样式的索引
+const subtitlestyleindex  = ref(-1);// 选中样式的索引
+const fontObj = ref({}); // 花字字体
 const HumanData = ref({}); // 选中数字人
-const isVisible =  ref(false); // 是否显示上传文档弹窗弹窗
-// const part = reactive({
-//   name: '',
-//   image: '',
-//   human_id: null,
-//   audio_id: null,
-//   screen: 1,
-// });
-// const currentImg = computed(
-//   () => form.footages[partAct.value] && form.footages[partAct.value].image
-// );
+const bg_path = ref(''); // 选中背景链接
+
+
+const isjobdrawer = ref(false); // 是否显示字幕设置弹窗
+const checkDrawer = ref(false); // 是否显示字幕校验弹窗
+const isFileCard = ref(false); // 是否显示文件列表弹窗
+const iscreateAsr = ref(false); // 是否允许创建字幕
+
+const zmList = ref([]); // 字幕任务列表
+const captions = reactive({  // 字幕上传 type
+    type:13
+});
+const choosedObj= ref([]); // 已选择字幕
+const playVideo = ref({}); // 音频 播放
+const isPlay = ref(false);  // 是否播放音频
+
+const pagination = reactive({
+  page: 1, // 当前页数
+  size: 5, // 每页显示条目个数
+  total: 100 // 总条目数
+});
+
 
 // 对时间显示进行处理
-const hms = computed(() => {
-  if (usedTime.value) {
-    const [h, m, s] = getTime(usedTime);
-    return `${h}时${m}分${s}秒`;
+const hms = computed(()=>{
+  if(usedTime.value){
+      const [h, m, s] = getTime_two(usedTime.value)
+      if(h !== '00'){
+        return `${h}时${m}分${s}秒`
+      } else if(m !== '00'){
+        return `${m}分${s}秒`
+      } else {
+        return `${s}秒`
+      }
+      // return `${h}时${m}分${s}秒`
   } else {
-    return `${'0'}时${'4'}分${'16'}秒`;
+    return `${'1'}时${'4'}分${'16'}秒`
   }
-});
-
-// let shortvideo_id = null; // 短视频 ID
+})
 
 // 
 onBeforeMount(() => {
-  // const { pn, pid } = route.query;
+  const { pn, pid } = route.query;
   // if (pid) {
   //   // 编辑
   //   project_id = pid; // 同步项目ID
@@ -319,53 +537,33 @@ onBeforeMount(() => {
   //   })
   // }
   // project.queryAliToken();
-  const { pt } = route.query;
-  console.log('页面状态')
-  console.log(pt)
-  pagetype.value = pt
+
+  if(pn){
+    form.name = pn;
+  }
   getHumanList().then((data) => {
-    console.log('数字人')
-    console.log(data)
-    // 新建的时候创建一个默认的片段并选中
     if (data && data.length > 0) {
       const { human_id, image } = data[0];
-      // selectHuman(human_id, image);
       form.human_id = human_id
       HumanData.value = data[0]
     }
-    // createPart();
-    // selectPart(0);
   });
-  if (pt === '2'){
-    getShortvideoBackgroundList().then(data =>{
-      console.log('获取背景图列表')
-      console.log(data)
-      const { id, image } = data[0];
-      form.bg_id = id
-    })
-  } else if (pt === '3'){
-    // getShortvideoBackgroundList().then(res =>{
-    //   console.log('获取背景图列表')
-    //   console.log(res)
-    // })
-  }
-
-  
+  getShortvideoBackgroundList().then()  
 });
 
-// 离开页面前保存草稿箱
-// onBeforeRouteLeave(async()=>{ 
-//     const flag = await saveToTemp()
-//     if (!flag) return false
-// })
+onMounted(() => {
+  project.queryAliToken()
+});
 
-function uploadinfo(){
-  this.isVisible.value = true
+// 设置横竖屏
+function setHs(num) {
+  form.config.bg_upload_type = num;
+  // 背景初始化
+  form.config.background = ''
+  bg_path.value = ''
 }
 
-function closeuploadinfo(){
-  this.isVisible.value = false
-}
+// ---------------------------------------------------
 
 // 获取数字人列表
 async function getHumanList() {
@@ -377,6 +575,32 @@ async function getHumanList() {
   return false;
 }
 
+// 选择数字人
+function selectHuman(id, item) {
+  form.human_id = id
+  HumanData.value = item
+}
+
+// -----------------------------------------------------------
+// 打开文件弹窗
+function openFile(){
+  // console.log('打开文件弹窗')
+  // console.log()
+  isFileCard.value = true
+}
+// 文件传值
+function changeFile(val){
+  console.log('传值')
+  console.log(val)
+  form.config.bg_type = 2
+  form.config.background = val.id
+  bg_path.value = val.path
+  isFileCard.value = false
+}
+// 关闭文件弹窗
+function closeuploadinfo(val){
+  isFileCard.value = false
+}
 // 获取背景图列表
 async function getShortvideoBackgroundList() {
   const res = await shortvideoBackgroundList();
@@ -387,40 +611,35 @@ async function getShortvideoBackgroundList() {
   return false;
 }
 
-// 选择数字人
-function selectHuman(id, image) {
-  form.human_id = id
-  // part.human_id = id;
-  // part.image = image;
-  // if (form.footages.length > 0 && partAct.value !== null) {
-  //   form.footages[partAct.value].human_id = id;
-  //   form.footages[partAct.value].image = image;
-  // }
-}
-
 // 选择背景图
 function selectbg(type,item) {
-  // console.log('选择背景图')
-  // console.log(type,item)
-  if(type===1){
-    form.bgcolor = item
-    form.bg_id = -1
-    form.bg_path = ''
+  // type 背景上传图片 1系统 2自定义
+  form.config.bg_type = type
+  if(form.config.background ===''){
+    form.config.background = item.id
+    bg_path.value = item.bg.path
+  } else if(form.config.background === item.id) {
+    form.config.background = ''
+    bg_path.value = ''
   } else {
-    form.bg_id = item.id
-    form.bg_path = item.bg.path
-    form.bgcolor = ''
+    form.config.background = item.id
+    bg_path.value = item.bg.path
   }
-  // if (form.footages.length > 0 && partAct.value !== null) {
-  //   form.footages[partAct.value].human_id = id;
-  //   form.footages[partAct.value].image = image;
+  
+  
+  // if(type===1){
+  //   form.bgcolor = item
+  //   form.bg_id = -1
+  //   form.bg_path = ''
+  // } else {
+  //   form.config.background = item.id
+  //   bg_path.value = item.bg.path
+  //   // form.bgcolor = ''
   // }
 }
 
 // 取色器选颜色
 function selectbgcolor(e){
-  // console.log('eeeeeeee')
-  // console.log(e)
   if(e){
     form.bg_id = -1
     form.bg_path = ''
@@ -428,181 +647,457 @@ function selectbgcolor(e){
   }
 }
 
+// ---------------------------------------------------------------
 // 选择花字
 function selectsignature(item) {
-    form.bg_id = item.id
-  
-  // if (form.footages.length > 0 && partAct.value !== null) {
-  //   form.footages[partAct.value].human_id = id;
-  //   form.footages[partAct.value].image = image;
-  // }
+  form.bg_id = item.id
 }
-
-// 获取花字列表
-async function getSignatureList() {
-  // const res = await humanList();
-  // if (res && res.data) {
-  //   dpList.value = res.data;
-  //   return res.data;
-  // }
-  // return false;
-}
-
-// 初始化短视频基础数据
-function partInit() {
-  part.name = '';
-  part.image = '';
-  part.human_id = null;
-  part.audio_id = null;
-}
-
-// 设置横竖屏
-function setHs(num) {
-  form.wideorvertical = num;
-
-  // 背景初始化
-  form.bg_id = -1
-  form.bg_path = ''
-  form.bgcolor = ''
-  // if (form.footages.length > 0) {
-  //   form.footages = form.footages.map((item) => {
-  //     return { ...item, screen: num };
-  //   });
-  // }
-}
-
-
-
-// // 选择片段
-// function selectPart(i) {
-//   partAct.value = i;
-//   // 重置选择的数字人
-//   partInit();
-// }
-
-// // 创建片段
-// function createPart() {
-//   if (part.human_id) {
-//     const temp = clone(toRaw(part));
-//     form.footages.push(temp);
-//   } else {
-//     form.footages.push({
-//       name: '',
-//       image: '',
-//       human_id: null,
-//       audio_id: null,
-//       screen: part.screen,
-//     });
-//   }
-// }
-
-// // 复制片段 
-// function copyPart() {
-//   if (partAct.value === null)
-//     return ElMessage({ type: 'warning', message: '复制前请先选择一个素材' });
-//   const targetPart = clone(form.footages[partAct.value]);
-//   form.footages.push(targetPart);
-// }
-
-// // 删除片段
-// function delePart() {
-//   if (partAct.value === null)
-//     return ElMessage({ type: 'warning', message: '删除前请先选择一个素材' });
-//   remove(form.footages, (item, index) => index == partAct.value);
-//   partAct.value = null; // 重置
-//   partInit();
-// }
-
-// 
-function beforeUpload() {
-  if (partAct.value === null) {
-    ElMessage({ type: 'warning', message: '请先选择一个素材,再上传录音！' });
-    return false;
+function getnewStyle(item) {
+  return {
+    'font-family': form.config.font_family ? form.config.font_family.font : '',
+    color: item ? item.FontColor : '',
+    'text-shadow': item ? `${item.OutlineColour} 1px 0 0, ${item.OutlineColour} 0 1px 0, ${item.OutlineColour} -1px 0 0, ${item.OutlineColour} 0 -1px 0` : ''
   }
 }
 
-// 
-function handleExceed() {
-  // 超出上传限制时的钩子函数
+function getStyle(item) {
+  return {
+    'font-family': 'xinqingnian-changgui',
+    color: item.FontColor,
+    'text-shadow': `${item.OutlineColour} 1px 0 0, ${item.BackColour} 0 1px 0, ${item.OutlineColour} -1px 0 0, ${item.OutlineColour} 0 -1px 0`
+  }
+}
+// 选择字体
+function changeFamily(item) {
+  // console.log('选择字体')
+  // console.log(item)
+  form.config.font_family = item
+  getnewStyle()
+}
+// 选择花字
+function changeStyle(item,index) {
+  // console.log('选择花字')
+  if(fontstyleindex.value === index){
+    form.config.font_style = null
+    fontstyleindex.value = ''
+  } else {
+    form.config.font_style = item
+    fontstyleindex.value = index
+  }
 }
 
-// 
-// function uploadSuccess(res, file) {
-//   console.log(333, res);
-//   const audio_id = res.data.id;
-//   // 上传成功设置音频ID
-//   part.audio_id = audio_id;
-//   if (form.footages.length > 0 && partAct.value !== null) {
-//     form.footages[partAct.value].audio_id = audio_id;
-//   }
-//   ElMessage({ type: 'success', message: '上传录音成功！' });
-// }
+// 选择字幕样式
+function changeSubtitle(item,index) {
+  // console.log('选择字幕样式')
+  if(subtitlestyleindex.value === index){
+    form.config.subtitle_style = null
+    subtitlestyleindex.value = ''
+  } else {
+    form.config.subtitle_style = item
+    subtitlestyleindex.value = index
+  }
+}
 
+
+// ------------------------------------------------------------
+// 打开侧边栏 选择配音
+function setdub(){
+  getshortvideoBackjob().then()
+  isjobdrawer.value = true
+}
+
+// 关闭侧边弹窗 选择配音
+function closejobdrawer(){
+  isjobdrawer.value = false
+}
+
+// 获取字幕任务列表
+async function getshortvideoBackjob() {
+  const res = await shortvideoBackjob(pagination);
+  if (res && res.data) {
+    zmList.value = res.data;
+    pagination.total = res.meta.total
+    return res.data;
+  }
+  return false;
+}
+// 点击生成字幕
+function createAsr (row){
+  if(iscreateAsr.value === true){
+    ElMessage({ type: 'warning', message: '请务频繁点击！' });
+    return
+  }
+  const params = {
+    type:2,
+    upload_id:row.detail[0].uploads.id,
+    job_id:row.id
+  }
+  postjob(params).then(res=>{
+    iscreateAsr.value === true
+    const loading = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+    })
+    getsvjobdetail(res.data.id).then(res=>{
+      if(res){
+        iscreateAsr.value === false
+        console.log('成功')
+        console.log(res)
+        loading.close()
+        // modefiAsr(row, res)
+        getshortvideoBackjob().then()
+      }
+    })
+
+    setTimeout(() => {
+      loading.close()
+    }, 6000)
+  })
+}
+// 获取字幕详情
+async function getsvjobdetail(id) {
+  let num = 0
+  const max = 15
+  const errResponse = (i) => {
+    clearInterval(i)
+  }
+  const t = setInterval(() => {
+    num++
+    svjobdetail(id).then(res=>{
+      // Created、Finished、Executing、Failed
+      switch (res.data.status) {
+        case 'Finished':
+          clearInterval(t)
+          // resolve(res.data)
+          modefiAsr(row, res.data)
+          getshortvideoBackjob().then()
+          return res.data
+          break
+        case 'Failed':
+          errResponse(t)
+          break
+        default:
+          // 第十次请求仍旧无结果则放弃等待
+          if (num === max) {
+            errResponse(t)
+          }
+        break
+      }
+    }).catch(() => {
+      errResponse(t)
+    })
+    // 上限
+    if (num === max) {
+      clearInterval(t)
+    }
+  }, 6000)
+  return false;
+}
+
+// 字幕校验
+function modefiAsr(row, content){
+  console.log('字幕校验')
+  console.log(row)
+  console.log(content)
+  isasr.value = true
+  asr.row = JSON.parse(JSON.stringify(row))
+  asr.content = JSON.parse(JSON.stringify(content.content))
+  asr.id = JSON.parse(JSON.stringify(content.id))
+
+  checkDrawer.value = true
+  asr_two.row = JSON.parse(JSON.stringify(row))
+  asr_two.content = JSON.parse(JSON.stringify(content.content))
+  asr_two.id = JSON.parse(JSON.stringify(content.id))
+}
+// 关闭字幕校验
+function closemodefiAsr (){
+  console.log('关闭字幕校验')
+  checkDrawer.value = false
+  asr.row = null
+  asr.content = null
+  isasr.value = false
+}
+
+// 重置 原有字幕
+function initasr() {
+  asr.id = asr_two.id
+  asr.content = asr_two.content.map(item => {
+    return {
+      ...item,
+      old: item.content
+    }
+  })
+}
+// 拆分 字幕
+function addasritem(index){
+  const pre = asr.content[index]
+  const obj = {
+    from: Math.round((pre.from + (pre.to - pre.from) / 2)),
+    to: pre.to,
+    content: '',
+    old: ''
+  }
+  asr.content.splice(index + 1, 0, obj)
+  asr.content[index].to = obj.from
+}
+// 更新字幕
+function submitasr(formName) {
+  // this.$refs[formName].validate((valid) => {
+  //   if (valid) {
+      const content = asr.content.map(item => {
+        const obj = { ...item }
+        delete obj.old
+        return obj
+      })
+      putsubtitle({id: asr.id,content}).then(res=>{
+        // console.log('更新字幕')
+        // console.log(res)
+        closemodefiAsr()
+      })
+  //   }
+  // })
+}
+
+// 播放
+function playVoice(row) {
+  // 若点击播放与之前不相等，则先暂停再播放
+  if (playVideo.id !== row.id) {
+    // pauseVoice()
+  }
+
+  playVideo = row
+  setTimeout(() => {
+    // this.$refs.audio.play()
+    isPlay = true
+  }, 100)
+}
+// 暂停
+function pauseVoice() {
+  // this.$refs.audio.pause()
+  // this.isPlay = false
+}
+
+// 选择字幕 配音
+function chooseVocie(type,row) {
+  if(type===1){
+    if(row.detail[1] && row.detail[1].id){
+      if(form.audio_id === '' && form.config.subtitle_id === '' ){
+        form.config.subtitle_id = row.detail[1].id
+      } else if(form.audio_id > 0 && form.audio_id !==row.detail[0].uploads.id){
+        ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
+      } else if(form.config.subtitle_id === row.detail[1].id){
+        form.config.subtitle_id = ''
+      } else {
+        form.config.subtitle_id = row.detail[1].id
+      }
+    } else {
+      ElMessage({ type: 'warning', message: '请先生成字幕！' });
+    }
+  } else { 
+    if(form.audio_id === '' && form.config.subtitle_id === '' ){
+      form.audio_id = row.detail[0].uploads.id
+    } else if(form.config.subtitle_id > 0 && !row.detail[1]){
+      ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
+    }  else if(form.config.subtitle_id > 0 && row.detail[1] && row.detail[1].id && form.config.subtitle_id !==row.detail[1].id){
+      ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
+    } else if(form.audio_id === row.detail[0].uploads.id){
+      form.audio_id = ''
+    } else {
+      form.audio_id = row.detail[0].uploads.id
+    }
+  }
+}
+
+// ----------------------
+
+// 弹窗页码
+function sizechange(val){
+  pagination.page = val
+  getshortvideoBackjob().then()
+}
+// 弹窗页码 指定页
+function currentchange(val){
+  pagination.page = val
+  getshortvideoBackjob().then()
+}
+// 弹窗页码 上一页
+function prevclick(val){
+  if(pagination.page===1){
+    ElMessage({ type: 'info', message: '当前页面为第一页' })
+  } else {
+    pagination.page = pagination.page - 1
+    getshortvideoBackjob().then()
+  }
+}
+// 弹窗页码 下一页
+function nextclick(val){
+  const can = Math.ceil(pagination.total / 5)
+  if (can <= pagination.page){
+    ElMessage({ type: 'info', message: '当前页面为最后一页' })
+  } else {
+    pagination.page = pagination.page - 1
+    getshortvideoBackjob().then()
+  }
+}
+
+// --------------------------------------------------------------------------------------------------
+// 上传音频
+function uploadSuccess(res, file) {
+  console.log('上传音频结果', res);
+  if (res.code===0) {
+    pagination.page = 1
+    getshortvideoBackjob().then()
+    ElMessage({ type: 'success', message: '上传录音成功！' });
+  } else {
+    ElMessage({ type: 'warning', message: '上传录音失败！' });
+  }
+}
 // 
+function randomString(len) {
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  return sampleSize(charSet, len).toString().replace(/,/g, '')
+}
+// 
+function getSuffix(name) {
+  const arr = name.split('.')
+  return '.' + arr[arr.length - 1]
+}
+// 
+function getRandomName(name) {
+  return randomString(20) + getSuffix(name)
+}
+// 
+function ossUpload(e){
+  const { file, onProgress, onSuccess, onError } = e
+  const client = new OSS(ossData.value.base)
+  // 定义上传方法
+  async function multipartUpload() {
+    try {
+      // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
+      // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
+      const { res, data } = await client.multipartUpload(`voice/${captions.type}/${format(new Date(), 'yyyy-MM-dd')}/${getRandomName(file.name)}`, file, {
+        progress(p, checkpoint) {
+          onProgress({ percent: p * 100 })
+          // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+          // tempCheckpoint = checkpoint
+        },
+        parallel: 4,
+        // 设置分片大小。默认值为1 MB，最小值为100 KB。
+        partSize: 1024 * 1024,
+        meta: { year: 2020, people: 'test' },
+        mime: file.type,
+        callback: {
+          url: ossData.value.callback.callbackUrl,
+          // host: 'oss-cn-beijing.aliyuncs.com',
+          /* eslint no-template-curly-in-string: [0] */
+          body: ossData.value.callback.callbackBody,
+          contentType: ossData.value.callback.callbackBodyType,
+          customValue: {
+            filename: file.name,
+            type: String(captions.type),
+            suffix: getSuffix(file.name)
+          }
+        }
+      })
+      if (res.status === 200 && data.code === 0) {
+        onSuccess(data, file)
+      } else {
+        onError('文件上传失败，服务器端无响应', file)
+      }
+    } catch (err) {
+      console.log(err)
+      onError('文件上传失败，请求封装失败', file)
+    }
+  }
+  // 开始分片上传。
+  multipartUpload()
+}
+// -------------------------------------------------------------
+
+
+// 打开创建短视频弹窗 显示预计时间
 async function startCfmCrate() {
-  // 1.先保存到草稿箱
-  const flag = await saveToTemp();
-  // const footages = form.footages.map(item=>item.audio_id)
-  // 2.获取音频时长
-  // if (flag) {
-  //   await videoNeedTime({ project_id }).then((res) => {
-  //     if (res && res.data) {
-  //       usedTime.value = res.data.duration;
-  //       crtCfmPop.value = true;
-  //     }
-  //   });
-  // }
+  // 1.获取音频时长
+  if(form.audio_id){
+    await generateDuration( form.audio_id ).then((res) => {
+      if (res && res.data) {
+        usedTime.value = res.data.duration;
+        crtCfmPop.value = true;
+      }
+    });
+  } else {
+    ElMessage({ type: 'warning', message: '请选择音频！' })
+  }
 }
 
-// 保存到草稿箱
-async function saveToTemp() {
-  // try {
-  //   // 先去重片段中的重复数据
-  //   const data1 = form.footages.map((item) => {
-  //     item.key = `${item.human_id}-${item.audio_id}`;
-  //     return item;
-  //   });
-  //   form.footages = uniqBy(data1, 'key');
-  //   // 再组合form发出请求
-  //   const res =
-  //     project_id === null
-  //       ? await createProJect(form)
-  //       : await updateProJect(project_id, form);
-  //   if (res && res.data) {
-  //     if (project_id === null) project_id = res.data.id;
-  //     ElMessage({ type: 'success', message: '保存到草稿箱成功' });
-  //   }
-  //   return true;
-  // } catch (error) {
-  //   console.log(error);
-  //   return false;
-  // }
+// 创建短视频
+function createLive() {
+  // 2.根据语音ID生成视频
+  // formateData(form)
+  generateVideo(formateData(form)).then(res=>{
+    if (res && res.data) {
+      crtCfmPop.value = false
+      // loading.close()
+      ElMessage({ type: 'success', message: res.message })
+      router.back()
+    } else {
+      crtCfmPop.value = false
+      // loading.close()
+    }
+  });
 }
 
-// 
-async function createLive() {
-  // try {
-  //   // await saveToTemp();
-  //   // 3.根据项目ID生成视频
-  //   const res = await compositeVideo(project_id);
-  //   if (res && res.data) {
-  //     ElMessage({ type: 'success', message: '创建直播成功！' });
-  //     router.back();
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  // }
+function formateData(form){
+  const data = JSON.parse(JSON.stringify(form))
+  for (const item in data) {
+    if ((item === 'id')&&(data[item]===null || data[item]===undefined || data[item]==='')){
+      delete data[item]
+    }
+    if (item === 'config'){
+      for (const item_item in data[item]){
+        if((item_item === 'font_content')&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')){
+          delete data[item][item_item]
+          delete data[item]['font_family']
+          delete data[item]['font_position']
+          delete data[item]['font_style']
+          delete data[item]['font_size']
+        } else if(data[item]['font_style']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')) {
+          ElMessage({ type: 'warning', message: '请选择花字样式！' })
+          return
+        }
+        if(data[item]['subtitle_id']===''){
+          delete data[item]['subtitle_id']
+          delete data[item]['subtitle_style']
+        } else {
+          if(data[item]['subtitle_style']===null ||data[item]['subtitle_style']===undefined||data[item]['subtitle_style']==='' ){
+            delete data[item]['subtitle_id']
+            delete data[item]['subtitle_style']
+          }
+        }
+        if(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='') {
+          delete data[item][item_item]
+        }
+      }
+    }
+  }
+
+  console.log('结果')
+  console.log(data)
+  return data
 }
 </script>
 
 <style lang="scss" scoped>
 .createPage {
-  border: 1px solid red;
+  // border: 1px solid red;
   display: flex;
   color: #fff;
   position: relative;
+  // position: fixed;
+  // top: 20px;
   .fixedHead {
-    border: 1px solid red;
+    // border: 1px solid red;
     width: 1250px;
     height: 56px;
     position: fixed;
@@ -611,6 +1106,7 @@ async function createLive() {
     z-index: 1;
     padding: 0 40px;
     justify-content: center;
+    background-color: #282828;
     .partName {
       width: 101px;
       background: #1a1a1a !important;
@@ -652,20 +1148,36 @@ async function createLive() {
     background: #282828;
     // padding: 14px 15px;
     margin-right: 11px;
-    // scroll-behavior: smooth;
-    // overflow-y: scroll;
-    .h3 {
-      font-size: 14px;
-      padding: 15px 12px 0px 12px;
+    .option_title{
+      width: 100%;
+      text-align: center;
+      padding-top: 10px;
+    }
+    .btn_hap{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      .banBtn {
+        width: 60px;
+        height: 28px;
+        background: #333;
+        border-radius: 4px;
+        margin: 0 10px;
+        margin-top: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        &.act {
+          background: #666 !important;
+        }
+      }
     }
     .leftArea_box{
       height: 820px;
       width: 100%;
       scroll-behavior: smooth;
       overflow-y: scroll;
-      // border: 1px solid red;
       padding: 0px 15px 40px 15px;
-
       .pList {
         // margin: 20px -5px 0;
         margin: 14px -5px 0;
@@ -680,8 +1192,75 @@ async function createLive() {
           border: 1px solid rgb(0,0,0,0);
           &.checked {
             // border: 1px solid #1182fb;
-            border: 1px solid #f10808;
+            border: 1px solid #409eff;
+            // border: 1px solid red;
             border-radius: 4px;
+          }
+        }
+      }
+
+      .signature_title{
+        padding-left: 10px;
+        margin-top: 10px;
+      }
+      .inpsty{
+        margin-top: 6px;
+      }
+      .fontarr_list{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        padding: 0 20px;
+        .fontarr_list_item{
+          cursor: pointer;
+          font-size: 20px;
+          margin-bottom: 5px;
+          &.checked {
+            // border: 1px solid #409eff;
+            color: #409eff;
+            font-size: 21px;
+          }
+        }
+      }
+      .fontstyle_list{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content:space-around;
+        align-items: center;
+        margin-top: 10px;
+        .fontstyle_list_item{
+          width: 35%;
+          cursor: pointer;
+          font-size: 20px;
+          margin-bottom: 5px;
+          &.checked {
+            // border: 1px solid #1182fb;
+            border: 1px solid #409eff;
+            font-size: 21px;
+            border-radius: 4px;
+            padding-left: 2px;
+          }
+        }
+      }
+      .subtitle_style_list{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content:space-around;
+        align-items: center;
+        margin-top: 10px;
+        .subtitle_style_list_item{
+          width: 35%;
+          cursor: pointer;
+          font-size: 20px;
+          margin-bottom: 5px;
+          &.checked {
+            // border: 1px solid #1182fb;
+            border: 1px solid #409eff;
+            font-size: 21px;
+            border-radius: 4px;
+            padding-left: 2px;
           }
         }
       }
@@ -710,7 +1289,7 @@ async function createLive() {
           // background-color: #d2e4f7;
           cursor: pointer;
           &.checked {
-            border: 1px solid #f10808;
+            // border: 1px solid #f10808;
             border-radius: 4px;
           }
         }
@@ -734,29 +1313,17 @@ async function createLive() {
     }
   }
 
-  // .leftArea::-webkit-scrollbar {
-  //   width: 4px;
-  // }
-  // .leftArea::-webkit-scrollbar-thumb {
-  //     border-radius: 10px;
-  //     background: rgba(0,0,0,0);
-  // }
-  // .leftArea::-webkit-scrollbar-track {
-  //     border-radius: 0;
-  //     background: rgba(0,0,0,0);
-  // }
-
   .rightArea {
     width: 905px;
-    border: 1px solid blue;
+    // border: 1px solid blue;
     .topCon {
-      border: 1px solid rgb(0, 255, 76);
+      // border: 1px solid rgb(0, 255, 76);
       height: 607px;
       background: #282828;
       padding: 20px;
       margin-bottom: 10px;
       .dpBox {
-        border: 1px solid rgb(208, 255, 0);
+        // border: 1px solid rgb(208, 255, 0);
         background-color: #1e1e1e;
         height: 567px;
         display: flex;
@@ -783,77 +1350,103 @@ async function createLive() {
     .botCon {
       min-height: 206px;
       background: #282828;
+      // border: 1px solid red;
       .btnGroup {
+        // border: 1px solid rgb(255, 0, 200);
         height: 54px;
         border-bottom: 1px solid #4b4b4b;
         padding: 0 20px;
+        display: flex;
+        align-items: center;
       }
-      .btnIcon {
-        font-size: 23px;
-        color: #ccc;
-        cursor: pointer;
-        width: 50px;
-        height: 30px;
+      .signature{
+        padding-left: 30px;
+        padding-top: 10px;
+        .tip-font{
+          color: #e6a23c;
+          font-size: 12px;
+        }
       }
-      .upload-voice {
-        margin-left: 20px;
-      }
-      .insertIcon {
-        font-size: 18px;
-        color: #ccc;
-        margin-right: 4px;
-      }
+      // .btnIcon {
+      //   font-size: 23px;
+      //   color: #ccc;
+      //   cursor: pointer;
+      //   width: 50px;
+      //   height: 30px;
+      // }
+      // .upload-voice {
+      //   margin-left: 20px;
+      // }
+      // .insertIcon {
+      //   font-size: 18px;
+      //   color: #ccc;
+      //   margin-right: 4px;
+      // }
     }
 
+    
   }
-  .scrollview {
-    padding: 0 20px;
-  }
-  .partList {
+
+}
+
+
+.jobdrawer_content{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  .content_footer{
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
     display: flex;
-    list-style: none;
-    padding: 20px 0;
-    box-sizing: border-box;
-    .item {
-      position: relative;
-      min-width: 192px;
-      width: 192px;
-      height: 108px;
-      margin: 0 5px;
-      background: #000;
-      border-radius: 5px;
-      --el-fill-color-light: #000;
-      cursor: pointer;
-      &.create {
-        background: #333;
-        color: #ccc;
-      }
-      &.act {
-        overflow: hidden;
-        border: 1px solid #ccc;
-      }
-    }
-    .img {
-      width: 100%;
-      height: 100%;
-      display: flex !important;
-    }
-    .status {
-      width: 188px;
-      height: 40px;
-      background-color: rgba(0, 0, 0, 0.5);
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      font-size: 14px;
-    }
-    .errorIcon {
-      font-size: 20px;
-      color: #fff;
+    align-items: center;
+    .el-button {
+      height: 31px;
+      margin-left: 10px;
     }
   }
-  .roundOpt {
-    margin-left: 10px;
+}
+.flex_between{
+  width: 100%;
+  // line-height: 25px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.paginationstyle{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.asr_content{
+  position: relative;
+  .asr_title{
+    font-size: 16px;
+    margin-top: 16px;
+  }
+  .asr_rule{
+    margin-top: 8px;
+    list-style: cjk-ideographic;
+    font-size: 13px;
+    line-height: 22px;
+    padding-left: 20px;
+    padding-bottom: 60px;
+    li{
+      margin-bottom: 5px;
+    }
+  }
+  .asr_footer{
+    position: fixed;
+    bottom: 30px;
+    right: 50px;
+  }
+  .endtime{
+    color: #909399;
+    line-height: 1;
+    font-size: 13px;
+    margin-left: 28px;
   }
 }
 </style>

@@ -3,10 +3,10 @@
     <div class="list">
       <el-col :span="6">
         <div class="newPro center">
-          <p class="tit">新建项目</p>
-          <el-input v-model.trim="projectName" placeholder="请先输入项目名称" />
+          <p class="tit">创作短视频</p>
+          <el-input v-model.trim="projectName" placeholder="请先输入创作短视频名称" />
           <el-button type="primary" class="creatBtn" @click="createNewPro">
-            创建项目
+            创作短视频
           </el-button>
         </div>
       </el-col>
@@ -30,10 +30,10 @@
 </template>
 
 <script setup>
-import { useProjectStore } from '../../stores';
+import { shortvideoStore } from '../../stores';
 import { useRouter } from 'vue-router';
 
-const projct = useProjectStore();
+const projct = shortvideoStore();
 const router = useRouter();
 const projectName = ref('');
 const total = ref(0);
@@ -41,7 +41,7 @@ const page = ref(1);
 const size = 23;
 
 function createNewPro() {
-  if (!projectName.value) return ElMessageBox.alert('请输入项目名称');
+  if (!projectName.value) return ElMessageBox.alert('请输入创作短视频名称');
   router.push('/creatlive?pn=' + projectName.value);
 }
 

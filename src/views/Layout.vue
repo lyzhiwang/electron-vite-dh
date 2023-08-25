@@ -23,23 +23,28 @@
             <el-icon><icon-menu /></el-icon>
             <span>首页</span>
           </el-menu-item>
-          <!-- <el-menu-item index="/shortvideo" route="/shortvideo">
+          <el-menu-item index="/shortvideo" route="/shortvideo">
             <el-icon><VideoCamera /></el-icon>
             <span>短视频</span>
-          </el-menu-item> -->
+          </el-menu-item>
           <el-menu-item index="/aicreate" route="/aicreate">
             <el-icon><Opportunity /></el-icon>
             <span>AI创作</span>
           </el-menu-item>
 
-          <!-- <el-sub-menu>
+          <el-menu-item index="/createvideo" route="/createvideo">
+            <el-icon><VideoCamera /></el-icon>
+            <span>短视频创建</span>
+          </el-menu-item>
+
+          <!-- <el-sub-menu index="/createvideo">
             <template #title>
                 <el-icon><VideoCamera /></el-icon>
                 <span>短视频</span>
             </template>
-            <el-menu-item index="/createvideo?pt=1" route="/createvideo?pt=1">数字人选择</el-menu-item>
-            <el-menu-item index="/createvideo?pt=2" route="/createvideo?pt=2">背景编辑</el-menu-item>
-            <el-menu-item index="/createvideo?pt=3" route="/createvideo?pt=3">花字设置</el-menu-item>
+            <el-menu-item index="1" route="/createvideo?pt=1">数字人选择</el-menu-item>
+            <el-menu-item index="2" route="/createvideo?pt=2">背景编辑</el-menu-item>
+            <el-menu-item index="3" route="/createvideo?pt=3">花字设置</el-menu-item>
           </el-sub-menu> -->
 
           <!-- <el-menu-item index="/livesettings" route="/livesettings">
@@ -97,6 +102,7 @@ onBeforeMount(() => {
   width: 1440px;
   height: 100vh;
   background-color: #191919;
+  // background-color: red;
   overflow: hidden;
   .header {
     height: 56px;
@@ -142,6 +148,7 @@ onBeforeMount(() => {
     flex-grow: 1;
     .scrollView {
       height: calc(100vh - 56px);
+      // height: 100vh;
     }
   }
   .v-enter-active,

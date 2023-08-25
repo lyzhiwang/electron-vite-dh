@@ -7,6 +7,7 @@ import './samples/node-api'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import './assets/dark/css-vars.css'
 import "./style.css"
+import './styles/index.scss' 
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

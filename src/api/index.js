@@ -285,6 +285,7 @@ export function keywordInteract(data) {
 // chatgpt
 export function postchatgpt(data) {
 	return request({
+		loading: true,
 		url: '/chatgpt',
 		method: 'post',
 		data
@@ -293,9 +294,38 @@ export function postchatgpt(data) {
 
 // -----------------------------------------------------
 // 短视频
+// 短视频合成时长
+export function generateDuration(id) {
+	return request({
+		loading: true,
+		url: 'generate/duration/' +id,
+		method: 'get',
+	})
+}
+
+// 创建短视频
+export function generateVideo(data) {
+	return request({
+		loading: true,
+		url: '/generate/video',
+		method: 'post',
+		data
+	})
+}
+// 短视频列表
+export function getGenerateVideo(params) {
+	return request({
+		loading: true,
+		url: '/generate/video',
+		method: 'get',
+		params
+	})
+}
+
 // 短视频背景图片列表
 export function shortvideoBackgroundList(params) {
 	return request({
+		loading: true,
 		url: '/shortvideo/background/list',
 		method: 'get',
 		params
@@ -305,6 +335,7 @@ export function shortvideoBackgroundList(params) {
 // 字幕任务列表
 export function shortvideoBackjob(params) {
 	return request({
+		loading: true,
 		url: '/job',
 		method: 'get',
 		params
@@ -314,9 +345,29 @@ export function shortvideoBackjob(params) {
 // 创建字幕任务
 export function postjob(data) {
 	return request({
+		loading: true,
 		url: '/job',
 		method: 'post',
 		data
+	})
+}
+
+// 字幕任务详情
+export function svjobdetail(params) {
+	return request({
+		loading: false,
+		url: '/job/'+params,
+		method: 'get',
+	})
+}
+
+// 更新字幕
+export function putsubtitle(params) {
+	return request({
+		loading: true,
+		url: '/subtitle/'+params.id,
+		method: 'put',
+		data:{content:params.content}
 	})
 }
 
@@ -324,3 +375,11 @@ export function postjob(data) {
 
 // ----------------------------------------------------------
 // 文件列表
+export function UploadIndex(params) {
+	return request({
+		loading: true,
+		url: '/upload',
+		method: 'get',
+		params
+	})
+}

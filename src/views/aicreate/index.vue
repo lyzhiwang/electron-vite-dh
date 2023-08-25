@@ -194,6 +194,9 @@ const initialization = async () => {
   min-height: calc(100vh - 96px);
   background-color: #282729;
   padding: 30px;
+  // width: 80%;
+  // position: fixed;
+  // top: 20px;
   .form_line {
     display: flex;
   }

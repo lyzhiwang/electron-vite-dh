@@ -1,71 +1,16 @@
 <template>
-  <div class="file-manager">
-    <!-- 文件管理 -->
-    <div v-show="isVisible" class="file-list">
-      <div class="header">
-        <span>文件管理</span>
-        <i class="el-icon-close" @click="toggleDialog" />
-      </div>
+  <div class="fileindex">
+    <!-- 650px -->
+    <el-dialog v-model="props.isvisible" title="文件管理" width="50%" @close="closedialog" >
+      <div class="file_content">
 
-      <div class="content">
-        <!-- 音乐 -->
-        <template v-if="type === 1 && list && list.length">
-          <div
-            v-for="(item, index) in list"
-            :key="index"
-            :class="[
-              'img-box',
-              'music',
-              select.index === index ? 'img-box-border' : '',
-            ]"
-            @dblclick="changeItem(item, index)"
-            @touchend="changeItem(item, index)"
-            @mouseover="mouserOver(item, index)"
-          >
-            <p :title="item.name" class="ellipsis">{{ item.name }}</p>
-            <p>{{ item.add_time }}</p>
-          </div>
-        </template>
-        <!-- 图片 -->
-        <template v-else-if="type === 2 &&list && list.length">
-          <div
-            v-for="(item, index) in list"
-            v-show="index < 8"
-            :key="index"
-            :class="['img-box', select.index === index ? 'img-box-border' : '']"
-            @dblclick="changeItem(item, index)"
-            @touchend="changeItem(item, index)"
-            @mouseover="mouserOver(item, index)"
-          >
-            <img :src="item.path" />
-            <div class="img-info ellipsis">
-              <p :title="item.name" class="name ellipsis">{{ item.name }}</p>
+        <template v-if="list && list.length">
+          <div v-for="(item, index) in list" v-show="index < 8" :key="index" :class="['img-box', select.index === index ? 'img-box-border' : '']" @dblclick="changeItem(item, index)" @touchend="changeItem(item, index)" @mouseover="mouserOver(item, index)">
+            <img :src="item.path">
+            <div class="img-info">
+              <p :title="item.name" class="name">{{ item.name }}</p>
               <p>
-                <span>{{ item.size }}</span>
-                <span> - </span>
-                <span>{{ item.created_at }}</span>
-              </p>
-            </div>
-          </div>
-        </template>
-
-        <!-- 视频 -->
-        <template v-else-if="type === 3 &&list && list.length">
-          <div
-            v-for="(item, index) in list"
-            v-show="index < 8"
-            :key="index"
-            :class="['img-box', select.index === index ? 'img-box-border' : '']"
-            @dblclick="changeItem(item, index)"
-            @touchend="changeItem(item, index)"
-            @mouseover="mouserOver(item, index)"
-          >
-            <img :src="item.path" />
-            <div class="img-info ellipsis">
-              <p :title="item.name" class="name ellipsis">{{ item.name }}</p>
-              <p>
-                <span>{{ item.size }}</span>
-                <span> - </span>
+                <span>{{ item.size}}</span>
                 <span>{{ item.created_at }}</span>
               </p>
             </div>
@@ -73,43 +18,40 @@
         </template>
         <!-- 空 -->
         <template v-else>
-          <span class="img-box music">暂无数据</span>
+          <span class="empty_box">暂无数据</span>
         </template>
       </div>
-
-      <!-- 翻页 -->
-      <div class="foot">
-        <!-- <el-upload
-          :auto-upload="!isInfo"
-          :action="upload_url"
-          :data="params"
-          :headers="headers"
-          :before-upload="beforeUpload"
-          :on-change="changeUpload"
-          :on-success="handleSuccess"
-          :on-error="handleError"
-          :show-file-list="false"
-        >
-          <el-button type="primary" size="mini" class="el-icon-upload">
-            本地上传
-          </el-button>
-        </el-upload> -->
-        <el-button size="mini" @click="nextPage">下一页</el-button>
-        <el-button size="mini" @click="lastPage">上一页</el-button>
-      </div>
-    </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-upload
+            action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
+            :show-file-list="false"
+            :http-request="ossUpload"
+            :on-success="uploadSuccess"
+            :accept="'.mp3,.ogg,.wav,audio,img'"
+          >
+            <el-button type="primary" size="mini" class="el-icon-upload">本地上传</el-button>
+          </el-upload>
+          <el-button type="primary" plain @click="nextPage">下一页</el-button>
+          <el-button type="primary" plain @click="lastPage">上一页</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import OSS from 'ali-oss';
-import { format } from 'date-fns';
-import { sampleSize } from 'lodash-es';
-import { storeToRefs } from 'pinia';
-// import { useProjectStore } from '../stores';
-import { useProjectStore } from '../../stores/project';
-const { ossData } = storeToRefs(useProjectStore());
-  // type
+import OSS from 'ali-oss'
+import { format } from 'date-fns'
+import { sampleSize } from 'lodash-es'
+import { storeToRefs } from 'pinia'
+import { useProjectStore } from '../../stores'
+const { ossData } = storeToRefs(useProjectStore())
+import {
+  UploadIndex
+} from '../../api/index';
+
+const props = defineProps({
   // 1: 'img', // 图片
   // 2: 'video', // 完整视频
   // 3: 'video', // 素材视频
@@ -122,142 +64,214 @@ const { ossData } = storeToRefs(useProjectStore());
   // 11: 'audio', // 背景音乐库
   // 12: 'img',
   // 13: 'audio' // 配音和字幕
-const props = defineProps({
-    params: {
-      type: Object,
-      default() {
-        return { type: 3 }
-      }
-    },
-    // beforeUpload: {
-    //     type: Function
-    // },
-    // uploadSuccess: {
-    //     type: Function
-    // },
-    showFileList: {
-        type: Boolean,
-        default: true
-    },
-    limit: {
-        type: Number,
-        default: 1
-    },
-    multiple: {
-      type: Boolean,
-      default: false
-    },
-    accept: {
-      type: String,
-      default: '.mp3,.wav',
-    }
-})
+  type: {
+    type: Number,
+    default: 1
+  },
+  pageSize: {
+    type: Number || String,
+    default: 8
+  },
+  isvisible: {
+    type: Boolean,
+    require: false,
+  },
+});
+const list = ref([
+  // {
+  //   created_at: "2023-07-31 11:01:40",
+  //   id: 59,
+  //   name: "jinyuanai.png",
+  //   path: "https://static.douyintuoke.cn/2023-07-31/FtEUTo4sWsbTRpGUK5kiAxLk56j3.png",
+  //   size: "0.05MB",
+  //   storage: 2,
+  //   suffix: ".png",
+  //   type: 2,
+  // },
+  // {
+  //   created_at: "2023-07-31 11:01:40",
+  //   id: 9,
+  //   name: "uanai.png",
+  //   path: "https://static.douyintuoke.cn/2023-07-31/FtEUTo4sWsbTRpGUK5kiAxLk56j3.png",
+  //   size: "0.05MB",
+  //   storage: 2,
+  //   suffix: ".png",
+  //   type: 2,
+  // }
+]); // 背景图列表
+const total = ref(0); // 背景图列表
+const page = ref(1); // 背景图列表
 
-// watch(){
-//   isVisible: function(val) {
-//       if (val) {
-//         this.getList()
-//       }
+
+// const isdialogVisible = ref(false); // 是否显示弹窗
+const select = reactive({
+  item: {}, index: -1 
+});
+
+
+// watch(() => props.isvisible, val => {
+//     isdialogVisible.value = val
+//     if(isdialogVisible.value ===true){
+//       // isdialogVisible.value = val
+//       // getList()
 //     }
-// }
-//
-// const isVisible = ref(false); // 是否显示文件弹窗
-// watch(isVisible, (newValue, oldValue) => {
-//     console.log('watch 已触发', newValue)
-// })
+//     if (props.isvisible === false){
+//       close()
+//     }
+// });
 
+// watch(page, (newValue, oldValue) => {
+//   getList()
+// });
+onMounted(() => {
+  getList()
+});
+
+const emit = defineEmits(['close','change'])
+// 关闭
+function closedialog(val) {
+  emit('close')
+}
+
+// 
+function mouserOver(item, index) {
+  select.item = item
+  select.index = index
+}
+// 
+function changeItem(item, index) {
+  // select = { item: item, index: index }
+  select.item = item
+  select.index = index
+  emit('change', item)
+  if (item && item.id && item.path && item.name) toggleDialog()
+}
+// 
+function toggleDialog() {
+  // console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+  // isdialogVisible.value = !isdialogVisible.value
+  // emit('close')
+  if (props.isvisible) { // 每次打开初始化数据
+    page.value = 1
+    // select = { item: {}, index: -1 }
+    select.item = {}
+    select.index = -1
+  }
+}
+
+// 获取列表
+function getList() {
+  const params = {
+    page:page.value,
+    type:props.type,
+    size:props.pageSize
+  }
+  UploadIndex(params).then(res=>{
+    list.value = res.data
+    total.value = res.meta.total
+  })
+}
+// 翻页
+function lastPage() {
+  if (page.value === 1) {
+    ElMessage({ type: 'info', message: '当前页面为第一页' })
+  } else {
+    page.value = page.value - 1
+    getList()
+  }
+}
+// 下一页
+function nextPage() {
+  const can = Math.ceil(total.value / 8)
+  if (can <= page.value) {
+    ElMessage({ type: 'info', message: '当前页面为最后一页' })
+  } else {
+    page.value = page.value + 1
+    getList()
+  }
+}
+
+// 上传音频
+function uploadSuccess(res, file) {
+  console.log('上传音频结果', res);
+  if (res.code===0) {
+    page.value = 1
+    getList()
+    ElMessage({ type: 'success', message: '上传录音成功！' });
+  } else {
+    ElMessage({ type: 'warning', message: '上传录音失败！' });
+  }
+}
+// 
 function randomString(len) {
-  const charSet =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  return sampleSize(charSet, len).toString().replace(/,/g, '');
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  return sampleSize(charSet, len).toString().replace(/,/g, '')
 }
-
-//
+// 
 function getSuffix(name) {
-  const arr = name.split('.');
-  return '.' + arr[arr.length - 1];
+  const arr = name.split('.')
+  return '.' + arr[arr.length - 1]
 }
-
-//
+// 
 function getRandomName(name) {
-  return randomString(20) + getSuffix(name);
+  return randomString(20) + getSuffix(name)
 }
-
-// 超出上传限制时的钩子函数
-function handleExceed(files) {
-  console.log('超出上传限制', files);
-}
-
-//
-function ossUpload(e) {
-  const { file, onProgress, onSuccess, onError } = e;
-  const client = new OSS(ossData.value.base);
+// 
+function ossUpload(e){
+  const { file, onProgress, onSuccess, onError } = e
+  const client = new OSS(ossData.value.base)
   // 定义上传方法
   async function multipartUpload() {
     try {
       // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
       // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
-      const { res, data } = await client.multipartUpload(
-        `voice/${props.params.type}/${format(
-          new Date(),
-          'yyyy-MM-dd'
-        )}/${getRandomName(file.name)}`,
-        file,
-        {
-          progress(p, checkpoint) {
-            onProgress({ percent: p * 100 });
-            // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
-            // tempCheckpoint = checkpoint
-          },
-          parallel: 4,
-          // 设置分片大小。默认值为1 MB，最小值为100 KB。
-          partSize: 1024 * 1024,
-          meta: { year: 2020, people: 'test' },
-          mime: file.type,
-          callback: {
-            url: ossData.value.callback.callbackUrl,
-            // host: 'oss-cn-beijing.aliyuncs.com',
-            /* eslint no-template-curly-in-string: [0] */
-            body: ossData.value.callback.callbackBody,
-            contentType: ossData.value.callback.callbackBodyType,
-            customValue: {
-              filename: file.name,
-              type: String(props.params.type),
-              suffix: getSuffix(file.name),
-            },
-          },
+      const { res, data } = await client.multipartUpload(`voice/${props.type}/${format(new Date(), 'yyyy-MM-dd')}/${getRandomName(file.name)}`, file, {
+        progress(p, checkpoint) {
+          onProgress({ percent: p * 100 })
+          // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+          // tempCheckpoint = checkpoint
+        },
+        parallel: 4,
+        // 设置分片大小。默认值为1 MB，最小值为100 KB。
+        partSize: 1024 * 1024,
+        meta: { year: 2020, people: 'test' },
+        mime: file.type,
+        callback: {
+          url: ossData.value.callback.callbackUrl,
+          // host: 'oss-cn-beijing.aliyuncs.com',
+          /* eslint no-template-curly-in-string: [0] */
+          body: ossData.value.callback.callbackBody,
+          contentType: ossData.value.callback.callbackBodyType,
+          customValue: {
+            filename: file.name,
+            type: String(props.type),
+            suffix: getSuffix(file.name)
+          }
         }
-      );
+      })
       if (res.status === 200 && data.code === 0) {
-        onSuccess(data, file);
+        onSuccess(data, file)
       } else {
-        onError('文件上传失败，服务器端无响应', file);
+        onError('文件上传失败，服务器端无响应', file)
       }
     } catch (err) {
-      console.log(err);
-      onError('文件上传失败，请求封装失败', file);
+      console.log(err)
+      onError('文件上传失败，请求封装失败', file)
     }
   }
   // 开始分片上传。
-  multipartUpload();
+  multipartUpload()
 }
 </script>
-<style lang="scss" rel="stylesheet/scss" scoped>
-// @import '@/styles/variables.scss';
-.file-manager {
-  .file-list {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 698px;
-    height: 509px;
-    color: #595959;
-    // font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background: #c5c5c5;
+
+<style lang="scss" scoped>
+.fileindex{
+  .file_content{
+    width: 100%;
+    height: 400px;
     border: 1px solid #c5c5c5;
-    transform: translate(-50%, -50%);
-    transition: transform 1000ms ease-in, opacity 150ms ease-in;
-    z-index: 999;
+    display: flex;
+    flex-wrap: wrap;
     .header {
       display: flex;
       justify-content: space-between;
@@ -272,73 +286,65 @@ function ossUpload(e) {
         cursor: pointer;
       }
     }
-    .content {
+
+    .img-box {
+      position: relative;
       display: flex;
-      flex-wrap: wrap;
-      max-height: 416px;
-      overflow-y: auto;
-      .img-box {
-        position: relative;
+      align-items: center;
+      width: calc(50% - 4px);
+      height: 100px;
+      margin: 2px;
+      // background-color: #fff;
+      background-color: #c5c5c5;
+      border: 2px solid #333;
+      cursor: pointer;
+      img {
+        width: 80px;
+        height: 80px;
+        margin: 0 10px;
+      }
+      .img-info {
         display: flex;
-        align-items: center;
-        width: calc(50% - 4px);
-        height: 100px;
-        margin: 2px;
-        background-color: #fff;
-        border: 2px solid #fff;
-        img {
-          width: 80px;
-          height: 80px;
-          margin: 0 10px;
-        }
-        .img-info {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          p {
-            margin: 0;
-            line-height: 20px;
-            span {
-              color: #929292;
-              font-size: 12px;
-            }
-          }
-          .name {
-            font-weight: 700;
+        flex-direction: column;
+        justify-content: center;
+        p {
+          margin: 0;
+          line-height: 20px;
+          span {
+            color: #2c28fa;
+            font-size: 12px;
           }
         }
-        .el-button {
-          position: absolute;
-          right: 10px;
-          bottom: 6px;
-          padding: 4px 11px;
+        .name {
+          font-weight: 700;
+          color: #2c28fa;
         }
-      }
-      .img-box-border {
-        // border: 2px solid $mainColor;
-        border: 2px solid red;
-      }
-      .music {
-        justify-content: space-between;
-        height: 48px;
-        padding: 0 10px;
       }
     }
-    .foot {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: center;
+    .img-box-border {
+      // border: 2px solid red;
+      border: 1px solid #409eff;
+    }
+    .empty_box{
       width: 100%;
-      padding: 4px 10px;
-      background-color: #fff;
-      border-top: 1px solid #c5c5c5;
-      .el-button {
-        height: 31px;
-        margin-left: 10px;
-      }
+      height: 100%;
+      text-align: center;
+      line-height: 360px;
+      font-size: 20px;
+    }
+  }
+  .dialog-footer{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    width: 100%;
+    padding: 4px 10px;
+    .el-button {
+      height: 31px;
+      margin-left: 10px;
     }
   }
 }

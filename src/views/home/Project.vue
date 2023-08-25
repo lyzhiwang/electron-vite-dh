@@ -81,14 +81,19 @@ onBeforeUnmount(()=>{
 
 function getsynthetizedetail(ids){
     synthetizedetail({ids:ids}).then(res=>{
-        for (var i = 0; i < res.data.length; i++){
-            projct.list.forEach(item => {
-                if(item.id === res.data[i].id){
-                    item.already = res.data[i].already
-                    item.total = res.data[i].total
-                }
-            })
+        if(res.data.length>0){
+            for (var i = 0; i < res.data.length; i++){
+                projct.list.forEach(item => {
+                    if(item.id === res.data[i].id){
+                        item.already = res.data[i].already
+                        item.total = res.data[i].total
+                    }
+                })
+            }
+        } else {
+            clearInterval(timer); 
         }
+        
     })
 }
 
