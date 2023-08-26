@@ -107,7 +107,6 @@
 
     <div class="rightArea">
       <div class="topCon center">
-        <!-- :style="form.bgcolor?'background-color:'+form.bgcolor:''" -->
         <div class="dpBox" >
           <el-image v-if="bg_path"
             :src="bg_path"
@@ -128,6 +127,16 @@
           <el-button color="#333" @click="setdub()">
             选择配音
           </el-button>
+
+          <div v-if="chooseaudio.id" class="chooseaudio">
+            当前选择配音：{{chooseaudio.name}}
+          </div>
+
+          <div>
+            <audio v-if="playVideoObj" ref="audioitem" :src="playVideoObj.path" :controls="false" :loop="false">
+              您的浏览器不支持 audio 标签。
+            </audio>
+          </div>
         </div>
 
         <!--  -->
@@ -191,7 +200,7 @@
                     </span>
                   </div>
                   <div>
-                    <el-button v-if="isPlay && playVideo.id === scope.row.detail[0].uploads.id" size="small" @click="pauseVoice">
+                    <el-button v-if="isPlay && playVideoObj.id === scope.row.detail[0].uploads.id" size="small" @click="pauseVoice">
                       <el-icon><VideoPause /></el-icon>
                       暂停
                     </el-button>
@@ -369,7 +378,7 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore(); // 仓库 直播
 const shortvideo = shortvideoStore(); //仓库 短视频
-const partAct = ref(null); // 选中的片段下标
+// const partAct = ref(null); // 选中的片段下标
 const crtCfmPop = ref(false); //是否显示创建弹窗
 const usedTime = ref(''); // 生成视频预计消耗时长
 const dpList = ref([]); // 数字人形象列表
@@ -411,19 +420,9 @@ const form = reactive({
     subtitle_style:null, // 字幕样式
     subtitle_id:"", // 字幕记录id
   },
-
-
-  // bg_id:'', // 背景id
-  // bg_path:"",
-  // bgcolor:'', // 背景色纯色
-  // font_position:'TopCenter',
-  // font_style:null,
-  // font_familys: { id: 1, font: 'zk-kuaile-font' }
-
 });
 
 const asr = reactive({
-  // isAsrVisible: false,
   id:null,
   row: null,
   content: null
@@ -442,7 +441,6 @@ const rulesForm = reactive({
 
 const fontstyleindex  = ref(-1);// 选中样式的索引
 const subtitlestyleindex  = ref(-1);// 选中样式的索引
-const fontObj = ref({}); // 花字字体
 const HumanData = ref({}); // 选中数字人
 const bg_path = ref(''); // 选中背景链接
 
@@ -456,8 +454,9 @@ const zmList = ref([]); // 字幕任务列表
 const captions = reactive({  // 字幕上传 type
     type:13
 });
-const choosedObj= ref([]); // 已选择字幕
-const playVideo = ref({}); // 音频 播放
+const chooseaudio = ref({}); // 已选择音频
+const playVideoObj = ref({}); // 音频 载体 播放
+const audioitem = ref()
 const isPlay = ref(false);  // 是否播放音频
 
 const pagination = reactive({
@@ -584,8 +583,6 @@ function selectHuman(id, item) {
 // -----------------------------------------------------------
 // 打开文件弹窗
 function openFile(){
-  // console.log('打开文件弹窗')
-  // console.log()
   isFileCard.value = true
 }
 // 文件传值
@@ -862,20 +859,20 @@ function submitasr(formName) {
 // 播放
 function playVoice(row) {
   // 若点击播放与之前不相等，则先暂停再播放
-  if (playVideo.id !== row.id) {
-    // pauseVoice()
+  if (playVideoObj.id !== row.id) {
+    pauseVoice()
   }
 
-  playVideo = row
+  playVideoObj.value = row
   setTimeout(() => {
-    // this.$refs.audio.play()
-    isPlay = true
+    audioitem.value.play()
+    isPlay.value = true
   }, 100)
 }
 // 暂停
 function pauseVoice() {
-  // this.$refs.audio.pause()
-  // this.isPlay = false
+  audioitem.value.pause()
+  isPlay.value = false
 }
 
 // 选择字幕 配音
@@ -897,13 +894,16 @@ function chooseVocie(type,row) {
   } else { 
     if(form.audio_id === '' && form.config.subtitle_id === '' ){
       form.audio_id = row.detail[0].uploads.id
+      chooseaudio.value = row.detail[0].uploads
     } else if(form.config.subtitle_id > 0 && !row.detail[1]){
       ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
     }  else if(form.config.subtitle_id > 0 && row.detail[1] && row.detail[1].id && form.config.subtitle_id !==row.detail[1].id){
       ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
     } else if(form.audio_id === row.detail[0].uploads.id){
       form.audio_id = ''
+      chooseaudio.value = {}
     } else {
+      chooseaudio.value = row.detail[0].uploads
       form.audio_id = row.detail[0].uploads.id
     }
   }
@@ -1358,6 +1358,10 @@ function formateData(form){
         padding: 0 20px;
         display: flex;
         align-items: center;
+        .chooseaudio{
+          margin-left: 20px;
+          font-size: 16px;
+        }
       }
       .signature{
         padding-left: 30px;
