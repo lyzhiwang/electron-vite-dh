@@ -1,5 +1,5 @@
 {
-  "name": "electron-vite-dh",
+  "name": "axkd",
   "version": "2.0.3",
   "main": "dist-electron/main/index.js",
   "description": "Electron + Vue + Vite",
@@ -53,6 +53,7 @@
     "pinia": "^2.1.3",
     "pinia-plugin-persistedstate": "^3.1.0",
     "typeit": "^8.7.1",
+    "update-electron-app": "^2.0.1",
     "vue-router": "^4.2.1",
     "ws": "^8.13.0"
   },
