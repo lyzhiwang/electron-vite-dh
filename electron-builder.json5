@@ -3,7 +3,7 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "123456789axdk",
   "productName": "安馨康达",
   "asar": true,
   "directories": {
