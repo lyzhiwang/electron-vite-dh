@@ -4,7 +4,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "YourAppID",
-  "productName": "智星AI数字人",
+  "productName": "安馨康达",
   "asar": true,
   "directories": {
     "output": "release/${version}"

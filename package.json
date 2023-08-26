@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-dh",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "dist-electron/main/index.js",
   "description": "Electron + Vue + Vite",
   "author": "maxwell",
