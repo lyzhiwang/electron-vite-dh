@@ -28,7 +28,8 @@
             :show-file-list="false"
             :http-request="ossUpload"
             :on-success="uploadSuccess"
-            :accept="'.mp3,.ogg,.wav,audio,img'"
+            :before-upload="beforeAvatarUpload"
+            :accept="'img'"
           >
             <el-button type="primary" size="mini" class="el-icon-upload">本地上传</el-button>
           </el-upload>
@@ -202,6 +203,47 @@ function uploadSuccess(res, file) {
     ElMessage({ type: 'warning', message: '上传录音失败！' });
   }
 }
+
+// 上传前校验
+const beforeAvatarUpload = (rawFile) => {
+  const isType = rawFile.type === 'image/jpeg' || 'image/png';
+  const isLt2M = rawFile.size / 1024 / 1024 < 2;
+  if (!isType) {
+    ElMessage.error('上传图片格式类型必须为JPG 或 PNG 格式!')
+    return false;
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过2MB!')
+    return false;
+  }
+  let reader = new FileReader(); 
+  reader.readAsDataURL(rawFile); 
+  const iswh = reader.onload = function(e){
+    let image = new Image();
+    image.src = reader.result
+    image.onload = function(){
+      // console.log('宽高')
+      // console.log(image.width)
+      // console.log(image.height)
+      if((image.width===1080 && image.height===1920)||(image.width===3413 && image.height===1920) ){
+        // console.log('宽高通过')
+        return true
+      } else {
+        // ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+        return false;
+      }
+    }
+  }
+  if (iswh) {
+    ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+    return false;
+  }
+
+  console.log('最后')
+  return isType && isLt2M && iswh
+};
+
+
 // 
 function randomString(len) {
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

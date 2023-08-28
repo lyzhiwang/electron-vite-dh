@@ -56,7 +56,7 @@
       <div v-if="pagetype==='2'" class="leftArea_box">
         <el-button plain type="info" class="upload_btn" @click="openFile" >
           <el-icon><Upload /></el-icon>
-          上传图片或视频
+          上传背景图片
         </el-button>
         <!-- <div class="bgcolorList">
           <div v-for="(item,index) in bgcolorList" :key="index" :class="['bgcolorList_item',{ checked: form.bgcolor === item }]" :style="'background-color:'+item" @click="selectbg(1,item)"  />
@@ -276,29 +276,7 @@
             </el-timeline>
           </el-form-item>
         </el-form> -->
-        <!-- {{ asr }} -->
 
-        <!-- <el-form ref="asr" :model="asr" label-width="150px">
-          <el-form-item prop="content" label-width="0px">
-            <el-timeline >
-              <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
-                <el-form-item :prop="`content.${index}.content`" :rules="rulesForm.contentItem">
-                  <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
-                  <div style="width:40vw">
-                    <el-button type="primary" size="small" plain @click="addasritem(index)">
-                      拆分
-                    </el-button>
-                  </div>
-                </el-form-item>
-              </el-timeline-item>
-              <div v-if="asr.content && asr.content.length" class="endtime">
-                结束时间：{{ asr.content[asr.content.length-1].to }}ms
-              </div>
-            </el-timeline>
-          </el-form-item>
-        </el-form> -->
-
-        <!-- {{ asr }} -->
         <el-timeline >
           <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
             <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
@@ -590,6 +568,24 @@ function changeFile(val){
   console.log('传值')
   console.log(val)
   form.config.bg_type = 2
+  
+  let reader = new FileReader(); 
+  reader.readAsDataURL(val.path); 
+  reader.onload = function(e){
+    let image = new Image();
+    image.src = reader.result
+    image.onload = function(){
+      // console.log('宽高')
+      // console.log(image.width)
+      // console.log(image.height)
+      if(image.width===1080 && image.height===1920){
+        form.config.bg_upload_type = 1
+      } else {
+        form.config.bg_upload_type = 2
+      }
+    }
+  }
+
   form.config.background = val.id
   bg_path.value = val.path
   isFileCard.value = false
