@@ -23,18 +23,24 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-upload
-            action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
-            :show-file-list="false"
-            :http-request="ossUpload"
-            :on-success="uploadSuccess"
-            :before-upload="beforeAvatarUpload"
-            :accept="'img'"
-          >
-            <el-button type="primary" size="mini" class="el-icon-upload">本地上传</el-button>
-          </el-upload>
-          <el-button type="primary" plain @click="nextPage">下一页</el-button>
-          <el-button type="primary" plain @click="lastPage">上一页</el-button>
+          <div class="eluploadsty">
+            <el-upload
+              action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
+              :show-file-list="false"
+              :http-request="ossUpload"
+              :on-success="uploadSuccess"
+              :before-upload="beforeAvatarUpload"
+              :accept="'img'"
+            >
+              <el-button type="primary"  class="el-icon-upload">本地上传</el-button>
+            </el-upload>
+          </div>
+          <div class="eluploadsty">
+            <el-button type="primary" plain @click="nextPage">下一页</el-button>
+          </div>
+          <div class="eluploadsty">
+            <el-button type="primary" plain @click="lastPage">上一页</el-button>
+          </div>
         </span>
       </template>
     </el-dialog>
@@ -83,6 +89,16 @@ const list = ref([
   //   created_at: "2023-07-31 11:01:40",
   //   id: 59,
   //   name: "jinyuanai.png",
+  //   path: "https://static.douyintuoke.cn/2023-07-31/FtEUTo4sWsbTRpGUK5kiAxLk56j3.png",
+  //   size: "0.05MB",
+  //   storage: 2,
+  //   suffix: ".png",
+  //   type: 2,
+  // },
+  // {
+  //   created_at: "2023-07-31 11:01:40",
+  //   id: 9,
+  //   name: "uanai.png",
   //   path: "https://static.douyintuoke.cn/2023-07-31/FtEUTo4sWsbTRpGUK5kiAxLk56j3.png",
   //   size: "0.05MB",
   //   storage: 2,
@@ -205,7 +221,7 @@ function uploadSuccess(res, file) {
 }
 
 // 上传前校验
-const beforeAvatarUpload = (rawFile) => {
+async function beforeAvatarUpload(rawFile) {
   const isType = rawFile.type === 'image/jpeg' || 'image/png';
   const isLt2M = rawFile.size / 1024 / 1024 < 2;
   if (!isType) {
@@ -216,32 +232,83 @@ const beforeAvatarUpload = (rawFile) => {
     ElMessage.error('图片大小不能超过2MB!')
     return false;
   }
-  let reader = new FileReader(); 
-  reader.readAsDataURL(rawFile); 
-  const iswh = reader.onload = function(e){
-    let image = new Image();
-    image.src = reader.result
-    image.onload = function(){
-      // console.log('宽高')
-      // console.log(image.width)
-      // console.log(image.height)
-      if((image.width===1080 && image.height===1920)||(image.width===3413 && image.height===1920) ){
-        // console.log('宽高通过')
-        return true
-      } else {
-        // ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
-        return false;
-      }
-    }
-  }
-  if (iswh) {
+  // let reader = new FileReader(); 
+  // reader.readAsDataURL(rawFile); 
+  // const iswh = reader.onload = function(e){
+  //   let image = new Image();
+  //   image.src = reader.result
+  //   const iswh_two = image.onload = function(e){
+  //     console.log('宽高')
+  //     console.log(image.width)
+  //     console.log(image.height)
+  //     // if((image.width===1080 && image.height===1920)||(image.width===3413 && image.height===1920) ){
+  //     //   // console.log('宽高通过')
+  //     //   return true
+  //     // } else {
+  //     //   // ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+  //     //   return false;
+  //     // }
+  //     if((image.width===1334 && image.height===750)){
+  //       console.log('宽高通过')
+  //       return true
+  //     } else {
+  //       // ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+  //       return false;
+  //     }
+  //   }
+  // }
+  // console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+  // console.log(iswh)
+  // if (iswh) {
+  //   ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+  //   return false;
+  // }
+  const iswh = await ExternalFunction(rawFile)
+  if(!iswh){
     ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
     return false;
-  }
-
-  console.log('最后')
+  } 
+  // console.log('最后')
+  // console.log(qwe)
+  // console.log(isType && isLt2M && qwe)
+  // if(isType && isLt2M && qwe){
+  //   console.log('通过')
+  // } else {
+  //   console.log('失败')
+  // }
   return isType && isLt2M && iswh
 };
+
+function ExternalFunction(rawFile) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader(); 
+    reader.readAsDataURL(rawFile); 
+    reader.onload = function(e){
+      let image = new Image();
+      image.src = reader.result
+      image.onload = function(e){
+        // console.log('宽高')
+        // console.log(image.width)
+        // console.log(image.height)
+        if((image.width===1080 && image.height===1920)||(image.width===3413 && image.height===1920) ){
+          // console.log('宽高通过')
+          // return true
+          resolve(true)
+        } else {
+          // ElMessage.error('上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !')
+          // return false;
+          resolve(false)
+        }
+        // if((image.width===1334 && image.height===750)){
+        //   resolve(true)
+        // } else {
+        //   resolve(false)
+        // }
+      }
+    }
+  });
+}
+
 
 
 // 
@@ -308,12 +375,16 @@ function ossUpload(e){
 
 <style lang="scss" scoped>
 .fileindex{
+  position: relative;
   .file_content{
     width: 100%;
-    height: 400px;
+    height: 416px;
     border: 1px solid #c5c5c5;
+    // border: 1px solid red;
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
+    position: relative;
     .header {
       display: flex;
       justify-content: space-between;
@@ -376,6 +447,7 @@ function ossUpload(e){
     }
   }
   .dialog-footer{
+    // border: 1px solid red;
     position: absolute;
     left: 0;
     bottom: 0;
@@ -383,11 +455,19 @@ function ossUpload(e){
     flex-direction: row-reverse;
     align-items: center;
     width: 100%;
-    padding: 4px 10px;
-    .el-button {
-      height: 31px;
+    padding: 4px 10px 10px 0px;
+    
+    .eluploadsty{
+      position: relative;
+      // border: 1px solid blue;
+      padding: 0;
+      margin: 0;
       margin-left: 10px;
     }
+    // .el-button {
+    //   // height: 31px;
+    //   // margin-left: 10px;
+    // }
   }
 }
 </style>

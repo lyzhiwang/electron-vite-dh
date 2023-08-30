@@ -313,10 +313,10 @@ export function generateVideo(data) {
 	})
 }
 // 短视频列表
-export function getGenerateVideo(params) {
+export function getShortVideo(params) {
 	return request({
 		loading: true,
-		url: '/generate/video',
+		url: '/short/video',
 		method: 'get',
 		params
 	})

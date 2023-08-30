@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getGenerateVideo, aliToken } from '../api'
+import { getShortVideo, aliToken } from '../api'
 
 export const shortvideoStore = defineStore('shortvideo', {
   state: () => ({
@@ -196,7 +196,7 @@ export const shortvideoStore = defineStore('shortvideo', {
   actions: {
     async getList(params) {
       try {
-        const res = await getGenerateVideo(params)
+        const res = await getShortVideo(params)
         if (res && res.data) {
           this.list = res.data;
         }

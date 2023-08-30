@@ -54,6 +54,13 @@ const routes = [
         component: () => import('../views/shortvideo/createvideo.vue'),
       },
 
+      {
+        // 短视频 y预览
+        path: 'videoshow',
+        name: 'videoshow',
+        component: () => import('../views/shortvideo/videoshow.vue'),
+      },
+
       
     ]
   },
