@@ -22,6 +22,7 @@ ipcRenderer.on('liveClose',()=>{
   project.setLiveWin(null)
   project.setLiveOpen(false)
 })
+
 </script>
 
 <style lang="scss">

@@ -64,8 +64,24 @@
     <!-- <div class="btnGroup center" v-else></div> -->
 
     <div v-else class="demo-progress">
-      <el-progress :percentage="(Number(data.already/data.total).toFixed(2)*100)?(Number(data.already/data.total).toFixed(2)*100):1" :stroke-width="10" striped-flow striped :show-text="false" />
-      <div class="progress_text">{{(Number(data.already/data.total).toFixed(2)*100)?(Number(data.already/data.total).toFixed(2)*100):1}}%</div>
+      <el-progress
+        :percentage="
+          Number(data.already / data.total).toFixed(2) * 100
+            ? Number(data.already / data.total).toFixed(2) * 100
+            : 1
+        "
+        :stroke-width="10"
+        striped-flow
+        striped
+        :show-text="false"
+      />
+      <div class="progress_text">
+        {{
+          Number(data.already / data.total).toFixed(2) * 100
+            ? Number(data.already / data.total).toFixed(2) * 100
+            : 1
+        }}%
+      </div>
     </div>
   </div>
 
@@ -185,33 +201,72 @@ async function savedSetup() {
     form.live_url = '';
   }
   // 1.先保存直播间开启设置
-  const patams1 = {
-    live_url: 'https://live.douyin.com/' + form.live_url_code,
-    welcome_switch: form.welcome_switch,
-    interactive_switch: form.interactive_switch,
-    project_id: props.data.id,
-  };
+  // const patams1 = {
+  //   live_url: 'https://live.douyin.com/' + form.live_url_code,
+  //   welcome_switch: form.welcome_switch,
+  //   interactive_switch: form.interactive_switch,
+  //   project_id: props.data.id,
+  // };
+  let patams1 = {};
+  if (form.live_url_code) {
+    patams1 = {
+      live_url: 'https://live.douyin.com/' + form.live_url_code,
+      welcome_switch: form.welcome_switch,
+      interactive_switch: form.interactive_switch,
+      project_id: props.data.id,
+    };
+  } else {
+    patams1 = {
+      welcome_switch: form.welcome_switch,
+      interactive_switch: form.interactive_switch,
+      project_id: props.data.id,
+    };
+  }
   // const res = await setLiveRoom({ project_id: props.data.id, patams1 });
   const res = await setLiveRoom(patams1);
   if (res) {
     // 2. 保存成功后开播
-    const patams2 = {
-      live_url: 'https://live.douyin.com/' + form.live_url_code,
-      welcome_switch: form.welcome_switch,
-      interactive_switch: form.interactive_switch,
-    };
+    // const patams2 = {
+    //   live_url: 'https://live.douyin.com/' + form.live_url_code,
+    //   welcome_switch: form.welcome_switch,
+    //   interactive_switch: form.interactive_switch,
+    // };
+
+    let patams2 = {};
+    if (form.live_url_code) {
+      patams2 = {
+        live_url: 'https://live.douyin.com/' + form.live_url_code,
+        welcome_switch: form.welcome_switch,
+        interactive_switch: form.interactive_switch,
+      };
+    } else {
+      patams2 = {
+        welcome_switch: form.welcome_switch,
+        interactive_switch: form.interactive_switch,
+      };
+    }
 
     // const liveInfo = { ...live.liveInfo, ...form }
     const liveInfo = { ...live.liveInfo, patams2 };
     live.setLiveInfo(liveInfo);
     playLive(props.data.id);
     cfgPop.value = false;
+    
+    setTimeout(() => {
+      if(patams2.live_url){
+        // 开启请求ws地址
+        live.getWsUrl({ live_url:patams2.live_url }).then(data=>{
+          live.openLonglink(data)
+        })
+      }
+    }, 500)
+    
   }
 }
 function openLiveWin() {
   liveRoomInfo(props.data.id).then((res) => {
-    console.log('1111111111');
-    console.log(res);
+    // console.log('1111111111');
+    // console.log(res);
     if (res && res.data) {
       const { live_url, interactive_switch, welcome_switch } = res.data;
       form.live_url = live_url || '';
@@ -343,9 +398,9 @@ function transCode(code) {
   padding-top: 10px;
   .el-progress--line {
     // margin-top: 12px;
-    width: 230px
+    width: 230px;
   }
-  .progress_text{
+  .progress_text {
     font-size: 14px;
     padding-top: 2px;
     margin-left: 8px;

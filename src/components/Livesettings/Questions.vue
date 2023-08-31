@@ -66,7 +66,7 @@
 
                   <div class="tag_item_btn">
                     <el-button
-                      v-if="!item.is_add && item.keywords.length < 5"
+                      v-if="!item.is_add"
                       class="button-new-tag ml-1"
                       @click="showInput(index)"
                     >
@@ -104,7 +104,7 @@
                       :uploadSuccess="uploadSuccess"
                       :showFileList="false"
                       :multiple="true"
-                      accept=".mp3,.ogg,.wav"
+                      accept=".mp3"
                     >
                       <el-button
                         v-if="item.audio.length < 5"
@@ -151,7 +151,7 @@
                   </div>
 
                   <div class="prompt_tip">
-                    *只能上传wav, mp3, mp4文件，且不超过10MB
+                    *只能上传.mp3文件，且不超过10MB
                   </div>
                 </div>
               </el-form-item>
@@ -169,8 +169,8 @@
           </div>
 
           <div class="keyword_operate">
+            <!--  -->
             <el-button
-              v-if="formdata.length < 8"
               color="#333333"
               @click="addform"
             >

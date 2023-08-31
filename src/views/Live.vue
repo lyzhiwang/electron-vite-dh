@@ -1,7 +1,7 @@
 <template>
   <!-- <Suspense><Camera /></Suspense> -->
   <div class="livePage">
-    <video :src="item" :ref="el=>vRef[i]=el" @ended="videoEnd" v-for="(item,i) in live.liveInfo.video_list" v-show="live.current===i"></video>
+    <video :src="item" :ref="el=>vRef[i]=el" @ended="videoEnd" v-for="(item,i) in live.liveInfo.video_list" :key="i" v-show="live.current===i"></video>
     <audio :src="soundUrl" class="sound" ref="answer" @ended="answerEnd"></audio>
   </div>
 </template>
@@ -36,12 +36,12 @@ onMounted(()=>{
     // 开始播放
     // vRef.value.autoplay = true
     vRef[0].play()
-    if(live_url){
-      // 开启请求ws地址
-      live.getWsUrl({live_url}).then(data=>{
-        live.openLonglink(data)
-      })
-    }
+    // if(live_url){
+    //   // 开启请求ws地址
+    //   live.getWsUrl({live_url}).then(data=>{
+    //     live.openLonglink(data)
+    //   })
+    // }
   })
 })
 function nextRound(){ // 播放下一轮
