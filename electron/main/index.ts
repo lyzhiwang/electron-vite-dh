@@ -140,7 +140,7 @@ ipcMain.on('open-win', (_, parame) => { // 主进程打开新窗口
     minimizable: false, // 是否可以最小化
     maximizable: false, // 是否可以最小化
     closable: true, // 窗口是否可关闭
-    alwaysOnTop: true, // 窗口是否永远在别的窗口的上面
+    alwaysOnTop: false, // 窗口是否永远在别的窗口的上面
     // frame: false,
     // titleBarStyle: 'hidden',
     webPreferences: {
