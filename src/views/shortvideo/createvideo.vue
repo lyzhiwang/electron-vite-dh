@@ -251,6 +251,7 @@
           
         </div>
         <div class="content_footer">
+          <el-button type="primary" class="btn_style" @click="closejobdrawer">确认</el-button>
           <el-upload
             action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
             :show-file-list="false"
@@ -258,10 +259,10 @@
             :on-success="uploadSuccess"
             :accept="'.mp3,.ogg,.wav,audio,img'"
           >
-            <el-button type="primary" class="el-icon-upload">本地上传</el-button>
+            <el-button>本地上传</el-button>
           </el-upload>
           <!-- <el-button v-has="'jobStore'" type="success" @click="createVoice">制作配音</el-button> -->
-          <el-button @click="closejobdrawer">确认</el-button>
+          <!-- <el-button @click="closejobdrawer" class="btn_style">确认</el-button> -->
         </div>
       </div>
     </el-drawer>
@@ -391,8 +392,8 @@ const bgList = ref([]); // 背景图列表
 const pagetype = ref('1'); // 页面类型1：数字人  2：背景  3：花字
 // const colorselection = ref('#409EFF'); // 颜色选择器
 const form = reactive({
-  id:'',
-  name: 'ceshi1', // 短视频名称
+  // id:'',
+  name: '', // 短视频名称
   // wideorvertical:1, // 1：宽屏  2：竖屏
   human_id:'',// 数字人id
   audio_id:'',// 音频id
@@ -626,13 +627,13 @@ function selectbg(type,item) {
   // form.config.bg_type = type
   form.config.bg_upload_type = type
   if(form.config.background ===''){
-    form.config.background = item.id
+    form.config.background = item.bg.id
     bg_path.value = item.bg.path
-  } else if(form.config.background === item.id) {
+  } else if(form.config.background === item.bg.id) {
     form.config.background = ''
     bg_path.value = ''
   } else {
-    form.config.background = item.id
+    form.config.background = item.bg.id
     bg_path.value = item.bg.path
   }
   
@@ -1175,24 +1176,53 @@ function ossUpload(e){
 
 
 // 打开创建短视频弹窗 显示预计时间
-async function startCfmCrate() {
+ function startCfmCrate() {
   // 1.获取音频时长
-  if(form.audio_id){
-    await generateDuration( form.audio_id ).then((res) => {
-      if (res && res.data) {
-        usedTime.value = res.data.duration;
-        crtCfmPop.value = true;
-      }
-    });
+  // if(form.audio_id){
+  //   await generateDuration( form.audio_id ).then((res) => {
+  //     if (res && res.data) {
+  //       usedTime.value = res.data.duration;
+  //       crtCfmPop.value = true;
+  //     }
+  //   });
+  // } else {
+  //   ElMessage({ type: 'warning', message: '请选择音频！' })
+  // }
+  const data = JSON.parse(JSON.stringify(form))
+  if(data.audio_id){
+    if(data.config.subtitle_id && (data.config.subtitle_style===null || data.config.subtitle_style===undefined ||data.config.subtitle_style ==='')){
+      ElMessage({ type: 'warning', message: '请选择字幕样式！' })
+      return
+    } else if(data.config.font_content &&(data.config.font_style===null || data.config.font_style===undefined ||data.config.font_style ==='')){
+      ElMessage({ type: 'warning', message: '请选择花字样式！' })
+      return
+    } else {
+      
+      console.log('通过')
+      console.log(data)
+      getgenerateDuration()
+    }
   } else {
     ElMessage({ type: 'warning', message: '请选择音频！' })
   }
+
+}
+
+// 1.获取音频时长
+async function getgenerateDuration(){
+  await generateDuration( form.audio_id ).then((res) => {
+    if (res && res.data) {
+      usedTime.value = res.data.duration;
+      crtCfmPop.value = true;
+    }
+  });
 }
 
 // 创建短视频
 function createLive() {
   // 2.根据语音ID生成视频
   // formateData(form)
+  // console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
   generateVideo(formateData(form)).then(res=>{
     if (res && res.data) {
       crtCfmPop.value = false
@@ -1209,33 +1239,37 @@ function createLive() {
 function formateData(form){
   const data = JSON.parse(JSON.stringify(form))
   for (const item in data) {
-    if ((item === 'id')&&(data[item]===null || data[item]===undefined || data[item]==='')){
-      delete data[item]
-    }
+    // if ((item === 'id') && (data[item]===null || data[item]===undefined || data[item]==='')){
+    //   delete data[item]
+    // }
     if (item === 'config'){
       for (const item_item in data[item]){
-        if((item_item === 'font_content')&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')){
-          delete data[item][item_item]
+
+        if((item_item === 'font_content')&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+          delete data[item]['font_content']
           delete data[item]['font_family']
           delete data[item]['font_position']
-          delete data[item]['font_style']
+          delete data[item]['font_style'] 
           delete data[item]['font_size']
-        } else {
-          data[item]['font_family'] = data[item]['font_family'].id
-        }
-        // if(data[item]['font_style']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')) {
-        //   ElMessage({ type: 'warning', message: '请选择花字样式！' })
-        //   return
+          // console.log('font_content为空')
+        } 
+        // if(data[item]['font_family']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+        //   if(data.config.font_content===null || data.config.font_content===undefined || data.config.font_content===""){
+        //     delete data[item][item_item]
+        //   }
         // }
+        // if(data[item]['font_style']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+        //   if(data.config.font_content===null || data.config.font_content===undefined || data.config.font_content===""){
+        //     delete data[item][item_item]
+        //   }
+        // }
+
+
         if(data[item]['subtitle_id']===''){
           delete data[item]['subtitle_id']
           delete data[item]['subtitle_style']
-        } else {
-          if(data[item]['subtitle_style']===null ||data[item]['subtitle_style']===undefined||data[item]['subtitle_style']==='' ){
-            delete data[item]['subtitle_id']
-            delete data[item]['subtitle_style']
-          }
         }
+
         if(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='') {
           delete data[item][item_item]
         }
@@ -1574,9 +1608,15 @@ function formateData(form){
     right: 20px;
     display: flex;
     align-items: center;
-    .el-button {
-      height: 31px;
-      margin-left: 10px;
+    // .el-button {
+    //   // height: 31px;
+    //   margin-left: 10px;
+    // }
+    .btn_style{
+      position: relative;
+      top: 1px;
+      height: 30px;
+      margin-right: 10px;
     }
   }
 }

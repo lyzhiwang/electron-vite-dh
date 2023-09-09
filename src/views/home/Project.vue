@@ -61,9 +61,9 @@ function queryList(p){
                 timer = setInterval(() => {
                     getsynthetizedetail(ids.value)
                 }, 10000);
-                setTimeout(() => {  
-                    clearInterval(timer);   
-                }, 300000);
+                // setTimeout(() => {  
+                //     clearInterval(timer);   
+                // }, 300000);
             }
         }
         
