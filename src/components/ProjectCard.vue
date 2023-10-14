@@ -12,126 +12,69 @@
     <p class="title ell">{{ data.name }}</p>
     <p class="time">{{ data.created_at }}</p>
     <div class="btnGroup center" v-if="data.status === 1">
-      <el-button
-        color="#333333"
-        @click="router.push('/creatlive?pid=' + data.id)"
-      >
+      <el-button color="#333333" @click="router.push('/creatlive?pid=' + data.id)">
         继续编辑
       </el-button>
-      <el-button color="#333333" @click="delect"> 删除 </el-button>
+      <el-button color="#333333" @click="delect"> 
+        删除 
+      </el-button>
     </div>
     <div class="btnGroup center" v-else-if="data.status === 3">
       <!-- <div class="btnGroup center"> -->
       <template v-if="!project.liveWin">
-        <el-button
-          color="#333333"
-          @click="router.push('/creatlive?pid=' + data.id)"
-        >
+        <el-button color="#333333" @click="router.push('/creatlive?pid=' + data.id)">
           继续编辑
         </el-button>
-        <el-button
-          color="#333333"
-          @click="
-            router.push(
-              '/livesettings?pid=' + data.id + '&pagetype=' + pagetype
-            )
-          "
-        >
+        <el-button color="#333333" @click=" router.push( '/livesettings?pid=' + data.id + '&pagetype=' + pagetype ) " >
           互动设置
         </el-button>
       </template>
-      <el-button
-        color="#333333"
-        @click="router.push('/preview?pid=' + data.id)"
-      >
+      <el-button color="#333333" @click="router.push('/preview?pid=' + data.id)">
         预览
       </el-button>
-      <el-button
-        color="#333333"
-        @click="cfgPop = true"
-        v-if="project.liveWin === data.id"
-      >
+      <el-button color="#333333" @click="cfgPop = true" v-if="project.liveWin === data.id" >
         开播
       </el-button>
-      <el-button
-        color="#333333"
-        @click="openLiveWin"
-        v-else-if="!project.liveWin"
-      >
+      <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin" >
         打开直播
       </el-button>
     </div>
     <!-- <div class="btnGroup center" v-else></div> -->
 
     <div v-else class="demo-progress">
-      <el-progress
-        :percentage="
-          Number(data.already / data.total).toFixed(2) * 100
-            ? Number(data.already / data.total).toFixed(2) * 100
-            : 1
-        "
+      <el-progress :percentage=" Number(data.already / data.total).toFixed(2) * 100 ? Number(data.already / data.total).toFixed(2) * 100 : 1"
         :stroke-width="10"
         striped-flow
         striped
         :show-text="false"
       />
       <div class="progress_text">
-        {{
-          Number(data.already / data.total).toFixed(2) * 100
-            ? Number(data.already / data.total).toFixed(2) * 100
-            : 1
-        }}%
+        {{ Number(data.already / data.total).toFixed(2) * 100 ? Number(data.already / data.total).toFixed(2) * 100 : 1 }}%
       </div>
     </div>
   </div>
 
   <!-- 直播窗口打开前的互动配置 -->
-  <el-dialog
-    v-if="cfgPop"
-    v-model="cfgPop"
-    title="评论互动"
-    width="677"
-    destroy-on-close
-    align-center
-    center
-  >
-    <el-form
-      :model="form"
-      class="cfgForm"
-      label-width="100"
-      label-position="left"
-    >
+  <el-dialog v-if="cfgPop" v-model="cfgPop" title="评论互动" width="677" destroy-on-close align-center  center>
+    <el-form :model="form" class="cfgForm" label-width="100" label-position="left" >
       <div class="selectOpton">
-        <el-checkbox
-          v-model="form.welcome_switch"
-          :true-label="1"
-          :false-label="0"
-          label="欢迎加入"
-        />
-        <el-checkbox
-          v-model="form.interactive_switch"
-          :true-label="1"
-          :false-label="0"
-          label="回答问题"
-        />
+        <el-checkbox v-model="form.welcome_switch" :true-label="1" :false-label="0" label="欢迎加入"/>
+        <el-checkbox v-model="form.interactive_switch" :true-label="1" :false-label="0" label="回答问题" />
       </div>
       <!-- <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
-                <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
-            </el-form-item> -->
-      <el-form-item
-        prop="live_url_code"
-        label="抖音直播间账号"
-        v-show="form.welcome_switch || form.interactive_switch"
-      >
-        <el-input
-          v-model.trim="form.live_url_code"
-          placeholder="请输入抖音直播间账号"
-        ></el-input>
+              <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
+          </el-form-item> -->
+      <el-form-item prop="live_url_code" label="抖音直播间账号" v-show="form.welcome_switch || form.interactive_switch">
+        <el-input v-model.trim="form.live_url_code" placeholder="请输入抖音直播间账号" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="savedSetup">保存设置</el-button>
-      <el-button @click="cfgPop = false">取消设置</el-button>
+      <el-button type="primary" @click="savedSetup">
+        保存设置
+      </el-button>
+      <el-button @click="cfgPop = false">
+        取消设置
+      </el-button>
     </template>
   </el-dialog>
 </template>
@@ -249,17 +192,18 @@ async function savedSetup() {
     // const liveInfo = { ...live.liveInfo, ...form }
     const liveInfo = { ...live.liveInfo, patams2 };
     live.setLiveInfo(liveInfo);
+
     playLive(props.data.id);
     cfgPop.value = false;
     
-    setTimeout(() => {
+    // setTimeout(() => {
       if(patams2.live_url){
         // 开启请求ws地址
         live.getWsUrl({ live_url:patams2.live_url }).then(data=>{
-          live.openLonglink(data)
+          // live.openLonglink(data)
         })
       }
-    }, 500)
+    // }, 1500)
     
   }
 }
