@@ -152,7 +152,22 @@ const part = reactive({
 const currentImg = computed(()=>form.footages[partAct.value]&&form.footages[partAct.value].image)
 
 const hms = computed(()=>{
-    if(usedTime.value){
+    // if(usedTime.value){
+    //     const [h, m, s] = getTime_two(usedTime.value)
+    //     if(h!=='00'){
+    //         return `${h}时${m}分${s}秒`
+    //     }else if(m!=='00'){
+    //         return `${m}分${s}秒`
+    //     } else {
+    //         return `${s}秒`
+    //     }
+    //     // return `${h}时${m}分${s}秒`
+    // } else {
+    //     return `${'1'}时${'4'}分${'16'}秒`
+    // }
+    if(usedTime.value === 0 || usedTime.value === '0'){
+        return `0秒`
+    } else {
         const [h, m, s] = getTime_two(usedTime.value)
         if(h!=='00'){
             return `${h}时${m}分${s}秒`
@@ -161,9 +176,6 @@ const hms = computed(()=>{
         } else {
             return `${s}秒`
         }
-        // return `${h}时${m}分${s}秒`
-    } else {
-        return `${'1'}时${'4'}分${'16'}秒`
     }
 })
 

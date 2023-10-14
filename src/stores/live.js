@@ -54,10 +54,16 @@ export const useLiveStore = defineStore('live', {
                 for(let item of responseMsg.array[0]){
                     switch (item[0]) {
                         case 'WebcastChatMessage': // 评论
+                            // console.log('评论评论评论评论评论评论评论评论')
+                            // console.log(pb.ChatMessage.deserializeBinary(item[1]).array[2])
                             const { interactive_switch, interactive } = this.liveInfo
+                            // console.log('interactive')
+                            // console.log(interactive)
                             if(interactive_switch===1 && !this.playIng){ // 当前没有在播放的音频再执行
                                 var chatMessage = pb.ChatMessage.deserializeBinary(item[1]);
                                 const comment = chatMessage.array[2]
+                                // console.log('comment')
+                                // console.log(comment)
                                 // 匹配关键字，播放答案语音
                                 // if(comment.match(new RegExp(opt.keywords, 'g'))){}
                                 const findObj = interactive.find(opt=>comment.match(new RegExp(opt.keywords, 'g')))
@@ -71,6 +77,8 @@ export const useLiveStore = defineStore('live', {
                             // this.setMsg(`【${chatMessage.array[1][2]}】: ${chatMessage.array[2]}`)
                             break;
                         case 'WebcastMemberMessage':  // 进入直播间
+                            // console.log('进入直播间进入直播间进入直播间进入直播间进入直播间')
+                            // console.log(pb.MemberMessage.deserializeBinary(item[1]).array[1][2])
                             const { project_id, welcome_switch, welcome } = this.liveInfo
                             if(welcome_switch===1 && !this.playIng){
                                 const nowTime = new Date()
