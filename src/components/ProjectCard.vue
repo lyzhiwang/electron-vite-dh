@@ -219,10 +219,11 @@ function openLiveWin() {
       // cfgPop.value = true
       live.setLiveInfo(res.data);
       // 打开直播窗口
-      const screen =
-        live.liveInfo.screen === 1
-          ? { width: 375, height: 670 }
-          : { width: 1600, height: 900 };
+      // const screen =
+      //   live.liveInfo.screen === 1
+      //     ? { width: 375, height: 670 }
+      //     : { width: 1600, height: 900 };
+      const screen = { width: 1920, height: 1080 }
       ipcRenderer.send('open-win', { path: 'live', ...screen });
       // 设置直播的项目ID
       project.setLiveWin(props.data.id);

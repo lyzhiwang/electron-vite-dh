@@ -38,7 +38,7 @@ const router = useRouter();
 const projectName = ref('');
 const total = ref(0);
 const page = ref(1);
-const size = 23;
+const size = 11;
 
 function createNewPro() {
   if (!projectName.value) return ElMessageBox.alert('请输入短视频名称');
