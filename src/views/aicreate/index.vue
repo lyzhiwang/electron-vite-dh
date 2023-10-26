@@ -77,6 +77,10 @@ onMounted(() => {
   initialization();
 });
 
+onBeforeUnmount(() => {
+  loading.close();
+});
+
 const submitForm = async (formEl) => {
   if (!formEl) return;
   await formEl.validate((valid, fields) => {
@@ -107,7 +111,7 @@ const submitForm = async (formEl) => {
 
       setTimeout(() => {
         loading.close();
-      }, 20000);
+      }, 2000000000);
     } else {
       console.log('error submit!', fields);
     }
