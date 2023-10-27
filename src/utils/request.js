@@ -19,7 +19,7 @@ const service = axios.create({
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'type': 2,
-        'oemid': 2,
+        'oemid': 26,  // oem id  聚能AI数字人  26
     }
 })
 

@@ -54,7 +54,7 @@ async function createWindow() {
     //   symbolColor: '#000',
     //   height: 30
     // },
-    title: '智星AI数字人',
+    title: '聚能AI数字人',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,

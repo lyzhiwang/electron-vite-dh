@@ -3,8 +3,8 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "123456789zxaiszr",
-  "productName": "智星AI数字人",
+  "appId": "123456789jnaiszr",
+  "productName": "聚能AI数字人",
   "asar": true,
   "directories": {
     "output": "release/${version}"
