@@ -1,169 +1,35 @@
 <template>
   <div class="createPage">
     <div class="fixedHead vcenter">
-      <el-input
-        v-model.trim="form.footages[partAct].name"
-        placeholder="素材名称"
-        class="partName"
-        v-if="form.footages[partAct]"
-      />
-      <el-input
-        v-model.trim="part.name"
-        placeholder="素材名称"
-        class="partName"
-        v-else
-      />
+      <el-input v-model.trim="form.footages[partAct].name"  placeholder="素材名称" class="partName" v-if="form.footages[partAct]" />
+      <el-input v-model.trim="part.name" placeholder="素材名称" class="partName" v-else />
       <el-button link class="save" @click="saveToTemp">
         <el-icon class="cgxIcon">
           <Collection />
         </el-icon>
         保存到草稿箱
       </el-button>
-      <button :class="['banBtn', { act: part.screen == 1 }]" @click="setHs(1)">
-        竖版
-      </button>
-      <button :class="['banBtn', { act: part.screen == 2 }]" @click="setHs(2)">
-        横板
-      </button>
       <el-button type="primary" round class="CreateLive" @click="startCfmCrate">
         创建直播
       </el-button>
     </div>
 
-    <!-- <div class="leftArea">
-        <p class="h3">选择形象</p>
-        <ul class="pList">
-            <el-image 
-                v-for="item in dpList" 
-                :key="item.id" 
-                :src="item.image" 
-                :class="['person',{'checked': part.human_id==item.human_id }]" 
-                loading="lazy" 
-                @click="selectHuman(item.human_id, item.image)"
-            />
-        </ul>
-    </div> -->
+    <div class="content">
+      <div class="content_left">
 
-    <div class="leftArea">
-      <p class="h3">选择形象</p>
-      <div class="leftArea_box">
-        <ul class="pList">
-          <el-image
-            v-for="item in dpList"
-            :key="item.id"
-            :src="item.image"
-            :class="['person', { 'checked': part.human_id == item.human_id }]"
-            loading="lazy"
-            @click="selectHuman(item.human_id, item.image)"
-          />
-        </ul>
       </div>
     </div>
 
-    <div class="rightArea">
-      <div class="topCon center">
-        <div class="dpBox">
-          <el-image
-            :src="currentImg"
-            :class="part.screen == 1 ? 'vertical' : 'horizontal'"
-            fit="contain"
-          />
-        </div>
-      </div>
-      <div class="botCon">
-        <!-- 操作片段区 -->
-        <div class="btnGroup vcenter">
-          <el-tooltip effect="dark" content="复制选中素材" placement="top">
-            <el-icon class="btnIcon" @click="copyPart">
-              <CopyDocument/>
-            </el-icon>
-          </el-tooltip>
-          <el-tooltip effect="dark" content="删除选中素材" placement="top">
-            <el-icon class="btnIcon" @click="delePart">
-              <DeleteFilled/>
-            </el-icon>
-          </el-tooltip>
-          <Upload
-            :beforeUpload="beforeUpload"
-            :uploadSuccess="uploadSuccess"
-            :showFileList="false"
-            accept=".mp3,.wav"
-            class="upload-voice center"
-          >
-            <el-button color="#333" class="upload">
-              <el-icon class="insertIcon">
-                <CirclePlusFilled />
-              </el-icon>
-              <span v-if="form.footages[partAct] && form.footages[partAct].audio_id">
-                修改录音
-              </span>
-              <span v-else>上传录音</span>
-            </el-button>
-          </Upload>
-          <el-switch
-            class="roundOpt"
-            v-if="form.footages.length > 2"
-            v-model="form.is_random"
-            style="--el-switch-off-color: #4c4d4f"
-            active-text="随机播放"
-            :active-value="1"
-            :inactive-value="0"
-          />
-        </div>
-        <!-- 片段列表区 -->
-        <el-scrollbar class="scrollview">
-          <ul class="partList">
-            <li
-              :class="['item', { act: i === partAct }]"
-              v-for="(item, i) in form.footages"
-              :key="i"
-              @click="selectPart(i)"
-            >
-              <el-image
-                class="img center"
-                :src="item.image"
-                loading="lazy"
-                fit="contain"
-              >
-                <template #error>
-                  <el-icon class="errorIcon">
-                    <Picture />
-                  </el-icon>
-                </template>
-              </el-image>
-              <div class="status center" v-if="i === partAct">
-                编辑中
-              </div>
-            </li>
-            <li class="item center create" @click="createPart">
-              <el-icon class="insertIcon">
-                <DocumentAdd />
-              </el-icon>
-              <p>新建素材</p>
-            </li>
-          </ul>
-        </el-scrollbar>
-      </div>
-    </div>
     <!-- 创建直播确认弹窗 -->
-    <el-dialog
-      v-model="crtCfmPop"
-      title="是否创建直播"
-      width="567"
-      destroy-on-close
-      align-center
-      center
-    >
-      <!-- 预计创建等待时间4分钟， -->
+    <!-- <el-dialog v-model="crtCfmPop" title="是否创建直播" width="567" destroy-on-close align-center center>
       <p style="text-align: center">
         预计消耗合成时长{{ hms }}（以实际合成时长为准），确认后开始创建
       </p>
-
       <template #footer>
         <el-button type="primary" @click="createLive"> 确定创建 </el-button>
         <el-button @click="crtCfmPop = false"> 取消创建 </el-button>
       </template>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -196,11 +62,15 @@ const partAct = ref(null); // 选中的片段下标
 const crtCfmPop = ref(false);
 const usedTime = ref(''); // 生成视频预计消耗时长
 const dpList = ref([]);
+
+// 
 const form = reactive({
   name: '', // 项目名称
   footages: [], // 片段集合
   is_random: 0,
 });
+
+// 
 const part = reactive({
   name: '',
   image: '',
@@ -208,24 +78,14 @@ const part = reactive({
   audio_id: null,
   screen: 1,
 });
+
+// 
 const currentImg = computed(
   () => form.footages[partAct.value] && form.footages[partAct.value].image
 );
 
+// 时间格式化
 const hms = computed(() => {
-  // if(usedTime.value){
-  //     const [h, m, s] = getTime_two(usedTime.value)
-  //     if(h!=='00'){
-  //         return `${h}时${m}分${s}秒`
-  //     }else if(m!=='00'){
-  //         return `${m}分${s}秒`
-  //     } else {
-  //         return `${s}秒`
-  //     }
-  //     // return `${h}时${m}分${s}秒`
-  // } else {
-  //     return `${'1'}时${'4'}分${'16'}秒`
-  // }
   if (usedTime.value === 0 || usedTime.value === '0') {
     return `0秒`;
   } else {
@@ -279,7 +139,7 @@ onBeforeMount(() => {
     // 新建
     form.name = pn;
     getHumanList().then((data) => {
-      console.log('zzzzzzzzzzzzzzzzzzz')
+      console.log('zzzzzzzzzzzzzzzzzzz');
       // 新建的时候创建一个默认的片段并选中
       if (data && data.length > 0) {
         const { human_id, image } = data[0];
@@ -294,12 +154,14 @@ onBeforeMount(() => {
   }
   project.queryAliToken();
 });
-// onBeforeRouteLeave(async()=>{ // 离开页面前保存草稿箱
-//     const flag = await saveToTemp()
-//     if (!flag) return false
-// })
 
-// 
+// 离开页面前保存草稿箱
+onBeforeRouteLeave(async () => {
+  // const flag = await saveToTemp()
+  // if (!flag) return false
+});
+
+//
 async function getHumanList() {
   const res = await humanList();
   if (res && res.data) {
@@ -309,7 +171,7 @@ async function getHumanList() {
   return false;
 }
 
-// 
+//
 function partInit() {
   part.name = '';
   part.image = '';
@@ -389,7 +251,7 @@ function delePart() {
   partInit();
 }
 
-// 
+//
 function beforeUpload() {
   if (partAct.value === null) {
     ElMessage({ type: 'warning', message: '请先选择一个素材,再上传录音！' });
@@ -397,12 +259,11 @@ function beforeUpload() {
   }
 }
 
-
 function handleExceed() {
   // 超出上传限制时的钩子函数
 }
 
-// 
+//
 function uploadSuccess(res, file) {
   console.log(333, res);
   const audio_id = res.data.id;
@@ -513,193 +374,6 @@ async function createLive() {
     .save {
       margin: 0 35px;
     }
-    .banBtn {
-      width: 60px;
-      height: 28px;
-      background: #333;
-      border-radius: 4px;
-      margin: 0 10px;
-      font-size: 14px;
-      &.act {
-        background: #666 !important;
-      }
-    }
-  }
-  .leftArea {
-    // width: 295px;
-    // min-height: 824px;
-    // padding: 14px 20px;
-    background: #282828;
-    // min-height: 700px;
-    margin-right: 11px;
-    width: 300px;
-    padding-top: 14px;
-    // border: 1px solid red;
-    .h3 {
-      font-size: 14px;
-      padding-left: 15px;
-    }
-    // // min-height: 824px;
-    // height: 824px;
-    // overflow: hidden;
-    // background: #282828;
-    // // padding: 14px 15px;
-    // margin-right: 11px;
-    // .h3{
-    //     font-size: 14px;
-    // }
-    // .pList{
-    //     // display: flex;
-    //     // flex-wrap: wrap;
-    //     margin: 20px -5px 0;
-    //     column-width: 122px;
-    //     column-count: auto;
-    //     column-gap: 10px;
-    // }
-    // .person{
-    //     display: block;
-    //     background: #1e1e1e;
-    //     margin-bottom: 10px;
-    //     cursor: pointer;
-    //     // width: 122px;
-    //     // height: 217px;
-    //     // margin: 10px 5px;
-    //     &.checked{
-    //         border: 1px solid #1182fb;
-    //         border-radius: 4px;
-    //     }
-    // }
-
-    .leftArea_box {
-      height: 750px;
-      width: 100%;
-      scroll-behavior: smooth;
-      overflow-y: scroll;
-      padding: 0px 15px 0px 15px;
-
-      .pList {
-        margin: 14px -5px 0;
-        column-width: 100px;
-        column-count: auto;
-        column-gap: 10px;
-
-        .person {
-          display: block;
-          background: #1e1e1e;
-          margin-bottom: 10px;
-          cursor: pointer;
-          border: 1px solid rgb(0, 0, 0, 0);
-          &.checked {
-            border: 1px solid #409eff;
-            border-radius: 4px;
-          }
-        }
-      }
-    }
-
-    .leftArea_box::-webkit-scrollbar {
-      width: 4px;
-    }
-    .leftArea_box::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0);
-    }
-  }
-
-  .rightArea {
-    width: 905px;
-    .topCon {
-      height: 607px;
-      background: #282828;
-      padding: 20px;
-      margin-bottom: 10px;
-    }
-    .botCon {
-      min-height: 206px;
-      background: #282828;
-      .btnGroup {
-        height: 54px;
-        border-bottom: 1px solid #4b4b4b;
-        padding: 0 20px;
-      }
-      .btnIcon {
-        font-size: 23px;
-        color: #ccc;
-        cursor: pointer;
-        width: 50px;
-        height: 30px;
-      }
-      .upload-voice {
-        margin-left: 20px;
-      }
-      .insertIcon {
-        font-size: 18px;
-        color: #ccc;
-        margin-right: 4px;
-      }
-    }
-    .dpBox {
-      background-color: #1e1e1e;
-      height: 567px;
-      display: flex;
-      align-items: flex-end;
-      .horizontal {
-        width: 865px;
-        height: 567px;
-      }
-      .vertical {
-        width: 325px;
-      }
-    }
-  }
-  .scrollview {
-    padding: 0 20px;
-  }
-  .partList {
-    display: flex;
-    list-style: none;
-    padding: 20px 0;
-    box-sizing: border-box;
-    .item {
-      position: relative;
-      min-width: 192px;
-      width: 192px;
-      height: 108px;
-      margin: 0 5px;
-      background: #000;
-      border-radius: 5px;
-      --el-fill-color-light: #000;
-      cursor: pointer;
-      &.create {
-        background: #333;
-        color: #ccc;
-      }
-      &.act {
-        overflow: hidden;
-        border: 1px solid #ccc;
-      }
-    }
-    .img {
-      width: 100%;
-      height: 100%;
-      display: flex !important;
-    }
-    .status {
-      width: 188px;
-      height: 40px;
-      background-color: rgba(0, 0, 0, 0.5);
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      font-size: 14px;
-    }
-    .errorIcon {
-      font-size: 20px;
-      color: #fff;
-    }
-  }
-  .roundOpt {
-    margin-left: 10px;
   }
 }
 </style>
