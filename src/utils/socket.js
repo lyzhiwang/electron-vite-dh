@@ -1,5 +1,7 @@
 // import pb from './douyin_pb'
 import { useLiveStore } from '../stores'
+// import pb from '../utils/douyin_pb'
+import pb from './douyin_pb'
 var WebSocket = require('ws')
 // websocket实例
 let wsObj = null
@@ -96,7 +98,7 @@ const initWsEventHandle = () => {
       useLiveStore().$patch({ wsObj })
       onWsOpen(event)
       numberoftimes = 0
-      // heartCheck.start()
+      heartCheck.start()
     }
 
     // 监听服务器端返回的信息
@@ -226,10 +228,21 @@ const heartCheck = {
     this.timeoutObj = setInterval(() => {
       writeToScreen('send ping')
       try {
-        const datas = { channel: 'other' }
-        wsObj.send(JSON.stringify(datas))
+        // pf.setPayload = responseMsg.array[4]
+        // pf.setPayloadtype = 'ack'
+        // pf.setLogid = frameMsg.array[1]
+        // const datas = { channel: 'other' }
+        // wsObj.send(JSON.stringify(datas))
+        const pf = new pb.PushFrame()
+        pf.setPayload = 'internal_src:pushserver|first_req_ms:1698476012570|wss_msg_type:wrds|wrds_kvs:WebcastRoomRankMessage-1698475982549361650_WebcastRoomStatsMessage-1698475989463289328'
+        pf.setPayloadtype = 'ack'
+        pf.setLogid = 6306220614463416000
+        // 发送ping的二进制数据
+        // sendDate(pf.serializeBinary());
+        wsObj.send(pf.serializeBinary())
       } catch (err) {
         writeToScreen('发送ping异常')
+        writeToScreen(err)
       }
       // console.log('内嵌定时器this.serverTimeoutObj: ', this.serverTimeoutObj)
       // 内嵌定时器检测服务器是否挂掉

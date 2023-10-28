@@ -117,14 +117,19 @@ export const useLiveStore = defineStore('live', {
                             break;
                     }
                 }
-                if (responseMsg.array[8]) {
-                    const pf = new pb.PushFrame()
-                    pf.setPayload = responseMsg.array[4]
-                    pf.setPayloadtype = 'ack'
-                    pf.setLogid = frameMsg.array[1]
-                    // 发送ping的二进制数据
-                    sendDate(pf.serializeBinary());
-                }
+                // if (responseMsg.array[8]) {
+                //     const pf = new pb.PushFrame()
+                //     pf.setPayload = responseMsg.array[4]
+                //     pf.setPayloadtype = 'ack'
+                //     pf.setLogid = frameMsg.array[1]
+
+                //     console.log('qqqqqqqqqqqqqqqqqqqq')
+                //     console.log(responseMsg.array[4])
+                //     console.log(frameMsg.array[1])
+                //     console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+                //     // 发送ping的二进制数据
+                //     sendDate(pf.serializeBinary());
+                // }
             } catch (error) {
 
             }
