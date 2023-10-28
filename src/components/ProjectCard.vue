@@ -223,7 +223,8 @@ function openLiveWin() {
       //   live.liveInfo.screen === 1
       //     ? { width: 375, height: 670 }
       //     : { width: 1600, height: 900 };
-      const screen = { width: 1920, height: 1080 }
+      // const screen = { width: 1920, height: 1080 }
+      const screen = { width: 375, height: 670 }
       ipcRenderer.send('open-win', { path: 'live', ...screen });
       // 设置直播的项目ID
       project.setLiveWin(props.data.id);

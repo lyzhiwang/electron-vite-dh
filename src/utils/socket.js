@@ -17,6 +17,9 @@ let errorCallback = null
 // 发送给后台的数据
 let sendDatas = {}
 
+// 重连次数
+let numberoftimes = 0
+
 /**
  * 发起websocket请求函数
  * @param {string} url ws连接地址
@@ -92,6 +95,7 @@ const initWsEventHandle = () => {
     wsObj.onopen = (event) => {
       useLiveStore().$patch({ wsObj })
       onWsOpen(event)
+      numberoftimes = 0
       // heartCheck.start()
     }
 
@@ -131,7 +135,7 @@ const onWsOpen = (event) => {
   if (wsObj.readyState === wsObj.CLOSED) { // wsObj.CLOSED = 3
     writeToScreen('wsObj.readyState=3, ws连接异常，开始重连')
     reconnect()
-    errorCallback()
+    // errorCallback()
   }
 }
 const onWsMessage = (event) => {
@@ -146,14 +150,14 @@ const onWsClose = (event) => {
   console.log('onclose event: ', event)
   if (event && event.code !== 1000) {
     writeToScreen('非正常关闭')
-    errorCallback()
+    // errorCallback()
     // 如果不是手动关闭，这里的重连会执行；如果调用了手动关闭函数，这里重连不会执行
     reconnect()
   }
 }
 const onWsError = (event) => {
   writeToScreen('onWsError: ', event.data)
-  errorCallback()
+  // errorCallback()
 }
 
 const writeToScreen = (massage) => {
@@ -162,6 +166,11 @@ const writeToScreen = (massage) => {
 
 // 重连函数
 const reconnect = () => {
+  //  && numberoftimes < 20
+  if(numberoftimes > 5){
+    errorCallback(123)
+    return
+  }
   if (lockReconnect) {
     return
   }
@@ -172,6 +181,8 @@ const reconnect = () => {
   wsCreateHandler = setTimeout(() => {
     writeToScreen('重连...' + wsUrl)
     createWebSoket()
+    numberoftimes = numberoftimes + 1
+    writeToScreen('重连第' + numberoftimes +'次')
     lockReconnect = false
     writeToScreen('重连完成')
   }, 3000)

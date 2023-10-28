@@ -18,6 +18,23 @@
       <div class="content_left">
 
       </div>
+
+
+      <div class="">
+        <div class="">
+          <div class="">
+            <div class=""></div>
+            <div class=""></div>
+            <div class=""></div>
+            <div class=""></div>
+          </div>
+          <div class=""></div>
+          <div class=""></div>
+        </div>
+        <div class=""></div>
+        <div class=""></div>
+        <div class=""></div>
+      </div>
     </div>
 
     <!-- 创建直播确认弹窗 -->
@@ -139,7 +156,7 @@ onBeforeMount(() => {
     // 新建
     form.name = pn;
     getHumanList().then((data) => {
-      console.log('zzzzzzzzzzzzzzzzzzz');
+      // console.log('zzzzzzzzzzzzzzzzzzz');
       // 新建的时候创建一个默认的片段并选中
       if (data && data.length > 0) {
         const { human_id, image } = data[0];
@@ -161,7 +178,7 @@ onBeforeRouteLeave(async () => {
   // if (!flag) return false
 });
 
-//
+// 获取数字人列表
 async function getHumanList() {
   const res = await humanList();
   if (res && res.data) {
@@ -171,7 +188,7 @@ async function getHumanList() {
   return false;
 }
 
-//
+// 初始化 选中数字人  展示  待废弃
 function partInit() {
   part.name = '';
   part.image = '';
@@ -179,7 +196,7 @@ function partInit() {
   part.audio_id = null;
 }
 
-// 设置横竖屏
+// 设置横竖屏  待废弃
 function setHs(num) {
   part.screen = num;
   if (form.footages.length > 0) {

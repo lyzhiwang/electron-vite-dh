@@ -2,7 +2,7 @@
   "name": "zxai",
   "version": "2.1.0",
   "main": "dist-electron/main/index.js",
-  "description": "Electron + Vue + Vite",
+  "description": "智星AI数字人",
   "author": "maxwell",
   "license": "MIT",
   "private": true,
