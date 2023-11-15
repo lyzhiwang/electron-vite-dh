@@ -87,6 +87,13 @@
             </el-icon>
             视频消耗明细
           </el-button>
+
+          <el-button v-if="isrenew" color="#191919" class="detailBtn" @click="crtCfmPop = true">
+            <el-icon class="btnIcon">
+              <HelpFilled />
+            </el-icon>
+            系统更新
+          </el-button>
         </div>
       </div>
       <div class="block codeBox center">
@@ -155,6 +162,29 @@
       <VoiceDetail v-if="popup.detailType === 1" />
       <VideoDetail v-else />
     </el-drawer>
+
+
+    <el-dialog 
+        v-model="crtCfmPop" 
+        title="系统更新" 
+        :close-on-click-modal="false" 
+        :close-on-press-escape="false" 
+        width="567" 
+        align-center 
+        center
+        :show-close="false" 
+    >
+      <p style="text-align: center; font-size: 18px;">
+        当前系统不是最新版本
+      </p>
+      <p style="text-align: center;font-size: 14px; margin-top: 10px;">
+        请问是否下载最新版本
+      </p>
+      <template #footer>
+        <el-button type="primary" @click="downloading()"> 下载最新版本 </el-button>
+        <!-- <el-button @click="crtCfmPop = false"> 暂不更新 </el-button> -->
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -165,6 +195,7 @@ import {
   Microphone,
   VideoPlay,
   RefreshRight,
+  HelpFilled
 } from '@element-plus/icons-vue';
 import { useUserStore, useProjectStore } from '../../stores';
 import { useRouter } from 'vue-router';
@@ -172,6 +203,12 @@ import { getTime } from '../../utils/helper';
 import { changePwd, getBanner, sysInfo } from '../../api';
 // import { runOnce } from '../../utils/voice'
 import { useConfigStore } from '../../stores';
+// import  packagedata  from '../../../package.json';
+// const packagedata = require("../../../package.json");
+let { shell } = require('electron')
+// const packagedata = require("./package.json");
+// const packagedata = require("./package.json");
+
 
 const changePwdRef = ref();
 const user = useUserStore();
@@ -187,6 +224,7 @@ const sys = ref({
   name: '',
   qrcode: '',
 });
+
 const popup = reactive({
   drawer: false, // 右侧抽屉
   changePwd: false, // 更改密码
@@ -199,6 +237,14 @@ const form = reactive({
 });
 const noTypePwd = '请输入您的密码';
 const trigger = ['blur', 'change'];
+
+const isrenew = ref(false); // 检查是否需要更新
+const crtCfmPop = ref(false); // 更新弹窗
+
+const download_url = ref(''); // 最新下载链接
+
+
+
 const validatePass = (rule, value, callback) => {
   if (value === form.oldPwd) {
     callback(new Error('您填写的新旧密码一样'));
@@ -342,9 +388,28 @@ onBeforeMount(() => {
         .catch(() => resolve(null))
     ),
     new Promise((resolve) =>
-      sysInfo()
-        .then((res) => resolve(res.data))
-        .catch(() => resolve(null))
+      // sysInfo()
+      //   .then((res) => resolve(res.data))
+      //   .catch(() => resolve(null))
+      sysInfo().then(res=>{
+        console.log('系统信息')
+        console.log(res.data.version)
+        // console.log(packagedata.version)
+        // console.log(process.env.VUE_APP_VERSION)
+        // console.log(process.env.npm_package_version)
+        // console.log(process.env)
+        // console.log(process)
+        console.log(__Admin_VERSION__)
+        
+        if(res.data.app_url){
+          download_url.value = res.data.app_url
+        }
+        confirmversion(__Admin_VERSION__,res.data.version)
+        resolve(res.data)
+      }).catch(err=>{
+        console.log(err)
+        resolve(null)
+      })
     ),
   ]).then((data) => {
     const [b, s] = data;
@@ -354,6 +419,42 @@ onBeforeMount(() => {
     config.setname(s.name);
   });
 });
+
+// 检查是否为最新版
+function confirmversion(current,uptodate){
+  current = current.split(".")
+  uptodate = uptodate.split(".")
+  for (var i = 0; i < current.length; i++){
+    if(Number(current[i]) !== Number(uptodate[i])){
+      // isrenew.value = true
+      crtCfmPop.value = true
+      return;
+      // var lastDate = window.localStorage.getItem('lastDate');
+      // if (lastDate) {
+      //   var today = new Date();
+      //   if (today.getDate() == parseInt(lastDate)) {
+      //     // 已经执行过，不需要再次执行。
+      //     console.log('已经执行过，不需要再次执行。')
+      //     return;
+      //   }
+      // } else {
+      //   // 执行代码段。
+      //   crtCfmPop.value = true
+      //   console.log('提示需要更新')
+      //   console.log('当前不是最新版本，请更新')
+      //   var today = new Date();
+      //   window.localStorage.setItem('lastDate', today.getDate().toString());
+      //   return;
+      // }
+      
+    }
+  }
+}
+
+// 下载最新安装包
+function downloading(){
+  shell.openExternal(download_url.value)
+}
 </script>
 
 <style lang="scss" scoped>

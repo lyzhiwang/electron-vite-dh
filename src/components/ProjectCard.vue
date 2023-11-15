@@ -80,12 +80,13 @@
 </template>
 
 <script setup>
-const format = (percentage) => (percentage === 100 ? 'Full' : `${percentage}%`);
+
 import { ipcRenderer } from 'electron';
 import { useRouter } from 'vue-router';
 import { Loading } from '@element-plus/icons-vue';
 import { useProjectStore, useLiveStore } from '../stores';
 import { setLiveRoom, liveRoomInfo, delProJect, startLive } from '../api';
+const format = (percentage) => (percentage === 100 ? 'Full' : `${percentage}%`);
 const goRefresh = inject('reload');
 const props = defineProps({
   data: {
@@ -223,7 +224,8 @@ function openLiveWin() {
       //   live.liveInfo.screen === 1
       //     ? { width: 375, height: 670 }
       //     : { width: 1600, height: 900 };
-      const screen = { width: 1920, height: 1080 }
+      // const screen = { width: 1920, height: 1080 }
+      const screen = { width: 375, height: 670 }
       ipcRenderer.send('open-win', { path: 'live', ...screen });
       // 设置直播的项目ID
       project.setLiveWin(props.data.id);
@@ -289,14 +291,18 @@ function transCode(code) {
     }
   }
   .picBox {
-    width: 122px;
-    height: 217px;
-    background-color: #000;
+    // width: 122px;
+    // height: 217px;
+    width: 130px;
+    height: 200px;
+    // background-color: #000;
+    background-color: #00c764;
     display: flex;
     align-items: flex-end;
   }
   .pic {
-    width: 122px;
+    // width: 122px;
+    width: 130px;
   }
   .title {
     margin: 12px 0;

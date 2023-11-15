@@ -7,7 +7,7 @@ import pkg from './package.json'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-
+process.env.VUE_APP_VERSION = require('./package.json').version
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync('dist-electron', { recursive: true, force: true })
@@ -78,5 +78,8 @@ export default defineConfig(({ command }) => {
       }
     })(),
     clearScreen: false,
+    define: {
+      __Admin_VERSION__: JSON.stringify(process.env.npm_package_version)
+    }
   }
 })

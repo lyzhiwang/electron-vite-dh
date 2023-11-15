@@ -28,6 +28,7 @@ const live = useLiveStore();
 const vRef = reactive({});
 const answer = ref();
 const soundUrl = ref('');
+const isgeturl = ref(0);
 // const vsrc = ref('')
 let round = 1,
   i = 0,
@@ -64,13 +65,55 @@ onMounted(() => {
     setTimeout(() => {
       const { patams2 } = live.liveInfo;
       if (patams2.live_url) {
-        live.getWsUrl({ live_url:patams2.live_url }).then((data) => {
-          live.openLonglink(data);
-        });
+        // live.getWsUrl({ live_url:patams2.live_url }).then((data) => {
+        //   live.openLonglink(data).then(res=>{
+        //     console.log('222222222222222222222222222')
+        //     console.log(res)
+        //   })
+        // });
+        // getWsUrl()
+        live.combination(patams2.live_url)
       }
     }, 1000);
   });
 });
+
+// 获取回复
+function getWsUrl(){
+  const { patams2 } = live.liveInfo;
+  live.getWsUrl({ live_url:patams2.live_url }).then((data) => {
+    live.openLonglink(data).then(res=>{
+      console.log('222222222222222222222222222')
+      console.log(res)
+      if(res === 123 || res === '123'){
+        console.log('重连获取连接')
+        isgeturl.value = isgeturl.value + 1
+        
+        if(isgeturl.value  < 3){
+          console.log('重新获取2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+          getWsUrl()
+        } else {
+          console.log('停止获取')
+        }
+      }
+    }).catch(err=>{
+      console.log('33333333333333333333333333')
+      console.log(err)
+      if(err === 123 || err === '123'){
+        console.log('重连获取连接')
+        isgeturl.value = isgeturl.value + 1
+        
+        if(isgeturl.value  < 3){
+          console.log('重新获取2222222222')
+          getWsUrl()
+        } else {
+          console.log('停止获取')
+        }
+      }
+    })
+  });
+}
+
 function nextRound() {
   // 播放下一轮
   if (live.liveInfo.is_random && videoArr.length > 1) {

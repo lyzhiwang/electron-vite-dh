@@ -75,6 +75,9 @@ async function createWindow() {
     win.loadFile(indexHtml);
   }
 
+  // win.webContents.openDevTools();
+
+
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString());
@@ -169,7 +172,7 @@ ipcMain.on('open-win', (_, parame) => {
     width,
     height,
     minimizable: false, // 是否可以最小化
-    maximizable: false, // 是否可以最小化
+    maximizable: true, // 是否可以最大化
     closable: true, // 窗口是否可关闭
     alwaysOnTop: true, // 窗口是否永远在别的窗口的上面
     // frame: false,
@@ -186,6 +189,7 @@ ipcMain.on('open-win', (_, parame) => {
   } else {
     liveWin.loadFile(indexHtml, { hash: path });
   }
+
   // 直播窗口关闭
   liveWin.on('close', () => {
     win.webContents.send('liveClose');

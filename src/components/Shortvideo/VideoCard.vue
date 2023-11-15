@@ -136,14 +136,18 @@ function transCode(code) {
     }
   }
   .picBox {
-    width: 122px;
-    height: 217px;
-    background-color: #000;
+    // width: 122px;
+    // height: 217px;
+    width: 130px;
+    height: 200px;
+    // background-color: #000;
+    background-color: #00c764;
     display: flex;
     align-items: flex-end;
   }
   .pic {
-    width: 122px;
+    // width: 122px;
+    width: 130px;
   }
   .title {
     margin: 12px 0;
