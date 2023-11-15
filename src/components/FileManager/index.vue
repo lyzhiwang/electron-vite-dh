@@ -53,10 +53,12 @@ import { format } from 'date-fns'
 import { sampleSize } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../../stores'
-const { ossData } = storeToRefs(useProjectStore())
+
 import {
   UploadIndex
 } from '../../api/index';
+
+const { ossData } = storeToRefs(useProjectStore())
 
 const props = defineProps({
   // 1: 'img', // 图片

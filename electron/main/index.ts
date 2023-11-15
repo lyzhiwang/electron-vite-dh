@@ -75,6 +75,8 @@ async function createWindow() {
     win.loadFile(indexHtml);
   }
 
+  // win.webContents.openDevTools();
+
 
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {

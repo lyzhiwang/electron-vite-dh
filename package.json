@@ -1,9 +1,9 @@
 {
   "name": "zxai",
-  "version": "2.1.2",
+  "version": "2.1.6",
   "main": "dist-electron/main/index.js",
   "description": "智星AI数字人",
-  "author": "maxwell",
+  "author": "智网网络",
   "license": "MIT",
   "private": true,
   "keywords": [

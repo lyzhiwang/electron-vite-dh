@@ -383,3 +383,23 @@ export function UploadIndex(params) {
 		params
 	})
 }
+
+// ------------------------------------------------------
+// 语音合成试听
+// 发起合成请求
+export function posttts(data) {
+	return request({
+		loading: false,
+		url: '/tts',
+		method: 'post',
+		data
+	})
+}
+// 语音合成详情
+export function getttsdetail(id) {
+	return request({
+		loading: false,
+		url: '/tts/'+id,
+		method: 'get',
+	})
+}

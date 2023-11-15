@@ -104,6 +104,9 @@ const initWsEventHandle = () => {
     // 监听服务器端返回的信息
     wsObj.onmessage = (event) => {
       onWsMessage(event)
+      // 输出
+      // writeToScreen('监听服务器端返回的信息')
+      // writeToScreen(event)
       // heartCheck.start()
     }
 
