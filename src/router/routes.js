@@ -25,6 +25,7 @@ const routes = [
         path: 'creatlive',
         name: 'creatlive',
         component: () => import('../views/home/CreateLive.vue'),
+        // component: () => import('../views/home/CreateLive_past.vue'), // 旧版
       },
       {
         // 直播设置
@@ -52,6 +53,13 @@ const routes = [
         path: 'createvideo',
         name: 'createvideo',
         component: () => import('../views/shortvideo/createvideo.vue'),
+      },
+
+      {
+        // 短视频 y预览
+        path: 'videoshow',
+        name: 'videoshow',
+        component: () => import('../views/shortvideo/videoshow.vue'),
       },
 
       

@@ -1,9 +1,9 @@
 {
   "name": "axkd",
-  "version": "2.0.4",
+  "version": "2.1.6",
   "main": "dist-electron/main/index.js",
-  "description": "Electron + Vue + Vite",
-  "author": "maxwell",
+  "description": "安馨康达",
+  "author": "智网网络",
   "license": "MIT",
   "private": true,
   "keywords": [

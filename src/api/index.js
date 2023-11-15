@@ -313,10 +313,10 @@ export function generateVideo(data) {
 	})
 }
 // 短视频列表
-export function getGenerateVideo(params) {
+export function getShortVideo(params) {
 	return request({
 		loading: true,
-		url: '/generate/video',
+		url: '/short/video',
 		method: 'get',
 		params
 	})
@@ -381,5 +381,25 @@ export function UploadIndex(params) {
 		url: '/upload',
 		method: 'get',
 		params
+	})
+}
+
+// ------------------------------------------------------
+// 语音合成试听
+// 发起合成请求
+export function posttts(data) {
+	return request({
+		loading: false,
+		url: '/tts',
+		method: 'post',
+		data
+	})
+}
+// 语音合成详情
+export function getttsdetail(id) {
+	return request({
+		loading: false,
+		url: '/tts/'+id,
+		method: 'get',
 	})
 }

@@ -4,7 +4,7 @@
       <el-col :span="6">
         <div class="newPro center">
           <p class="tit">创作短视频</p>
-          <el-input v-model.trim="projectName" placeholder="请先输入创作短视频名称" />
+          <el-input v-model.trim="projectName" placeholder="请先输入短视频名称" />
           <el-button type="primary" class="creatBtn" @click="createNewPro">
             创作短视频
           </el-button>
@@ -38,11 +38,11 @@ const router = useRouter();
 const projectName = ref('');
 const total = ref(0);
 const page = ref(1);
-const size = 23;
+const size = 11;
 
 function createNewPro() {
-  if (!projectName.value) return ElMessageBox.alert('请输入创作短视频名称');
-  router.push('/creatlive?pn=' + projectName.value);
+  if (!projectName.value) return ElMessageBox.alert('请输入短视频名称');
+  router.push('/createvideo?pn=' + projectName.value);
 }
 
 // 

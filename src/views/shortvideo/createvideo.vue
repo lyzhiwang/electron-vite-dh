@@ -31,10 +31,10 @@
       </div>
 
       <div v-if="pagetype==='2'" class="btn_hap">
-        <button :class="['banBtn', { act: form.config.bg_upload_type === 1 }]" @click="setHs(1)">
+        <button :class="['banBtn', { act: form.config.bg_type === 1 }]" @click="setHs(1)">
           竖版
         </button>
-        <button :class="['banBtn', { act: form.config.bg_upload_type === 2 }]" @click="setHs(2)">
+        <button :class="['banBtn', { act: form.config.bg_type === 2 }]" @click="setHs(2)">
           横板
         </button>
       </div>
@@ -56,7 +56,7 @@
       <div v-if="pagetype==='2'" class="leftArea_box">
         <el-button plain type="info" class="upload_btn" @click="openFile" >
           <el-icon><Upload /></el-icon>
-          上传图片或视频
+          上传背景图片
         </el-button>
         <!-- <div class="bgcolorList">
           <div v-for="(item,index) in bgcolorList" :key="index" :class="['bgcolorList_item',{ checked: form.bgcolor === item }]" :style="'background-color:'+item" @click="selectbg(1,item)"  />
@@ -65,7 +65,7 @@
         <ul class="pList">
           <li v-for="item in bgList" :key="item.id">
             <el-image
-              v-if="item.screen === form.config.bg_upload_type"
+              v-if="item.screen === form.config.bg_type"
               :src="item.bg.path"
               :class="['person', { checked: form.config.background == item.id }]"
               loading="lazy"
@@ -78,6 +78,9 @@
       <div v-if="pagetype==='3'" class="leftArea_box">
         <div class="signature_title">花字内容</div>
         <el-input class="inpsty" v-model="form.config.font_content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" :placeholder="'请输入花字内容'" :maxlength="50" show-word-limit />
+
+        <!-- <div class="signature_title">花字大小</div>
+        <el-input-number class="inpsty" v-model="form.config.font_size" :controls="false" :min="75" :max="175" @blur="blurfontsize" /> -->
 
         <div class="signature_title">选择字体</div>
         <div class="fontarr_list">
@@ -97,7 +100,7 @@
         <div class="signature_title">字幕样式</div>
         <div class="subtitle_style_list">
           <div v-for="(item, index) in shortvideo.subtitle_style" :key="index" :class="['subtitle_style_list_item', { checked: subtitlestyleindex === index }]" :style="getStyle(item)" @click="changeSubtitle(item,index)">
-            预览样式
+            字幕样式
           </div>
         </div>
 
@@ -107,18 +110,26 @@
 
     <div class="rightArea">
       <div class="topCon center">
-        <!-- :style="form.bgcolor?'background-color:'+form.bgcolor:''" -->
         <div class="dpBox" >
           <el-image v-if="bg_path"
             :src="bg_path"
-            :class="['img_box_bg',form.config.bg_upload_type === 1 ? 'vertical' : 'horizontal']"
+            :class="['img_box_bg',form.config.bg_type === 1 ? 'vertical' : 'horizontal']"
             fit="fill"
           />
           <el-image
             :src="HumanData.image"
-            :class="['img_box',form.config.bg_upload_type === 1 ? 'vertical' : 'horizontal']"
+            :class="['img_box',form.config.bg_type === 1 ? 'vertical' : 'horizontal']"
             fit="contain"
           />
+
+          <div v-if="form.config.font_content" class="preview" :style="poStyle()">
+            <el-input v-model="form.config.font_content" 
+              :input-style="getinpStyle()" 
+              type="textarea" 
+              :autosize="{ minRows: 2, maxRows: 10 }" 
+              :placeholder="'请输入花字内容'" 
+              :maxlength="50"  />
+          </div>
         </div>
       </div>
 
@@ -128,6 +139,16 @@
           <el-button color="#333" @click="setdub()">
             选择配音
           </el-button>
+
+          <div v-if="chooseaudio.id" class="chooseaudio">
+            当前选择配音：{{chooseaudio.name}}
+          </div>
+
+          <div>
+            <audio v-if="playVideoObj" ref="audioitem" :src="playVideoObj.path" :controls="false" :loop="false">
+              您的浏览器不支持 audio 标签。
+            </audio>
+          </div>
         </div>
 
         <!--  -->
@@ -135,7 +156,7 @@
           <div>花字位置</div>
           <div class="">
             <el-radio-group v-model="form.config.font_position">
-              <el-radio v-for="(item,index) in shortvideo.fontPostion" :key="index" :label="item.value">
+              <el-radio v-for="(item,index) in shortvideo.fontPostion" :key="index" :label="item.value" @change="fontposition(item)">
                 {{ item.title }}
               </el-radio>
             </el-radio-group>
@@ -191,7 +212,7 @@
                     </span>
                   </div>
                   <div>
-                    <el-button v-if="isPlay && playVideo.id === scope.row.detail[0].uploads.id" size="small" @click="pauseVoice">
+                    <el-button v-if="isPlay && playVideoObj.id === scope.row.detail[0].uploads.id" size="small" @click="pauseVoice">
                       <el-icon><VideoPause /></el-icon>
                       暂停
                     </el-button>
@@ -230,6 +251,7 @@
           
         </div>
         <div class="content_footer">
+          <el-button type="primary" class="btn_style" @click="closejobdrawer">确认</el-button>
           <el-upload
             action="https://zwshuziren.oss-cn-beijing.aliyuncs.com"
             :show-file-list="false"
@@ -237,10 +259,10 @@
             :on-success="uploadSuccess"
             :accept="'.mp3,.ogg,.wav,audio,img'"
           >
-            <el-button type="primary" class="el-icon-upload">本地上传</el-button>
+            <el-button>本地上传</el-button>
           </el-upload>
           <!-- <el-button v-has="'jobStore'" type="success" @click="createVoice">制作配音</el-button> -->
-          <el-button @click="closejobdrawer">返 回</el-button>
+          <!-- <el-button @click="closejobdrawer" class="btn_style">确认</el-button> -->
         </div>
       </div>
     </el-drawer>
@@ -267,29 +289,7 @@
             </el-timeline>
           </el-form-item>
         </el-form> -->
-        <!-- {{ asr }} -->
 
-        <!-- <el-form ref="asr" :model="asr" label-width="150px">
-          <el-form-item prop="content" label-width="0px">
-            <el-timeline >
-              <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
-                <el-form-item :prop="`content.${index}.content`" :rules="rulesForm.contentItem">
-                  <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
-                  <div style="width:40vw">
-                    <el-button type="primary" size="small" plain @click="addasritem(index)">
-                      拆分
-                    </el-button>
-                  </div>
-                </el-form-item>
-              </el-timeline-item>
-              <div v-if="asr.content && asr.content.length" class="endtime">
-                结束时间：{{ asr.content[asr.content.length-1].to }}ms
-              </div>
-            </el-timeline>
-          </el-form-item>
-        </el-form> -->
-
-        <!-- {{ asr }} -->
         <el-timeline >
           <el-timeline-item v-for="(item,index) in asr.content" :key="index" :timestamp="item.from+'ms'" placement="top" color="#3a8ee6">
             <el-input v-model="item.content" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" style="width:40vw" :placeholder="'原字幕：'+item.old" :maxlength="100" show-word-limit />
@@ -369,7 +369,7 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore(); // 仓库 直播
 const shortvideo = shortvideoStore(); //仓库 短视频
-const partAct = ref(null); // 选中的片段下标
+// const partAct = ref(null); // 选中的片段下标
 const crtCfmPop = ref(false); //是否显示创建弹窗
 const usedTime = ref(''); // 生成视频预计消耗时长
 const dpList = ref([]); // 数字人形象列表
@@ -388,19 +388,19 @@ const bgList = ref([]); // 背景图列表
 //   '#e03997',
 //   '#e03007',
 // ]); // 背景颜色列表
-const signatureList = ref([]); // 花字列表
+
 const pagetype = ref('1'); // 页面类型1：数字人  2：背景  3：花字
 // const colorselection = ref('#409EFF'); // 颜色选择器
 const form = reactive({
-  id:'',
-  name: 'ceshi1', // 短视频名称
+  // id:'',
+  name: '', // 短视频名称
   // wideorvertical:1, // 1：宽屏  2：竖屏
   human_id:'',// 数字人id
   audio_id:'',// 音频id
   config:{
     background:"", // 背景图id（图片记录id）
-    bg_type:'',// 背景上传图片 1系统 2自定义
-    bg_upload_type:1, // 背景类型 1竖屏 2横屏
+    bg_type:1,//  背景类型 1竖屏 2横屏
+    bg_upload_type:1, // 背景上传图片 1系统 2自定义 
 
     font_family: { id: 1, font: 'zk-kuaile-font' }, //
     font_position:'TopCenter', // 花字位置
@@ -411,19 +411,9 @@ const form = reactive({
     subtitle_style:null, // 字幕样式
     subtitle_id:"", // 字幕记录id
   },
-
-
-  // bg_id:'', // 背景id
-  // bg_path:"",
-  // bgcolor:'', // 背景色纯色
-  // font_position:'TopCenter',
-  // font_style:null,
-  // font_familys: { id: 1, font: 'zk-kuaile-font' }
-
 });
 
 const asr = reactive({
-  // isAsrVisible: false,
   id:null,
   row: null,
   content: null
@@ -442,7 +432,6 @@ const rulesForm = reactive({
 
 const fontstyleindex  = ref(-1);// 选中样式的索引
 const subtitlestyleindex  = ref(-1);// 选中样式的索引
-const fontObj = ref({}); // 花字字体
 const HumanData = ref({}); // 选中数字人
 const bg_path = ref(''); // 选中背景链接
 
@@ -456,14 +445,27 @@ const zmList = ref([]); // 字幕任务列表
 const captions = reactive({  // 字幕上传 type
     type:13
 });
-const choosedObj= ref([]); // 已选择字幕
-const playVideo = ref({}); // 音频 播放
+const chooseaudio = ref({}); // 已选择音频
+const playVideoObj = ref({}); // 音频 载体 播放
+const audioitem = ref()
 const isPlay = ref(false);  // 是否播放音频
 
 const pagination = reactive({
   page: 1, // 当前页数
   size: 5, // 每页显示条目个数
   total: 100 // 总条目数
+});
+const previewfontstyle = reactive({
+  FontColor:'',
+  OutlineColour: '',
+  BackColour: '',
+  FontColor: '',
+  Outline: '',
+  Shadow: '',
+  left:'36px',
+  right:'',
+  top:'100px',
+  bottom:'',
 });
 
 
@@ -487,56 +489,6 @@ const hms = computed(()=>{
 // 
 onBeforeMount(() => {
   const { pn, pid } = route.query;
-  // if (pid) {
-  //   // 编辑
-  //   project_id = pid; // 同步项目ID
-  //   Promise.all([
-  //     new Promise((resolve, reject) => {
-  //       projectDetail(pid)
-  //         .then((res) => resolve(res.data))
-  //         .catch(() => resolve(null));
-  //     }),
-  //     getHumanList(),
-  //   ]).then((res) => {
-  //     const data = res[0];
-  //     if (data) {
-  //       const { name, footages, is_random } = data;
-  //       form.name = name;
-  //       form.is_random = Number(is_random);
-  //       form.footages = footages.map((item) => {
-  //         const findObj = dpList.value.find(
-  //           (dp) => dp.human_id === item.human_id
-  //         );
-  //         if (findObj) {
-  //           item.image = findObj.image;
-  //         }
-  //         return item;
-  //       });
-  //       const first = form.footages[0];
-  //       if (first) {
-  //         partAct.value = 0;
-  //         part.screen = first.screen;
-  //       }
-  //     }
-  //   });
-  // } else {
-  //   // 新建
-  //   form.name = pn;
-  //   getHumanList().then((data) => {
-  //     // 新建的时候创建一个默认的片段并选中
-  //     if (data && data.length > 0) {
-  //       const { human_id, image } = data[0];
-  //       selectHuman(human_id, image);
-  //     }
-  //     // createPart();
-  //     // selectPart(0);
-  //   });
-  //   getShortvideoBackgroundList().then(res =>{
-  //     console.log('获取背景图列表')
-  //     console.log(rees)
-  //   })
-  // }
-  // project.queryAliToken();
 
   if(pn){
     form.name = pn;
@@ -557,7 +509,47 @@ onMounted(() => {
 
 // 设置横竖屏
 function setHs(num) {
-  form.config.bg_upload_type = num;
+  // form.config.bg_upload_type = num;
+  form.config.bg_type = num;
+  if(form.config.bg_type===1){
+    if(form.config.font_position==='TopCenter'){
+      previewfontstyle.left='36px',
+      previewfontstyle.right='',
+      previewfontstyle.top='0px',
+      previewfontstyle.bottom=''
+    }
+    if(form.config.font_position==='CenterCenter'){
+      previewfontstyle.left='36px',
+      previewfontstyle.right='',
+      previewfontstyle.top='100px',
+      previewfontstyle.bottom=''
+    }
+    if(form.config.font_position==='BottomCenter'){
+      previewfontstyle.left='36px',
+      previewfontstyle.right='',
+      previewfontstyle.top='',
+      previewfontstyle.bottom='10px'
+    }
+  } else {
+    if(form.config.font_position==='TopCenter'){
+      previewfontstyle.left='38%',
+      previewfontstyle.right='',
+      previewfontstyle.top='0px',
+      previewfontstyle.bottom=''
+    }
+    if(form.config.font_position==='CenterCenter'){
+      previewfontstyle.left='38%',
+      previewfontstyle.right='',
+      previewfontstyle.top='100px',
+      previewfontstyle.bottom=''
+    }
+    if(form.config.font_position==='BottomCenter'){
+      previewfontstyle.left='38%',
+      previewfontstyle.right='',
+      previewfontstyle.top='',
+      previewfontstyle.bottom='10px'
+    }
+  }
   // 背景初始化
   form.config.background = ''
   bg_path.value = ''
@@ -584,15 +576,33 @@ function selectHuman(id, item) {
 // -----------------------------------------------------------
 // 打开文件弹窗
 function openFile(){
-  // console.log('打开文件弹窗')
-  // console.log()
   isFileCard.value = true
 }
 // 文件传值
 function changeFile(val){
-  console.log('传值')
-  console.log(val)
-  form.config.bg_type = 2
+  // console.log('传值')
+  // console.log(val)
+  // form.config.bg_type = 2
+  form.config.bg_upload_type = 2
+
+	// 创建实例对象
+	const imageobj = new Image();
+	// 图片地址
+	imageobj.src = val.path;
+	imageobj.onload = function () {
+    //  竖屏 1080*1920 横屏 3413*1920
+    // bg_type 背景类型 1竖屏 2横屏
+    // console.log(imageobj.width)
+    // console.log(imageobj.height)
+    if(imageobj.width===1080 && imageobj.height===1920){
+      // form.config.bg_upload_type = 1
+      form.config.bg_type = 1
+    } else {
+      // form.config.bg_upload_type = 2
+      form.config.bg_type = 2
+    }
+}
+
   form.config.background = val.id
   bg_path.value = val.path
   isFileCard.value = false
@@ -614,15 +624,16 @@ async function getShortvideoBackgroundList() {
 // 选择背景图
 function selectbg(type,item) {
   // type 背景上传图片 1系统 2自定义
-  form.config.bg_type = type
+  // form.config.bg_type = type
+  form.config.bg_upload_type = type
   if(form.config.background ===''){
-    form.config.background = item.id
+    form.config.background = item.bg.id
     bg_path.value = item.bg.path
-  } else if(form.config.background === item.id) {
+  } else if(form.config.background === item.bg.id) {
     form.config.background = ''
     bg_path.value = ''
   } else {
-    form.config.background = item.id
+    form.config.background = item.bg.id
     bg_path.value = item.bg.path
   }
   
@@ -667,6 +678,123 @@ function getStyle(item) {
     'text-shadow': `${item.OutlineColour} 1px 0 0, ${item.BackColour} 0 1px 0, ${item.OutlineColour} -1px 0 0, ${item.OutlineColour} 0 -1px 0`
   }
 }
+
+
+function getinpStyle() {
+  return {
+    'font-family': form.config.font_family ? form.config.font_family.font : '',
+    // 'font-size':form.config.font_size?form.config.font_size:''
+    color: previewfontstyle.FontColor ? previewfontstyle.FontColor: '',
+    'text-shadow': previewfontstyle.OutlineColour?`${previewfontstyle.OutlineColour} 1px 0 0, ${previewfontstyle.BackColour} 0 1px 0, ${previewfontstyle.OutlineColour} -1px 0 0, ${previewfontstyle.OutlineColour} 0 -1px 0`:''
+  }
+}
+// 预览位置
+function poStyle() {
+  if(previewfontstyle.left){
+    if(previewfontstyle.top){
+      return {
+        left:previewfontstyle.left ? previewfontstyle.left: '',
+        top:previewfontstyle.top ? previewfontstyle.top: '',
+      }
+    }else {
+      return {
+        left:previewfontstyle.left ? previewfontstyle.left: '',
+        bottom:previewfontstyle.bottom ? previewfontstyle.bottom: "",
+      }
+    }
+  } else {
+    if(previewfontstyle.top){
+      return {
+        right:previewfontstyle.right ? previewfontstyle.right: '',
+        top:previewfontstyle.top ? previewfontstyle.top: '',
+      }
+    }else {
+      return {
+        right:previewfontstyle.right ? previewfontstyle.right: '',
+        bottom:previewfontstyle.bottom ? previewfontstyle.bottom: "",
+      }
+    }
+  }
+}
+// 花字大小
+function blurfontsize(e){
+  console.log('花字大小')
+  console.log(e)
+}
+// 选择字体位置
+function fontposition(item){
+  // console.log('选择字体位置')
+  // console.log(item)
+  switch (item.value) {
+    case 'TopLeft':
+      previewfontstyle.left='0px',
+      previewfontstyle.right='',
+      previewfontstyle.top='0px',
+      previewfontstyle.bottom=''
+      break 
+    case 'TopCenter':
+      previewfontstyle.right='',
+      previewfontstyle.top='0px',
+      previewfontstyle.bottom=''
+      if(form.config.bg_type===1){
+        previewfontstyle.left='36px'
+      } else {
+        previewfontstyle.left='38%'
+      }
+      break 
+    case 'TopRight':
+      previewfontstyle.left='',
+      previewfontstyle.right='0px',
+      previewfontstyle.top='0px',
+      previewfontstyle.bottom=''
+      break 
+    case 'CenterLeft':
+      previewfontstyle.left='0px',
+      previewfontstyle.right='',
+      previewfontstyle.top='100px',
+      previewfontstyle.bottom=''
+      break 
+    case 'CenterCenter':
+      previewfontstyle.right='',
+      previewfontstyle.top='100px',
+      previewfontstyle.bottom=''
+      if(form.config.bg_type===1){
+        previewfontstyle.left='36px'
+      } else {
+        previewfontstyle.left='38%'
+      }
+      break 
+    case 'CenterRight':
+      previewfontstyle.left='',
+      previewfontstyle.right='0px',
+      previewfontstyle.top='100px',
+      previewfontstyle.bottom=''
+      break 
+    case 'BottomLeft':
+      previewfontstyle.left='0px',
+      previewfontstyle.right='',
+      previewfontstyle.top='',
+      previewfontstyle.bottom='10px'
+      break 
+    case 'BottomCenter':
+      previewfontstyle.right='',
+      previewfontstyle.top='',
+      previewfontstyle.bottom='10px'
+      if(form.config.bg_type===1){
+        previewfontstyle.left='36px'
+      } else {
+        previewfontstyle.left='38%'
+      }
+      break 
+    case 'BottomRight':
+      previewfontstyle.left='',
+      previewfontstyle.right='0px',
+      previewfontstyle.top='',
+      previewfontstyle.bottom='10px'
+      return 
+  }
+}
+
 // 选择字体
 function changeFamily(item) {
   // console.log('选择字体')
@@ -677,12 +805,23 @@ function changeFamily(item) {
 // 选择花字
 function changeStyle(item,index) {
   // console.log('选择花字')
+  // console.log(item)
   if(fontstyleindex.value === index){
     form.config.font_style = null
     fontstyleindex.value = ''
+    previewfontstyle.OutlineColour = ''
+    previewfontstyle.BackColour = ''
+    previewfontstyle.FontColor = ''
+    previewfontstyle.Outline = ''
+    previewfontstyle.Shadow = ''
   } else {
     form.config.font_style = item
     fontstyleindex.value = index
+    previewfontstyle.OutlineColour = item.OutlineColour
+    previewfontstyle.BackColour = item.BackColour
+    previewfontstyle.FontColor = item.FontColor
+    previewfontstyle.Outline = item.Outline
+    previewfontstyle.Shadow = item.Shadow
   }
 }
 
@@ -736,14 +875,14 @@ function createAsr (row){
     iscreateAsr.value === true
     const loading = ElLoading.service({
       lock: true,
-      text: 'Loading',
+      text: '花字生成中，请稍等。。。',
       background: 'rgba(0, 0, 0, 0.7)',
     })
     getsvjobdetail(res.data.id).then(res=>{
       if(res){
         iscreateAsr.value === false
-        console.log('成功')
-        console.log(res)
+        // console.log('成功')
+        // console.log(res)
         loading.close()
         // modefiAsr(row, res)
         getshortvideoBackjob().then()
@@ -751,6 +890,7 @@ function createAsr (row){
     })
 
     setTimeout(() => {
+      getshortvideoBackjob().then()
       loading.close()
     }, 6000)
   })
@@ -797,9 +937,13 @@ async function getsvjobdetail(id) {
 
 // 字幕校验
 function modefiAsr(row, content){
-  console.log('字幕校验')
-  console.log(row)
-  console.log(content)
+  // console.log('字幕校验')
+  // console.log(row)
+  // console.log(content)
+  if(content.content===null){
+    ElMessage({ type: 'warning', message: '字幕生成中，请稍等！' });
+    return
+  }
   isasr.value = true
   asr.row = JSON.parse(JSON.stringify(row))
   asr.content = JSON.parse(JSON.stringify(content.content))
@@ -812,7 +956,7 @@ function modefiAsr(row, content){
 }
 // 关闭字幕校验
 function closemodefiAsr (){
-  console.log('关闭字幕校验')
+  // console.log('关闭字幕校验')
   checkDrawer.value = false
   asr.row = null
   asr.content = null
@@ -845,11 +989,23 @@ function addasritem(index){
 function submitasr(formName) {
   // this.$refs[formName].validate((valid) => {
   //   if (valid) {
+    let issubasr = false
       const content = asr.content.map(item => {
+        if(item.content===''){
+          issubasr = false
+          return
+        } else {
+          issubasr = true
+        }
         const obj = { ...item }
         delete obj.old
         return obj
       })
+      if(issubasr===false){
+        ElMessage({ type: 'warning', message: '拆分内容不能为空！' });
+        return
+      }
+      // console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
       putsubtitle({id: asr.id,content}).then(res=>{
         // console.log('更新字幕')
         // console.log(res)
@@ -862,20 +1018,20 @@ function submitasr(formName) {
 // 播放
 function playVoice(row) {
   // 若点击播放与之前不相等，则先暂停再播放
-  if (playVideo.id !== row.id) {
-    // pauseVoice()
+  if (playVideoObj.id !== row.id) {
+    pauseVoice()
   }
 
-  playVideo = row
+  playVideoObj.value = row
   setTimeout(() => {
-    // this.$refs.audio.play()
-    isPlay = true
+    audioitem.value.play()
+    isPlay.value = true
   }, 100)
 }
 // 暂停
 function pauseVoice() {
-  // this.$refs.audio.pause()
-  // this.isPlay = false
+  audioitem.value.pause()
+  isPlay.value = false
 }
 
 // 选择字幕 配音
@@ -897,13 +1053,16 @@ function chooseVocie(type,row) {
   } else { 
     if(form.audio_id === '' && form.config.subtitle_id === '' ){
       form.audio_id = row.detail[0].uploads.id
+      chooseaudio.value = row.detail[0].uploads
     } else if(form.config.subtitle_id > 0 && !row.detail[1]){
       ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
     }  else if(form.config.subtitle_id > 0 && row.detail[1] && row.detail[1].id && form.config.subtitle_id !==row.detail[1].id){
       ElMessage({ type: 'warning', message: '字幕与配音请保持对应！' });
     } else if(form.audio_id === row.detail[0].uploads.id){
       form.audio_id = ''
+      chooseaudio.value = {}
     } else {
+      chooseaudio.value = row.detail[0].uploads
       form.audio_id = row.detail[0].uploads.id
     }
   }
@@ -1017,24 +1176,53 @@ function ossUpload(e){
 
 
 // 打开创建短视频弹窗 显示预计时间
-async function startCfmCrate() {
+ function startCfmCrate() {
   // 1.获取音频时长
-  if(form.audio_id){
-    await generateDuration( form.audio_id ).then((res) => {
-      if (res && res.data) {
-        usedTime.value = res.data.duration;
-        crtCfmPop.value = true;
-      }
-    });
+  // if(form.audio_id){
+  //   await generateDuration( form.audio_id ).then((res) => {
+  //     if (res && res.data) {
+  //       usedTime.value = res.data.duration;
+  //       crtCfmPop.value = true;
+  //     }
+  //   });
+  // } else {
+  //   ElMessage({ type: 'warning', message: '请选择音频！' })
+  // }
+  const data = JSON.parse(JSON.stringify(form))
+  if(data.audio_id){
+    if(data.config.subtitle_id && (data.config.subtitle_style===null || data.config.subtitle_style===undefined ||data.config.subtitle_style ==='')){
+      ElMessage({ type: 'warning', message: '请选择字幕样式！' })
+      return
+    } else if(data.config.font_content &&(data.config.font_style===null || data.config.font_style===undefined ||data.config.font_style ==='')){
+      ElMessage({ type: 'warning', message: '请选择花字样式！' })
+      return
+    } else {
+      
+      console.log('通过')
+      console.log(data)
+      getgenerateDuration()
+    }
   } else {
     ElMessage({ type: 'warning', message: '请选择音频！' })
   }
+
+}
+
+// 1.获取音频时长
+async function getgenerateDuration(){
+  await generateDuration( form.audio_id ).then((res) => {
+    if (res && res.data) {
+      usedTime.value = res.data.duration;
+      crtCfmPop.value = true;
+    }
+  });
 }
 
 // 创建短视频
 function createLive() {
   // 2.根据语音ID生成视频
   // formateData(form)
+  // console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
   generateVideo(formateData(form)).then(res=>{
     if (res && res.data) {
       crtCfmPop.value = false
@@ -1051,30 +1239,37 @@ function createLive() {
 function formateData(form){
   const data = JSON.parse(JSON.stringify(form))
   for (const item in data) {
-    if ((item === 'id')&&(data[item]===null || data[item]===undefined || data[item]==='')){
-      delete data[item]
-    }
+    // if ((item === 'id') && (data[item]===null || data[item]===undefined || data[item]==='')){
+    //   delete data[item]
+    // }
     if (item === 'config'){
       for (const item_item in data[item]){
-        if((item_item === 'font_content')&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')){
-          delete data[item][item_item]
+
+        if((item_item === 'font_content')&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+          delete data[item]['font_content']
           delete data[item]['font_family']
           delete data[item]['font_position']
-          delete data[item]['font_style']
+          delete data[item]['font_style'] 
           delete data[item]['font_size']
-        } else if(data[item]['font_style']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='')) {
-          ElMessage({ type: 'warning', message: '请选择花字样式！' })
-          return
-        }
+          // console.log('font_content为空')
+        } 
+        // if(data[item]['font_family']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+        //   if(data.config.font_content===null || data.config.font_content===undefined || data.config.font_content===""){
+        //     delete data[item][item_item]
+        //   }
+        // }
+        // if(data[item]['font_style']&&(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==="")){
+        //   if(data.config.font_content===null || data.config.font_content===undefined || data.config.font_content===""){
+        //     delete data[item][item_item]
+        //   }
+        // }
+
+
         if(data[item]['subtitle_id']===''){
           delete data[item]['subtitle_id']
           delete data[item]['subtitle_style']
-        } else {
-          if(data[item]['subtitle_style']===null ||data[item]['subtitle_style']===undefined||data[item]['subtitle_style']==='' ){
-            delete data[item]['subtitle_id']
-            delete data[item]['subtitle_style']
-          }
         }
+
         if(data[item][item_item]===null || data[item][item_item]===undefined || data[item][item_item]==='') {
           delete data[item][item_item]
         }
@@ -1177,13 +1372,14 @@ function formateData(form){
       width: 100%;
       scroll-behavior: smooth;
       overflow-y: scroll;
-      padding: 0px 15px 40px 15px;
+      padding: 0px 15px 90px 15px;
       .pList {
         // margin: 20px -5px 0;
         margin: 14px -5px 0;
         column-width: 100px;
         column-count: auto;
         column-gap: 10px;
+
         .person {
           display: block;
           background: #1e1e1e;
@@ -1345,6 +1541,14 @@ function formateData(form){
         .vertical {
           width: 325px;
         }
+        .preview{
+          z-index: 3;
+          // border: 1px solid red;
+          position: absolute;
+          margin: 0;
+          padding:0 ;
+          overflow: hidden;
+        }
       }
     }
     .botCon {
@@ -1358,6 +1562,10 @@ function formateData(form){
         padding: 0 20px;
         display: flex;
         align-items: center;
+        .chooseaudio{
+          margin-left: 20px;
+          font-size: 16px;
+        }
       }
       .signature{
         padding-left: 30px;
@@ -1400,9 +1608,15 @@ function formateData(form){
     right: 20px;
     display: flex;
     align-items: center;
-    .el-button {
-      height: 31px;
-      margin-left: 10px;
+    // .el-button {
+    //   // height: 31px;
+    //   margin-left: 10px;
+    // }
+    .btn_style{
+      position: relative;
+      top: 1px;
+      height: 30px;
+      margin-right: 10px;
     }
   }
 }

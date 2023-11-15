@@ -12,121 +12,81 @@
     <p class="title ell">{{ data.name }}</p>
     <p class="time">{{ data.created_at }}</p>
     <div class="btnGroup center" v-if="data.status === 1">
-      <el-button
-        color="#333333"
-        @click="router.push('/creatlive?pid=' + data.id)"
-      >
+      <el-button color="#333333" @click="router.push('/creatlive?pid=' + data.id)">
         继续编辑
       </el-button>
-      <el-button color="#333333" @click="delect"> 删除 </el-button>
+      <el-button color="#333333" @click="delect"> 
+        删除 
+      </el-button>
     </div>
     <div class="btnGroup center" v-else-if="data.status === 3">
       <!-- <div class="btnGroup center"> -->
       <template v-if="!project.liveWin">
-        <el-button
-          color="#333333"
-          @click="router.push('/creatlive?pid=' + data.id)"
-        >
+        <el-button color="#333333" @click="router.push('/creatlive?pid=' + data.id)">
           继续编辑
         </el-button>
-        <el-button
-          color="#333333"
-          @click="
-            router.push(
-              '/livesettings?pid=' + data.id + '&pagetype=' + pagetype
-            )
-          "
-        >
+        <el-button color="#333333" @click=" router.push( '/livesettings?pid=' + data.id + '&pagetype=' + pagetype ) " >
           互动设置
         </el-button>
       </template>
-      <el-button
-        color="#333333"
-        @click="router.push('/preview?pid=' + data.id)"
-      >
+      <el-button color="#333333" @click="router.push('/preview?pid=' + data.id)">
         预览
       </el-button>
-      <el-button
-        color="#333333"
-        @click="cfgPop = true"
-        v-if="project.liveWin === data.id"
-      >
+      <el-button color="#333333" @click="cfgPop = true" v-if="project.liveWin === data.id" >
         开播
       </el-button>
-      <el-button
-        color="#333333"
-        @click="openLiveWin"
-        v-else-if="!project.liveWin"
-      >
+      <el-button color="#333333" @click="openLiveWin" v-else-if="!project.liveWin" >
         打开直播
       </el-button>
     </div>
     <!-- <div class="btnGroup center" v-else></div> -->
 
     <div v-else class="demo-progress">
-      <el-progress :percentage="(Number(data.already/data.total).toFixed(2)*100)?(Number(data.already/data.total).toFixed(2)*100):1" :stroke-width="10" striped-flow striped :show-text="false" />
-      <div class="progress_text">{{(Number(data.already/data.total).toFixed(2)*100)?(Number(data.already/data.total).toFixed(2)*100):1}}%</div>
+      <el-progress :percentage=" Number(data.already / data.total).toFixed(2) * 100 ? Number(data.already / data.total).toFixed(2) * 100 : 1"
+        :stroke-width="10"
+        striped-flow
+        striped
+        :show-text="false"
+      />
+      <div class="progress_text">
+        {{ Number(data.already / data.total).toFixed(2) * 100 ? Number(data.already / data.total).toFixed(2) * 100 : 1 }}%
+      </div>
     </div>
   </div>
 
   <!-- 直播窗口打开前的互动配置 -->
-  <el-dialog
-    v-if="cfgPop"
-    v-model="cfgPop"
-    title="评论互动"
-    width="677"
-    destroy-on-close
-    align-center
-    center
-  >
-    <el-form
-      :model="form"
-      class="cfgForm"
-      label-width="100"
-      label-position="left"
-    >
+  <el-dialog v-if="cfgPop" v-model="cfgPop" title="评论互动" width="677" destroy-on-close align-center  center>
+    <el-form :model="form" class="cfgForm" label-width="100" label-position="left" >
       <div class="selectOpton">
-        <el-checkbox
-          v-model="form.welcome_switch"
-          :true-label="1"
-          :false-label="0"
-          label="欢迎加入"
-        />
-        <el-checkbox
-          v-model="form.interactive_switch"
-          :true-label="1"
-          :false-label="0"
-          label="回答问题"
-        />
+        <el-checkbox v-model="form.welcome_switch" :true-label="1" :false-label="0" label="欢迎加入"/>
+        <el-checkbox v-model="form.interactive_switch" :true-label="1" :false-label="0" label="回答问题" />
       </div>
       <!-- <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
-                <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
-            </el-form-item> -->
-      <el-form-item
-        prop="live_url_code"
-        label="抖音直播间账号"
-        v-show="form.welcome_switch || form.interactive_switch"
-      >
-        <el-input
-          v-model.trim="form.live_url_code"
-          placeholder="请输入抖音直播间账号"
-        ></el-input>
+              <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
+          </el-form-item> -->
+      <el-form-item prop="live_url_code" label="抖音直播间账号" v-show="form.welcome_switch || form.interactive_switch">
+        <el-input v-model.trim="form.live_url_code" placeholder="请输入抖音直播间账号" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="savedSetup">保存设置</el-button>
-      <el-button @click="cfgPop = false">取消设置</el-button>
+      <el-button type="primary" @click="savedSetup">
+        保存设置
+      </el-button>
+      <el-button @click="cfgPop = false">
+        取消设置
+      </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-const format = (percentage) => (percentage === 100 ? 'Full' : `${percentage}%`);
+
 import { ipcRenderer } from 'electron';
 import { useRouter } from 'vue-router';
 import { Loading } from '@element-plus/icons-vue';
 import { useProjectStore, useLiveStore } from '../stores';
 import { setLiveRoom, liveRoomInfo, delProJect, startLive } from '../api';
+const format = (percentage) => (percentage === 100 ? 'Full' : `${percentage}%`);
 const goRefresh = inject('reload');
 const props = defineProps({
   data: {
@@ -185,33 +145,73 @@ async function savedSetup() {
     form.live_url = '';
   }
   // 1.先保存直播间开启设置
-  const patams1 = {
-    live_url: 'https://live.douyin.com/' + form.live_url_code,
-    welcome_switch: form.welcome_switch,
-    interactive_switch: form.interactive_switch,
-    project_id: props.data.id,
-  };
+  // const patams1 = {
+  //   live_url: 'https://live.douyin.com/' + form.live_url_code,
+  //   welcome_switch: form.welcome_switch,
+  //   interactive_switch: form.interactive_switch,
+  //   project_id: props.data.id,
+  // };
+  let patams1 = {};
+  if (form.live_url_code) {
+    patams1 = {
+      live_url: 'https://live.douyin.com/' + form.live_url_code,
+      welcome_switch: form.welcome_switch,
+      interactive_switch: form.interactive_switch,
+      project_id: props.data.id,
+    };
+  } else {
+    patams1 = {
+      welcome_switch: form.welcome_switch,
+      interactive_switch: form.interactive_switch,
+      project_id: props.data.id,
+    };
+  }
   // const res = await setLiveRoom({ project_id: props.data.id, patams1 });
   const res = await setLiveRoom(patams1);
   if (res) {
     // 2. 保存成功后开播
-    const patams2 = {
-      live_url: 'https://live.douyin.com/' + form.live_url_code,
-      welcome_switch: form.welcome_switch,
-      interactive_switch: form.interactive_switch,
-    };
+    // const patams2 = {
+    //   live_url: 'https://live.douyin.com/' + form.live_url_code,
+    //   welcome_switch: form.welcome_switch,
+    //   interactive_switch: form.interactive_switch,
+    // };
+
+    let patams2 = {};
+    if (form.live_url_code) {
+      patams2 = {
+        live_url: 'https://live.douyin.com/' + form.live_url_code,
+        welcome_switch: form.welcome_switch,
+        interactive_switch: form.interactive_switch,
+      };
+    } else {
+      patams2 = {
+        welcome_switch: form.welcome_switch,
+        interactive_switch: form.interactive_switch,
+      };
+    }
 
     // const liveInfo = { ...live.liveInfo, ...form }
     const liveInfo = { ...live.liveInfo, patams2 };
     live.setLiveInfo(liveInfo);
+
     playLive(props.data.id);
     cfgPop.value = false;
+    
+    // setTimeout(() => {
+      if(patams2.live_url){
+        // 开启请求ws地址
+        live.getWsUrl({ live_url:patams2.live_url }).then(data=>{
+          // live.openLonglink(data)
+        })
+      }
+    // }, 1500)
+    
   }
 }
 function openLiveWin() {
   liveRoomInfo(props.data.id).then((res) => {
-    console.log('1111111111');
-    console.log(res);
+    // console.log('1111111111');
+    // console.log(res);
     if (res && res.data) {
       const { live_url, interactive_switch, welcome_switch } = res.data;
       form.live_url = live_url || '';
@@ -220,10 +220,12 @@ function openLiveWin() {
       // cfgPop.value = true
       live.setLiveInfo(res.data);
       // 打开直播窗口
-      const screen =
-        live.liveInfo.screen === 1
-          ? { width: 375, height: 670 }
-          : { width: 1600, height: 900 };
+      // const screen =
+      //   live.liveInfo.screen === 1
+      //     ? { width: 375, height: 670 }
+      //     : { width: 1600, height: 900 };
+      // const screen = { width: 1920, height: 1080 }
+      const screen = { width: 375, height: 670 }
       ipcRenderer.send('open-win', { path: 'live', ...screen });
       // 设置直播的项目ID
       project.setLiveWin(props.data.id);
@@ -289,14 +291,18 @@ function transCode(code) {
     }
   }
   .picBox {
-    width: 122px;
-    height: 217px;
-    background-color: #000;
+    // width: 122px;
+    // height: 217px;
+    width: 130px;
+    height: 200px;
+    // background-color: #000;
+    background-color: #00c764;
     display: flex;
     align-items: flex-end;
   }
   .pic {
-    width: 122px;
+    // width: 122px;
+    width: 130px;
   }
   .title {
     margin: 12px 0;
@@ -343,9 +349,9 @@ function transCode(code) {
   padding-top: 10px;
   .el-progress--line {
     // margin-top: 12px;
-    width: 230px
+    width: 230px;
   }
-  .progress_text{
+  .progress_text {
     font-size: 14px;
     padding-top: 2px;
     margin-left: 8px;

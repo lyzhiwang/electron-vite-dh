@@ -23,10 +23,14 @@
             <el-icon><icon-menu /></el-icon>
             <span>首页</span>
           </el-menu-item>
-          <!-- <el-menu-item index="/shortvideo" route="/shortvideo">
+          <el-menu-item index="/project" route="/project">
             <el-icon><VideoCamera /></el-icon>
+            <span>直播</span>
+          </el-menu-item>
+          <el-menu-item index="/shortvideo" route="/shortvideo">
+            <el-icon><VideoPlay /></el-icon>
             <span>短视频</span>
-          </el-menu-item> -->
+          </el-menu-item>
           <el-menu-item index="/aicreate" route="/aicreate">
             <el-icon><Opportunity /></el-icon>
             <span>AI创作</span>
@@ -75,6 +79,7 @@ import {
   Setting,
   Opportunity,
   VideoCamera,
+  VideoPlay
 } from '@element-plus/icons-vue';
 
 const route = useRoute();

@@ -1,5 +1,7 @@
 // import pb from './douyin_pb'
 import { useLiveStore } from '../stores'
+// import pb from '../utils/douyin_pb'
+import pb from './douyin_pb'
 var WebSocket = require('ws')
 // websocket实例
 let wsObj = null
@@ -16,6 +18,9 @@ let messageCallback = null
 let errorCallback = null
 // 发送给后台的数据
 let sendDatas = {}
+
+// 重连次数
+let numberoftimes = 0
 
 /**
  * 发起websocket请求函数
@@ -92,12 +97,16 @@ const initWsEventHandle = () => {
     wsObj.onopen = (event) => {
       useLiveStore().$patch({ wsObj })
       onWsOpen(event)
-      // heartCheck.start()
+      numberoftimes = 0
+      heartCheck.start()
     }
 
     // 监听服务器端返回的信息
     wsObj.onmessage = (event) => {
       onWsMessage(event)
+      // 输出
+      // writeToScreen('监听服务器端返回的信息')
+      // writeToScreen(event)
       // heartCheck.start()
     }
 
@@ -131,7 +140,7 @@ const onWsOpen = (event) => {
   if (wsObj.readyState === wsObj.CLOSED) { // wsObj.CLOSED = 3
     writeToScreen('wsObj.readyState=3, ws连接异常，开始重连')
     reconnect()
-    errorCallback()
+    // errorCallback()
   }
 }
 const onWsMessage = (event) => {
@@ -146,14 +155,14 @@ const onWsClose = (event) => {
   console.log('onclose event: ', event)
   if (event && event.code !== 1000) {
     writeToScreen('非正常关闭')
-    errorCallback()
+    // errorCallback()
     // 如果不是手动关闭，这里的重连会执行；如果调用了手动关闭函数，这里重连不会执行
     reconnect()
   }
 }
 const onWsError = (event) => {
   writeToScreen('onWsError: ', event.data)
-  errorCallback()
+  // errorCallback()
 }
 
 const writeToScreen = (massage) => {
@@ -162,6 +171,11 @@ const writeToScreen = (massage) => {
 
 // 重连函数
 const reconnect = () => {
+  //  && numberoftimes < 20
+  if(numberoftimes > 5){
+    errorCallback(123)
+    return
+  }
   if (lockReconnect) {
     return
   }
@@ -172,6 +186,8 @@ const reconnect = () => {
   wsCreateHandler = setTimeout(() => {
     writeToScreen('重连...' + wsUrl)
     createWebSoket()
+    numberoftimes = numberoftimes + 1
+    writeToScreen('重连第' + numberoftimes +'次')
     lockReconnect = false
     writeToScreen('重连完成')
   }, 3000)
@@ -215,10 +231,21 @@ const heartCheck = {
     this.timeoutObj = setInterval(() => {
       writeToScreen('send ping')
       try {
-        const datas = { channel: 'other' }
-        wsObj.send(JSON.stringify(datas))
+        // pf.setPayload = responseMsg.array[4]
+        // pf.setPayloadtype = 'ack'
+        // pf.setLogid = frameMsg.array[1]
+        // const datas = { channel: 'other' }
+        // wsObj.send(JSON.stringify(datas))
+        const pf = new pb.PushFrame()
+        pf.setPayload = 'internal_src:pushserver|first_req_ms:1698476012570|wss_msg_type:wrds|wrds_kvs:WebcastRoomRankMessage-1698475982549361650_WebcastRoomStatsMessage-1698475989463289328'
+        pf.setPayloadtype = 'ack'
+        pf.setLogid = 6306220614463416000
+        // 发送ping的二进制数据
+        // sendDate(pf.serializeBinary());
+        wsObj.send(pf.serializeBinary())
       } catch (err) {
         writeToScreen('发送ping异常')
+        writeToScreen(err)
       }
       // console.log('内嵌定时器this.serverTimeoutObj: ', this.serverTimeoutObj)
       // 内嵌定时器检测服务器是否挂掉
