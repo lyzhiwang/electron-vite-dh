@@ -1,6 +1,6 @@
 {
   "name": "zxai",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "main": "dist-electron/main/index.js",
   "description": "智星AI数字人",
   "author": "智网网络",
