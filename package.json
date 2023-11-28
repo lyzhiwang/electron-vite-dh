@@ -2,7 +2,7 @@
   "name": "jnai",
   "main": "dist-electron/main/index.js",
   "description": "聚能AI数字人",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "author": "智网网络",
   "license": "MIT",
   "private": true,

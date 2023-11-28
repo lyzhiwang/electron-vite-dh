@@ -11,7 +11,6 @@
         <template v-if="list && list.length">
           <div
             v-for="(item, index) in list"
-            v-show="index < 8"
             :key="index"
             :class="['img-box', select.index === index ? 'img-box-border' : '']"
             @dblclick="changeItem(item, index)"
@@ -26,9 +25,9 @@
                 <span>{{ item.created_at }}</span>
               </p> -->
 
-              <div>{{ item.name  }}</div>
+              <div>{{ item.name }}</div>
               <!-- <div>{{ item.size  }}</div> -->
-              <div>{{ item.created_at  }}</div>
+              <div>{{ item.created_at }}</div>
             </div>
           </div>
         </template>
@@ -55,12 +54,12 @@
           </div>
           <div class="eluploadsty">
             <el-button type="primary" plain @click="nextPage">
-                下一页
+              下一页
             </el-button>
           </div>
           <div class="eluploadsty">
             <el-button type="primary" plain @click="lastPage">
-                上一页
+              上一页
             </el-button>
           </div>
         </span>
@@ -77,9 +76,7 @@ import { storeToRefs } from 'pinia';
 import { useProjectStore } from '../../stores';
 import { UploadIndex } from '../../api';
 
-
 const { ossData } = storeToRefs(useProjectStore());
-
 
 const props = defineProps({
   // 1: 'img', // 图片
@@ -121,13 +118,14 @@ const list = ref([
 ]); // 背景图列表
 const total = ref(0); // 背景图列表
 const page = ref(1); // 背景图列表
+const current_page = ref(1);
+const last_page = ref(1);
 
 // const isdialogVisible = ref(false); // 是否显示弹窗
 const select = reactive({
   item: {},
   index: -1,
 });
-
 
 onMounted(() => {
   getList();
@@ -171,6 +169,8 @@ function getList() {
   UploadIndex(params).then((res) => {
     list.value = res.data;
     total.value = res.meta.total;
+    current_page.value = res.meta.current_page;
+    last_page.value = res.meta.last_page;
   });
 }
 // 翻页
@@ -184,13 +184,20 @@ function lastPage() {
 }
 // 下一页
 function nextPage() {
-  const can = Math.ceil(total.value / 8);
-  if (can <= page.value) {
+  if (current_page.value === last_page.value) {
     ElMessage({ type: 'info', message: '当前页面为最后一页' });
   } else {
     page.value = page.value + 1;
     getList();
   }
+
+  // const can = Math.ceil(total.value / pageSize.value);
+  // if (can <= page.value) {
+  //   ElMessage({ type: 'info', message: '当前页面为最后一页' });
+  // } else {
+  //   page.value = page.value + 1;
+  //   getList();
+  // }
 }
 
 // 上传音频
@@ -207,26 +214,36 @@ function uploadSuccess(res, file) {
 
 // 上传前校验
 async function beforeAvatarUpload(rawFile) {
-//   const isType = rawFile.type === 'image/jpeg' || 'image/png';
-  const isLt2M = rawFile.size / 1024 / 1024 < 10;
-//   if (!isType) {
-//     ElMessage.error('上传图片格式类型必须为JPG 或 PNG 格式!');
-//     return false;
-//   }
+  var isType = true
+  if(rawFile.type === 'audio/mp3' || rawFile.type === 'audio/mpeg' ||rawFile.type === 'audio/wav'){
+    isType = true
+  } else {
+    isType = false
+  }
+  if (isType === false) {
+    ElMessage.error('上传音频格式类型必须为mp3 、mpeg 或者 wav 格式!');
+    return false;
+  }
   if (!isLt2M) {
     ElMessage.error('文件大小不能超过2MB!');
     return false;
   }
+  // console.log(isType)
+  // console.log(isLt2M)
+  // console.log(isType && isLt2M)
 
-//   const iswh = await ExternalFunction(rawFile);
-//   if (!iswh) {
-//     ElMessage.error(
-//       '上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !'
-//     );
-//     return false;
-//   }
-//   return isType && isLt2M && iswh;
-return isLt2M;
+  return isType && isLt2M;
+
+
+  //   const iswh = await ExternalFunction(rawFile);
+  //   if (!iswh) {
+  //     ElMessage.error(
+  //       '上传图片尺寸必须满足 竖屏 1080*1920 或者 横屏 3413*1920 !'
+  //     );
+  //     return false;
+  //   }
+  //   return isType && isLt2M && iswh;
+  // return isLt2M;
 }
 
 function ExternalFunction(rawFile) {
@@ -325,7 +342,8 @@ function ossUpload(e) {
   position: relative;
   .file_content {
     width: 100%;
-    height: 416px;
+    // height: 416px;
+    height: 328px;
     border: 1px solid #c5c5c5;
     // border: 1px solid red;
     display: flex;
@@ -352,17 +370,17 @@ function ossUpload(e) {
       display: flex;
       align-items: center;
       width: calc(50% - 4px);
-    //   height: 100px;
+      //   height: 100px;
       height: 50px;
       margin: 2px;
       background-color: #444444;
       border: 2px solid #333;
       cursor: pointer;
-    //   img {
-    //     width: 80px;
-    //     height: 80px;
-    //     margin: 0 10px;
-    //   }
+      //   img {
+      //     width: 80px;
+      //     height: 80px;
+      //     margin: 0 10px;
+      //   }
       .img-info {
         width: 100%;
         padding: 0px 6px;
