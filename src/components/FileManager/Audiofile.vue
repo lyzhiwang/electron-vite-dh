@@ -224,15 +224,16 @@ async function beforeAvatarUpload(rawFile) {
     ElMessage.error('上传音频格式类型必须为mp3 、mpeg 或者 wav 格式!');
     return false;
   }
-  if (!isLt2M) {
-    ElMessage.error('文件大小不能超过2MB!');
-    return false;
-  }
+  // if (!isLt2M) {
+  //   ElMessage.error('文件大小不能超过2MB!');
+  //   return false;
+  // }
   // console.log(isType)
   // console.log(isLt2M)
   // console.log(isType && isLt2M)
 
-  return isType && isLt2M;
+  // return isType && isLt2M;
+  return isType ;
 
 
   //   const iswh = await ExternalFunction(rawFile);
