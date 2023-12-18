@@ -214,25 +214,31 @@ function uploadSuccess(res, file) {
 
 // 上传前校验
 async function beforeAvatarUpload(rawFile) {
+  // console.log('qqqqqqqqqqqqqqqqqqqq')
+  // console.log(rawFile)
   var isType = true
-  if(rawFile.type === 'audio/mp3' || rawFile.type === 'audio/mpeg' ||rawFile.type === 'audio/wav'){
+  if(rawFile.type === 'audio/mp3' || rawFile.type === 'audio/mpeg' || rawFile.type === 'audio/wav'){
+    // console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
     isType = true
   } else {
+    // console.log('aaaaaaaaaaaaaaaaaaaaaaaaa')
     isType = false
   }
   if (isType === false) {
     ElMessage.error('上传音频格式类型必须为mp3 、mpeg 或者 wav 格式!');
     return false;
   }
-  if (!isLt2M) {
-    ElMessage.error('文件大小不能超过2MB!');
-    return false;
-  }
+  // if (!isLt2M) {
+  //   ElMessage.error('文件大小不能超过2MB!');
+  //   return false;
+  // }
   // console.log(isType)
   // console.log(isLt2M)
   // console.log(isType && isLt2M)
 
-  return isType && isLt2M;
+  // return isType && isLt2M;
+
+  return isType;
 
 
   //   const iswh = await ExternalFunction(rawFile);
