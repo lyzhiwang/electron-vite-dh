@@ -64,8 +64,11 @@
       <!-- <el-form-item prop="live_url" label="抖音网址" v-show="form.welcome_switch||form.interactive_switch">
               <el-input v-model.trim="form.live_url" placeholder="请输入抖音直播间网址"></el-input>
           </el-form-item> -->
-      <el-form-item prop="live_url_code" label="抖音直播间账号" v-show="form.welcome_switch || form.interactive_switch">
+      <!-- <el-form-item prop="live_url_code" label="抖音直播间账号" v-show="form.welcome_switch || form.interactive_switch">
         <el-input v-model.trim="form.live_url_code" placeholder="请输入抖音直播间账号" />
+      </el-form-item> -->
+      <el-form-item prop="live_url_code" label="直播间账号" v-show="form.welcome_switch || form.interactive_switch">
+        <el-input v-model.trim="form.live_url_code" placeholder="请输入直播间账号" />
       </el-form-item>
     </el-form>
     <template #footer>
